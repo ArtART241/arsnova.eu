@@ -315,6 +315,12 @@ minimiert Auditbezüge und entfernt Invite-Jobs auch dann, wenn während eines
 Rolling Deployments noch ein altes Image den Sessionkern löscht. Der weiterhin
 minütliche alte Feedback-Cleanup dient als TTL-Bridge für entkoppelte
 Bewertungen und Admin-Audits.
+`20261011150000_fix_session_feedback_trigger_after_delete` legt denselben
+Statement-Trigger `SessionFeedback_cleanup_detached_retention` von
+`BEFORE DELETE` auf `AFTER DELETE` um. Ein `BEFORE DELETE` auf
+`SessionFeedback`, dessen Funktion dieselbe Tabelle bereinigt, bricht mit
+PostgreSQL `27000` (`triggered_data_change_violation`) ab. Die Funktion bleibt
+unverändert; die bereits angewandte Bridge-Migration wird nicht umgeschrieben.
 
 `20261005033000_session_purge_fk_indexes` ergänzt die leitenden Indizes für
 alle Referenzaktionen im Session-/Parent-Quiz-Purge sowie den Audit-Lookup.

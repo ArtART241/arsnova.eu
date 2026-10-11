@@ -48,7 +48,7 @@ services:
       - '3001:3001'
       - '3002:3002'
     environment:
-      DATABASE_URL: 'postgresql://arsnova_user:secretpassword@postgres:5432/arsnova_v3?schema=public'
+      DATABASE_URL: 'postgresql://arsnova_user:secretpassword@postgres:5432/arsnova_v3_dev?schema=public'
       REDIS_URL: 'redis://redis:6379'
       PORT: '3000'
       HOST: '0.0.0.0'
@@ -57,22 +57,17 @@ services:
       NODE_ENV: 'production'
       PUBLIC_FRONTEND_URL: 'http://127.0.0.1:3000'
       PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: '/usr/bin/chromium'
-      CAPABILITY_ENVELOPE_KEY_BASE64: ${CAPABILITY_ENVELOPE_KEY_BASE64}
-      JWT_SECRET: ${JWT_SECRET}
-      YJS_SHARE_TOKEN_SECRET: ${YJS_SHARE_TOKEN_SECRET:-${JWT_SECRET}}
-      NLP_ENABLED: '${NLP_ENABLED:-true}'
+      NLP_ENABLED: 'false'
       NLP_SOCKET_PATH: /run/spacy/nlp.sock
       NLP_TIMEOUT_MS: '5000'
       NLP_CACHE_TTL_SECONDS: '1800'
-      WORD_CLOUD_SEMANTIC_ENABLED: '${WORD_CLOUD_SEMANTIC_ENABLED:-true}'
+      WORD_CLOUD_SEMANTIC_ENABLED: 'false'
       WORD_CLOUD_ENCODER_SOCKET_PATH: /run/wordcloud-encoder/encoder.sock
       WORD_CLOUD_ENCODER_TIMEOUT_MS: '120000'
       WORD_CLOUD_ENCODER_CACHE_TTL_SECONDS: '1800'
       OPEN_WEIGHT_LLM_ENABLED: ${OPEN_WEIGHT_LLM_ENABLED:-false}
       OPEN_WEIGHT_LLM_SOCKET_PATH: /run/open-weight-llm/llm.sock
       OPEN_WEIGHT_LLM_TOKEN: ${OPEN_WEIGHT_LLM_TOKEN:-local-runtime-token-change-me-000000000000}
-      OPEN_WEIGHT_LLM_URL: ${OPEN_WEIGHT_LLM_URL}
-      OPEN_WEIGHT_LLM_MODEL: ${OPEN_WEIGHT_LLM_MODEL}
     volumes:
       - spacy_socket:/run/spacy:ro
       - wordcloud_encoder_socket:/run/wordcloud-encoder:ro

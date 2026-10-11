@@ -631,6 +631,38 @@ describe('FeedbackHostComponent', () => {
     fixture.destroy();
   });
 
+  it('startet nach Zerstörung während des ersten Abrufs weder Polling noch Subscription', async () => {
+    const { trpc } = await import('../../core/trpc.client');
+    let resolveHostResults: (value: QuickFeedbackResult) => void = () => undefined;
+    vi.mocked(trpc.quickFeedback.hostResults.query).mockImplementationOnce(
+      () =>
+        new Promise<QuickFeedbackResult>((resolve) => {
+          resolveHostResults = resolve;
+        }),
+    );
+    onHostResultsSubscribeMock.mockClear();
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+
+    const fixture = TestBed.createComponent(FeedbackHostComponent);
+    fixture.componentRef.setInput('embeddedInSession', true);
+    fixture.componentRef.setInput('sessionCode', 'ABC123');
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(trpc.quickFeedback.hostResults.query).toHaveBeenCalled());
+    // Host wechselt den Kanal, bevor der erste Abruf antwortet.
+    fixture.destroy();
+    resolveHostResults({
+      type: 'MOOD',
+      locked: false,
+      totalVotes: 1,
+      distribution: { POSITIVE: 1, NEUTRAL: 0, NEGATIVE: 0 },
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(setIntervalSpy.mock.calls.some(([, ms]) => ms === 3000)).toBe(false);
+    expect(onHostResultsSubscribeMock).not.toHaveBeenCalled();
+    setIntervalSpy.mockRestore();
+  });
+
   it('abonniert Host-Ergebnisse nach erfolgreichem Abruf ohne Proxy-.bind', async () => {
     expect(() =>
       (

@@ -187,6 +187,31 @@ describe('SessionPresentComponent', () => {
     TestBed.inject(ThemePresetService).setPreset('spielerisch', { silent: true });
   });
 
+  it('startet nach Zerstörung während des ersten Ladens kein Polling', async () => {
+    const session = await getInfoQueryMock();
+    let resolveInfo: (value: unknown) => void = () => undefined;
+    getInfoQueryMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveInfo = resolve;
+        }),
+    );
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+    const fixture = TestBed.createComponent(SessionPresentComponent);
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(getInfoQueryMock).toHaveBeenCalledTimes(2));
+    // Navigation weg von der Präsentation, bevor die Session-Daten ankommen.
+    fixture.destroy();
+    const intervalsAtDestroy = setIntervalSpy.mock.calls.length;
+    resolveInfo(session);
+    for (let i = 0; i < 5; i += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    expect(setIntervalSpy.mock.calls.length).toBe(intervalsAtDestroy);
+    setIntervalSpy.mockRestore();
+  });
+
   it('retries a failed page measurement and ignores a delayed result from an old context', async () => {
     vi.useFakeTimers();
     const fixture = TestBed.createComponent(SessionPresentComponent);

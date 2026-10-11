@@ -932,6 +932,10 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
     this.hostDisplayMode.setHostSessionActive(true);
     await this.refreshSessionMeta();
     await this.refreshPresenterLiveData();
+    // Nach Navigation während des Ladens keine Subscriptions oder Intervalle mehr starten.
+    if (this.destroyRef.destroyed) {
+      return;
+    }
     this.ensurePresenterSubscriptions();
     this.startPolling();
     void this.generateJoinQr();

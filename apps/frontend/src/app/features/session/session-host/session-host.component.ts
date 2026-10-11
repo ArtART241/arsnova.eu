@@ -6385,7 +6385,6 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       if (this.destroyRef.destroyed || this.pendingPresenterStageSyncQuestionId !== questionId) {
         return;
       }
-      this.pendingPresenterStageSyncQuestionId = null;
       void this.syncPresenterToStageQuestionId(questionId, { ignoreStageView: true });
     }, QA_PRESENTER_STAGE_SYNC_FALLBACK_MS);
   }
@@ -6394,11 +6393,12 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     questionId: string,
     options: { readonly ignoreStageView?: boolean } = {},
   ): Promise<void> {
-    if (
-      !this.projectionNavigationIsQaQuestions() ||
-      this.session()?.presenterSurface === 'ended' ||
-      this.projectionPagePending()
-    ) {
+    if (!this.projectionNavigationIsQaQuestions() || this.session()?.presenterSurface === 'ended') {
+      return;
+    }
+    // Ein laufender Presenter-Mutate würde den Sync sonst verschlucken; er holt ihn im finally nach.
+    if (this.projectionPagePending()) {
+      this.pendingPresenterStageSyncQuestionId = questionId;
       return;
     }
     const page = this.session()?.presenterPage;
@@ -6465,6 +6465,10 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       );
     } finally {
       this.projectionPagePending.set(false);
+      const pendingSyncId = this.pendingPresenterStageSyncQuestionId;
+      if (pendingSyncId) {
+        void this.syncPresenterToStageQuestionId(pendingSyncId);
+      }
     }
   }
 
@@ -12628,7 +12632,6 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       this.qaPresenterStageSortMode = Array.isArray(snapshot) ? null : (snapshot.sortMode ?? null);
       const pendingSyncId = this.pendingPresenterStageSyncQuestionId;
       if (pendingSyncId && !this.isQaPresenterStageStale()) {
-        this.pendingPresenterStageSyncQuestionId = null;
         void this.syncPresenterToStageQuestionId(pendingSyncId);
       }
       // Self-Heal: Backend-Restart leert die ephemeral Map → Presenter fällt auf Default.

@@ -17684,6 +17684,112 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     fixture.destroy();
   });
 
+  it('holt einen Presenter-Reset nach, der während eines laufenden Presenter-Mutates anfiel', async () => {
+    const question = (id: string, text: string, upvoteCount: number, minute: number) => ({
+      id,
+      text,
+      upvoteCount,
+      status: 'ACTIVE' as const,
+      createdAt: `2026-03-13T12:0${minute}:00.000Z`,
+      myVote: null,
+      isOwn: false,
+      hasUpvoted: false,
+    });
+    const questions = [
+      question('active-low', 'Alpha niedrig', 1, 0),
+      question('active-high', 'Beta hoch', 9, 1),
+      question('active-mid', 'Gamma mitte', 4, 2),
+    ];
+    const sortedByTop = [questions[1]!, questions[2]!, questions[0]!];
+    let serverStageMode = 'TIME';
+    setQaPresenterSortModeMutateMock.mockImplementation(async (input: { sortMode: string }) => {
+      await flushMacroTask(10);
+      serverStageMode = input.sortMode;
+      return { ok: true };
+    });
+    // Der erste Presenter-Mutate (Weiter-Klick) bleibt hängen, bis der Test ihn freigibt.
+    let releaseOlderMutate: () => void = () => undefined;
+    const olderMutateGate = new Promise<void>((resolve) => {
+      releaseOlderMutate = resolve;
+    });
+    let presenterMutateCalls = 0;
+    setPresenterSurfaceMutateMock.mockImplementation(
+      async (input: { page?: { index?: number; count?: number } }) => {
+        presenterMutateCalls += 1;
+        if (presenterMutateCalls === 1) {
+          await olderMutateGate;
+        }
+        return {
+          presenterSurface: 'default',
+          presenterPage: {
+            context: 'qa-questions',
+            index: input.page?.index ?? 0,
+            count: input.page?.count ?? 3,
+          },
+        };
+      },
+    );
+    const fixture = setup();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance;
+    component.session.set({
+      ...defaultSession,
+      preferredChannel: 'qa',
+      presenterSurface: 'default',
+      presenterPage: { context: 'qa-questions', index: 0, count: 3 },
+      channels: {
+        quiz: { enabled: true },
+        qa: { enabled: true, open: true, title: 'Fragen', moderationMode: false },
+        quickFeedback: { enabled: false, open: false },
+      },
+    });
+    component.presenterWindowOpen.set(true);
+    component.activeChannel.set('qa');
+    seedQaPresenterStage(component, questions as never);
+    qaPresentProjectionQueryMock.mockImplementation(async () => ({
+      questions: serverStageMode === 'TOP' ? sortedByTop : questions,
+      state: 'ACTIVE',
+      sortMode: serverStageMode,
+    }));
+    qaListQueryMock.mockImplementation(async (input?: { sort?: string }) =>
+      qaHostSnapshot(input?.sort === 'TOP' ? sortedByTop : questions),
+    );
+    component.qaSortMode.set('TIME');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await flushMacroTask(50);
+
+    setPresenterSurfaceMutateMock.mockClear();
+    // Weiter-Klick in der TIME-Bühne: active-high (Index 1), der Mutate hängt.
+    const olderNavigation = component.changeProjectionPage(1);
+    // Listen-Fade (320 + 420 ms) läuft vor dem Presenter-Sync.
+    await flushMacroTask(800);
+    expect(component.projectionPagePending()).toBe(true);
+
+    // Sortwechsel, während der ältere Mutate läuft; die TOP-Bühne kommt an.
+    await component.setQaSortMode('TOP');
+    await flushMacroTask(80);
+    await fixture.whenStable();
+
+    releaseOlderMutate();
+    await olderNavigation;
+    await flushMacroTask(80);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Der ältere Mutate setzt Index 1 (TIME-Bühne); in der TOP-Bühne zeigte Index 1 active-mid.
+    // Der nachgeholte Reset muss den Presenter auf active-high (TOP-Index 0) bringen.
+    const lastPresenterIndex = (
+      setPresenterSurfaceMutateMock.mock.calls.at(-1)?.[0] as { page?: { index?: number } }
+    )?.page?.index;
+    expect(lastPresenterIndex).toBe(0);
+    expect(component.session()?.presenterPage?.index).toBe(0);
+    expect(component.qaPresenterHeroQuestionId()).toBe('active-high');
+    expect(component.qaVisibleQuestions()[0]?.id).toBe('active-high');
+    fixture.destroy();
+  });
+
   it('lässt einen älteren Hero-Reset den Presenter nach einem neueren Sortwechsel nicht überschreiben', async () => {
     const question = (id: string, text: string, upvoteCount: number, minute: number) => ({
       id,

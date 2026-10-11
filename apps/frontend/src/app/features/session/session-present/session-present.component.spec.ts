@@ -187,7 +187,7 @@ describe('SessionPresentComponent', () => {
     TestBed.inject(ThemePresetService).setPreset('spielerisch', { silent: true });
   });
 
-  it('startet nach Zerstörung während des ersten Ladens kein Polling', async () => {
+  it('startet nach Zerstörung während des ersten Ladens weder Polling noch Subscriptions', async () => {
     const session = await getInfoQueryMock();
     let resolveInfo: (value: unknown) => void = () => undefined;
     getInfoQueryMock.mockImplementationOnce(
@@ -203,12 +203,14 @@ describe('SessionPresentComponent', () => {
     // Navigation weg von der Präsentation, bevor die Session-Daten ankommen.
     fixture.destroy();
     const intervalsAtDestroy = setIntervalSpy.mock.calls.length;
+    const subscriptionsAtDestroy = subscribeMock.mock.calls.length;
     resolveInfo(session);
     for (let i = 0; i < 5; i += 1) {
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
     expect(setIntervalSpy.mock.calls.length).toBe(intervalsAtDestroy);
+    expect(subscribeMock.mock.calls.length).toBe(subscriptionsAtDestroy);
     setIntervalSpy.mockRestore();
   });
 

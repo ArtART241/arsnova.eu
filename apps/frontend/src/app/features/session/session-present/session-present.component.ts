@@ -931,8 +931,11 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
 
     this.hostDisplayMode.setHostSessionActive(true);
     await this.refreshSessionMeta();
-    await this.refreshPresenterLiveData();
     // Nach Navigation während des Ladens keine Subscriptions oder Intervalle mehr starten.
+    if (this.destroyRef.destroyed) {
+      return;
+    }
+    await this.refreshPresenterLiveData();
     if (this.destroyRef.destroyed) {
       return;
     }
@@ -1308,6 +1311,8 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
         code: this.code.toUpperCase(),
         anonymousClientId: getAnonymousClientId(),
       });
+      // Eine späte Antwort nach ngOnDestroy darf keine Subscriptions oder Timer mehr starten.
+      if (this.destroyRef.destroyed) return;
       recordServerTimeSample(session.serverTime, requestedAt);
       this.snapshotRefreshFailed.set(false);
       this.showHomeCta.set(false);

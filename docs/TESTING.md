@@ -146,9 +146,10 @@ Happy-/Error-Evidenz. Das Audit prüft diese Anwesenheitsübergänge auch rückw
 ### Parallele Unit-Testläufe vermeiden
 
 `npm test` startet **sequentiell** Shared Types, Backend und Frontend — aber **nur ein Lauf zur Zeit**.
-Mehrere gleichzeitige `npm test`- oder `vitest run`-Prozesse (z. B. aus IDE, Agent oder Terminal
-parallel) führen zu **Timeout-Flakiness** in schweren Frontend-Specs, ohne dass der Code fehlerhaft
-ist.
+Der Frontend-Lauf verteilt die Spec-Dateien bereits selbst auf Worker-Prozesse (`maxWorkers: '50%'`
+der logischen Kerne, `pool: 'forks'`, ein Prozess pro Datei). Mehrere gleichzeitige `npm test`- oder
+`vitest run`-Prozesse (z. B. aus IDE, Agent oder Terminal parallel) überbuchen die CPU zusätzlich und
+führen zu **Timeout-Flakiness** in schweren Frontend-Specs, ohne dass der Code fehlerhaft ist.
 
 **Typische Symptome:**
 
@@ -159,7 +160,7 @@ ist.
 **Empfehlung:**
 
 ```bash
-# Nur Frontend (~20 s), wenn Backend bereits grün ist:
+# Nur Frontend (wenige Minuten), wenn Backend bereits grün ist:
 npm run test -w @arsnova/frontend
 
 # Prüfen, ob noch Vitest läuft (macOS/Linux):

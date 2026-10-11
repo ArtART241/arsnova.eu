@@ -7076,6 +7076,102 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     fixture.destroy();
   });
 
+  it('spielt im Blitzlicht keine Hintergrundmusik, bis der Host sie einschaltet', async () => {
+    getInfoQueryMock.mockResolvedValue({
+      ...defaultSession,
+      status: 'LOBBY',
+      preset: 'PLAYFUL',
+      channels: {
+        quiz: { enabled: true },
+        qa: { enabled: true, open: true, title: 'Fragen', moderationMode: false },
+        quickFeedback: { enabled: true, open: true },
+      },
+    });
+
+    const fixture = setup();
+    const component = fixture.componentInstance;
+    const playMusicSpy = vi.spyOn(component.sound, 'playMusic').mockResolvedValue();
+    const stopMusicSpy = vi.spyOn(component.sound, 'stopMusic').mockImplementation(() => {});
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await vi.waitUntil(() => onStatusChangedSubscribeMock.mock.calls.length > 0, {
+      timeout: 5000,
+      interval: 25,
+    });
+
+    component.musicMuted.set(false);
+    playMusicSpy.mockClear();
+    stopMusicSpy.mockClear();
+
+    await component.selectChannel('quickFeedback');
+    fixture.detectChanges();
+
+    expect(component.activeChannel()).toBe('quickFeedback');
+    expect(component.activeMusicTrack()).toBeNull();
+    expect(component.musicToggleLabel()).toBe('Ton an');
+    await vi.waitUntil(() => stopMusicSpy.mock.calls.length > 0, {
+      timeout: 1000,
+      interval: 10,
+    });
+    expect(playMusicSpy).not.toHaveBeenCalled();
+
+    playMusicSpy.mockClear();
+    component.toggleMuteMusic();
+    fixture.detectChanges();
+
+    expect(component.quickFeedbackMusicEnabled()).toBe(true);
+    expect(component.musicMuted()).toBe(false);
+    expect(component.activeMusicTrack()).toBe('LOBBY_2');
+    await vi.waitUntil(() => playMusicSpy.mock.calls.some(([track]) => track === 'LOBBY_2'), {
+      timeout: 1000,
+      interval: 10,
+    });
+
+    await component.selectChannel('quiz');
+    fixture.detectChanges();
+
+    expect(component.musicMuted()).toBe(false);
+    expect(component.activeMusicTrack()).toBe('LOBBY_2');
+    fixture.destroy();
+  });
+
+  it('lässt die Quiz-Stummschaltung bestehen, wenn im Blitzlicht der Ton angeschaltet wird', async () => {
+    getInfoQueryMock.mockResolvedValue({
+      ...defaultSession,
+      status: 'LOBBY',
+      preset: 'SERIOUS',
+      channels: {
+        quiz: { enabled: true },
+        qa: { enabled: false, open: false, title: null, moderationMode: false },
+        quickFeedback: { enabled: true, open: true },
+      },
+    });
+
+    const fixture = setup();
+    const component = fixture.componentInstance;
+    vi.spyOn(component.sound, 'playMusic').mockResolvedValue();
+    vi.spyOn(component.sound, 'stopMusic').mockImplementation(() => {});
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.musicMuted.set(true);
+    await component.selectChannel('quickFeedback');
+    fixture.detectChanges();
+    component.toggleMuteMusic();
+    fixture.detectChanges();
+
+    expect(component.quickFeedbackMusicEnabled()).toBe(true);
+    expect(component.musicMuted()).toBe(true);
+    expect(component.activeMusicTrack()).toBe('LOBBY_2');
+
+    await component.selectChannel('quiz');
+    fixture.detectChanges();
+
+    expect(component.musicMuted()).toBe(true);
+    expect(component.activeMusicTrack()).toBeNull();
+    fixture.destroy();
+  });
+
   it('navigiert bei verwaister Session mit Gesamte Session beenden zurück nach Home', async () => {
     getInfoQueryMock.mockResolvedValue({ ...defaultSession, status: 'ACTIVE' });
     endMutateMock.mockRejectedValueOnce(new Error('Session nicht gefunden.'));
@@ -15948,7 +16044,12 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     component.activeChannel.set('quickFeedback');
     fixture.detectChanges();
 
+    expect(component.activeMusicTrack()).toBeNull();
+    component.toggleMuteMusic();
+    fixture.detectChanges();
     expect(component.activeMusicTrack()).toBe('COUNTDOWN_1');
+    stopMusicSpy.mockClear();
+    playMusicSpy.mockClear();
 
     quickFeedbackToggleLockMutateMock.mockResolvedValueOnce({ locked: true });
     await component.toggleQuickFeedbackRoundLock();
@@ -26034,6 +26135,85 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
           fixture.nativeElement.querySelector('[data-testid="host-moderation-compass"]'),
         ).not.toBeNull();
       }
+      fixture.destroy();
+    });
+
+    it('zeigt Ziele in Quiz und Q&A und blendet sie im Blitzlicht aus', async () => {
+      getInfoQueryMock.mockResolvedValue({
+        ...defaultSession,
+        status: 'ACTIVE',
+        channels: {
+          quiz: { enabled: true },
+          qa: { enabled: true, open: true, title: 'Fragen', moderationMode: true },
+          quickFeedback: { enabled: true, open: true },
+        },
+      });
+
+      const fixture = setup();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await flushComponentAfterStable(fixture, 50);
+      const component = fixture.componentInstance;
+
+      for (const channel of ['quiz', 'qa'] as const) {
+        component.activeChannel.set(channel);
+        fixture.detectChanges();
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="host-learning-objectives"]'),
+        ).not.toBeNull();
+      }
+
+      component.activeChannel.set('quickFeedback');
+      fixture.detectChanges();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="host-learning-objectives"]'),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="host-moderation-compass"]'),
+      ).not.toBeNull();
+      fixture.destroy();
+    });
+
+    it('blendet den Kompass im reinen Blitzlicht aus und zeigt ihn neben einem anderen Kanal', async () => {
+      getInfoQueryMock.mockResolvedValue({
+        ...defaultSession,
+        status: 'ACTIVE',
+        type: 'QUIZ',
+        channels: {
+          quiz: { enabled: false },
+          qa: { enabled: false, open: false, title: null, moderationMode: false },
+          quickFeedback: { enabled: true, open: true },
+        },
+      });
+
+      const fixture = setup();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await flushComponentAfterStable(fixture, 50);
+      const component = fixture.componentInstance;
+      component.activeChannel.set('quickFeedback');
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="host-moderation-compass"]'),
+      ).toBeNull();
+
+      component.session.update((current) =>
+        current
+          ? {
+              ...current,
+              channels: {
+                ...current.channels,
+                qa: { enabled: true, open: true, title: 'Fragen', moderationMode: true },
+              },
+            }
+          : current,
+      );
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="host-moderation-compass"]'),
+      ).not.toBeNull();
       fixture.destroy();
     });
 

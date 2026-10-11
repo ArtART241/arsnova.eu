@@ -50,7 +50,11 @@ import { questionTypeLabel } from '../../../shared/question-type-label';
 import { ThemePresetService } from '../../../core/theme-preset.service';
 import { getAnonymousClientId } from '../../../core/anonymous-client-id';
 import * as vpc from './session-vote-participant-copy';
-import { localizePath, resolveLocalizedJoinUrl } from '../../../core/locale-router';
+import {
+  localizeCommands,
+  localizePath,
+  resolveLocalizedJoinUrl,
+} from '../../../core/locale-router';
 import {
   evaluateNumericAnswer,
   evaluateShortAnswer,
@@ -484,6 +488,7 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
   readonly localizedPath = localizePath;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private redirectingToCustomNicknameJoin = false;
   private readonly sanitizer = inject(DomSanitizer);
   private readonly themePreset = inject(ThemePresetService);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -913,7 +918,7 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
     let sequence = Math.max(1, participantCountHint + 1);
 
     while (candidates.length < limit) {
-      const candidate = `Teilnehmende #${sequence}`;
+      const candidate = `User ${sequence}`;
       sequence += 1;
       if (takenNicknames.has(this.normalizeNicknameKey(candidate))) {
         continue;
@@ -929,7 +934,7 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
     participantCountHint: number,
   ): string[] {
     const session = this.sessionSettings();
-    if (session.anonymousMode === true || session.allowCustomNicknames === true) {
+    if (session.anonymousMode === true) {
       return this.buildGenericAutoJoinNicknameCandidates(takenNicknames, participantCountHint);
     }
 
@@ -1397,10 +1402,8 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
   readonly showTempoAskQuestionShortcut = computed(
     () => !this.isFinished() && !this.isLobby() && this.channels().qa && this.isQaChannelOpen(),
   );
-  /** Live-Banner: Quiztitel (Anzeige mit Ellipse im Template). */
-  readonly liveHeading = computed(
-    () => this.sessionSettings().quizName ?? this.sessionSettings().title ?? null,
-  );
+  /** Live-Banner und Blitzlicht: nur der Quizname. Der Q&A-Titel bleibt auf der Fragenwand. */
+  readonly liveHeading = computed(() => this.sessionSettings().quizName?.trim() || null);
   readonly qaCanSubmit = computed(
     () =>
       this.isQaChannelOpen() &&
@@ -2931,7 +2934,7 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
     }
   }
 
-  quickFeedbackTabMetaLabel(): string {
+  quickFeedbackTabMetaLabel(): string | null {
     if (!this.isQuickFeedbackChannelOpen()) return $localize`:@@participantTask.closed:Geschlossen`;
     const result = this.quickFeedbackResult();
     if (!result) return $localize`:@@participantTask.waiting:Warten`;
@@ -2944,10 +2947,10 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
     ) {
       return $localize`:@@participantTask.alreadyVoted:Schon abgestimmt`;
     }
-    return $localize`:@@participantTask.vote:Abstimmen`;
+    return null;
   }
 
-  channelTabMetaLabel(channel: SessionChannelTab): string {
+  channelTabMetaLabel(channel: SessionChannelTab): string | null {
     if (channel === 'quickFeedback') return this.quickFeedbackTabMetaLabel();
     if (channel === 'qa') {
       return this.isQaChannelOpen()
@@ -3969,6 +3972,9 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
       recordServerTimeSample(session.serverTime, requestedAt);
       this.sessionId.set(session.id);
       this.sessionSettings.set(session);
+      if (this.redirectIfCustomNicknameRequired(session.status)) {
+        return true;
+      }
       this.scheduleQaDeadlineCheck();
       if (!this.applySessionDeadlineSnapshot(session)) {
         this.status.set(session.status as SessionStatus);
@@ -4459,6 +4465,9 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
       const previousTeamMode = this.sessionSettings().teamMode === true;
       this.sessionId.set(session.id);
       this.sessionSettings.set(session);
+      if (this.redirectIfCustomNicknameRequired(session.status)) {
+        return;
+      }
       this.scheduleQaDeadlineCheck();
       this.applyPreferredChannelIfChanged(session.preferredChannel);
       this.status.set(nextStatus);
@@ -5634,6 +5643,10 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
     this.quickFeedbackIdentityPending.set(true);
     const request = this.resolveParticipantIdentity()
       .then((identity) => {
+        if (this.redirectingToCustomNicknameJoin) {
+          this.quickFeedbackIdentityError.set(null);
+          return;
+        }
         this.quickFeedbackIdentityError.set(
           identity ? null : $localize`:@@feedback.voteFailed:Abstimmung fehlgeschlagen.`,
         );
@@ -5668,6 +5681,39 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
     }
   }
 
+  private requiresCustomNicknameJoin(): boolean {
+    const session = this.sessionSettings();
+    return session.allowCustomNicknames === true && session.anonymousMode !== true;
+  }
+
+  private redirectIfCustomNicknameRequired(status: string | null | undefined): boolean {
+    if (
+      status === 'FINISHED' ||
+      !this.requiresCustomNicknameJoin() ||
+      isParticipantUuid(this.participantId()) ||
+      isParticipantUuid(this.readStoredParticipantId())
+    ) {
+      return false;
+    }
+    this.redirectToCustomNicknameJoin();
+    return true;
+  }
+
+  private redirectToCustomNicknameJoin(): void {
+    if (this.redirectingToCustomNicknameJoin || !this.code) {
+      return;
+    }
+    this.redirectingToCustomNicknameJoin = true;
+    const requestedTab = this.route.snapshot.queryParamMap.get('tab');
+    const returnTab =
+      requestedTab === 'quiz' || requestedTab === 'qa' || requestedTab === 'quickFeedback'
+        ? requestedTab
+        : null;
+    void this.router.navigate(localizeCommands(['join', this.code]), {
+      queryParams: returnTab ? { tab: returnTab } : undefined,
+    });
+  }
+
   private async resolveParticipantIdentity(): Promise<{
     sessionId: string;
     participantId: string;
@@ -5693,6 +5739,11 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
       : this.readStoredParticipantId();
     if (participantId && participantId !== this.participantId()) {
       this.participantId.set(participantId);
+    }
+
+    if (!isParticipantUuid(participantId) && this.code && this.requiresCustomNicknameJoin()) {
+      this.redirectToCustomNicknameJoin();
+      return null;
     }
 
     if (!isParticipantUuid(participantId) && this.code) {
@@ -5723,7 +5774,9 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
   } | null> {
     const identity = await this.resolveParticipantIdentity();
     if (!identity) {
-      this.showQaError($localize`:@@sessionQa.submitError:Frage konnte nicht gesendet werden.`);
+      if (!this.redirectingToCustomNicknameJoin) {
+        this.showQaError($localize`:@@sessionQa.submitError:Frage konnte nicht gesendet werden.`);
+      }
       return null;
     }
     return identity;

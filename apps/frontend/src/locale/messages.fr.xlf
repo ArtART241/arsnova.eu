@@ -9787,14 +9787,6 @@
           <context context-type="linenumber">690,692</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="homeScenario.eventFeedback" datatype="html">
-        <source> Stimmung oder Tempo erfassen</source>
-        <target>Sonder l’humeur ou le rythme</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.component.html</context>
-          <context context-type="linenumber">708,710</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="homeFeedbackCard.yesNoMaybeCompact" datatype="html">
         <source>Ja · Nein · ?</source>
         <target>Oui · Non · ?</target>

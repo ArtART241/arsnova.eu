@@ -1940,10 +1940,10 @@ export class SessionHostComponent implements OnInit, OnDestroy {
    * Host-Sitzung und ändert die Quiz-Vorgabe nicht.
    */
   readonly quickFeedbackMusicEnabled = signal(false);
-  readonly musicSilenced = computed(
-    () =>
-      this.musicMuted() ||
-      (this.activeChannel() === 'quickFeedback' && !this.quickFeedbackMusicEnabled()),
+  readonly musicSilenced = computed(() =>
+    this.activeChannel() === 'quickFeedback'
+      ? !this.quickFeedbackMusicEnabled()
+      : this.musicMuted(),
   );
   readonly currentMusicPhase = computed<MusicPhase | null>(() => {
     const status = this.effectiveStatus();
@@ -7661,12 +7661,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     this.sound.unlock();
     this.sound.stopPreview();
     if (this.activeChannel() === 'quickFeedback') {
-      if (this.musicSilenced()) {
-        this.musicMuted.set(false);
-        this.quickFeedbackMusicEnabled.set(true);
-      } else {
-        this.quickFeedbackMusicEnabled.set(false);
-      }
+      this.quickFeedbackMusicEnabled.set(!this.quickFeedbackMusicEnabled());
     } else {
       this.musicMuted.set(!this.musicMuted());
     }
@@ -7689,7 +7684,6 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     this.mutedMusicPhases.set(nextMuted);
     persistPhaseMusicSettings(nextTracks, nextMuted);
     if (this.activeChannel() === 'quickFeedback') {
-      this.musicMuted.set(false);
       this.quickFeedbackMusicEnabled.set(true);
     }
     this.syncMusic();
@@ -7711,7 +7705,6 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     this.mutedMusicPhases.set(nextMuted);
     persistPhaseMusicSettings(this.phaseTracks(), nextMuted);
     if (this.activeChannel() === 'quickFeedback' && !nextMuted.has(phase)) {
-      this.musicMuted.set(false);
       this.quickFeedbackMusicEnabled.set(true);
     }
     this.syncMusic();

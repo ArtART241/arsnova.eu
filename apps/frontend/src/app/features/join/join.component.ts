@@ -552,6 +552,14 @@ export class JoinComponent implements OnInit, OnDestroy {
     );
   }
 
+  private voteReturnTab(preferredChannel: string | null | undefined): string {
+    const requested = this.route.snapshot.queryParamMap?.get('tab');
+    if (requested === 'quiz' || requested === 'qa' || requested === 'quickFeedback') {
+      return requested;
+    }
+    return preferredChannel ?? 'quiz';
+  }
+
   private async joinAnonymous(session: SessionInfoDTO): Promise<void> {
     this.joining.set(true);
     try {
@@ -577,7 +585,7 @@ export class JoinComponent implements OnInit, OnDestroy {
       this.persistConfirmedTeam(result.teamId);
       setParticipantJoinArrival(this.code);
       await this.router.navigate(localizeCommands(['session', this.code, 'vote']), {
-        queryParams: { tab: result.preferredChannel ?? 'quiz' },
+        queryParams: { tab: this.voteReturnTab(result.preferredChannel) },
       });
     } catch (err: unknown) {
       this.clearExpiredJoinAttempt(err);
@@ -625,7 +633,7 @@ export class JoinComponent implements OnInit, OnDestroy {
       this.persistConfirmedTeam(result.teamId);
       setParticipantJoinArrival(this.code);
       await this.router.navigate(localizeCommands(['session', this.code, 'vote']), {
-        queryParams: { tab: result.preferredChannel ?? 'quiz' },
+        queryParams: { tab: this.voteReturnTab(result.preferredChannel) },
       });
     } catch (err: unknown) {
       this.clearExpiredJoinAttempt(err);

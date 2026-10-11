@@ -5560,14 +5560,11 @@ describe('SessionVoteComponent', { timeout: 30_000 }, () => {
     fixture.detectChanges();
     await flushComponentAfterStable(fixture, 50);
 
-    const component = fixture.componentInstance;
-    component.activeChannel.set('qa');
-    component.updateQaDraft('Wie heißt du?');
-    await component.submitQaQuestion();
-
     expect(joinMutateMock).not.toHaveBeenCalled();
     expect(qaSubmitMutateMock).not.toHaveBeenCalled();
-    expect(navSpy).toHaveBeenCalledWith(['join', 'ABC123']);
+    expect(navSpy).toHaveBeenCalledWith(['join', 'ABC123'], {
+      queryParams: undefined,
+    });
     fixture.destroy();
   });
 

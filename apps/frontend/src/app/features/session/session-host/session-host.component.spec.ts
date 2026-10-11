@@ -7135,6 +7135,43 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     fixture.destroy();
   });
 
+  it('lässt die Quiz-Stummschaltung bestehen, wenn im Blitzlicht der Ton angeschaltet wird', async () => {
+    getInfoQueryMock.mockResolvedValue({
+      ...defaultSession,
+      status: 'LOBBY',
+      preset: 'SERIOUS',
+      channels: {
+        quiz: { enabled: true },
+        qa: { enabled: false, open: false, title: null, moderationMode: false },
+        quickFeedback: { enabled: true, open: true },
+      },
+    });
+
+    const fixture = setup();
+    const component = fixture.componentInstance;
+    vi.spyOn(component.sound, 'playMusic').mockResolvedValue();
+    vi.spyOn(component.sound, 'stopMusic').mockImplementation(() => {});
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.musicMuted.set(true);
+    await component.selectChannel('quickFeedback');
+    fixture.detectChanges();
+    component.toggleMuteMusic();
+    fixture.detectChanges();
+
+    expect(component.quickFeedbackMusicEnabled()).toBe(true);
+    expect(component.musicMuted()).toBe(true);
+    expect(component.activeMusicTrack()).toBe('LOBBY_2');
+
+    await component.selectChannel('quiz');
+    fixture.detectChanges();
+
+    expect(component.musicMuted()).toBe(true);
+    expect(component.activeMusicTrack()).toBeNull();
+    fixture.destroy();
+  });
+
   it('navigiert bei verwaister Session mit Gesamte Session beenden zurück nach Home', async () => {
     getInfoQueryMock.mockResolvedValue({ ...defaultSession, status: 'ACTIVE' });
     endMutateMock.mockRejectedValueOnce(new Error('Session nicht gefunden.'));

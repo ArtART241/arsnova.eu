@@ -3972,6 +3972,9 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
       recordServerTimeSample(session.serverTime, requestedAt);
       this.sessionId.set(session.id);
       this.sessionSettings.set(session);
+      if (this.redirectIfCustomNicknameRequired(session.status)) {
+        return true;
+      }
       this.scheduleQaDeadlineCheck();
       if (!this.applySessionDeadlineSnapshot(session)) {
         this.status.set(session.status as SessionStatus);
@@ -4462,6 +4465,9 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
       const previousTeamMode = this.sessionSettings().teamMode === true;
       this.sessionId.set(session.id);
       this.sessionSettings.set(session);
+      if (this.redirectIfCustomNicknameRequired(session.status)) {
+        return;
+      }
       this.scheduleQaDeadlineCheck();
       this.applyPreferredChannelIfChanged(session.preferredChannel);
       this.status.set(nextStatus);
@@ -5680,12 +5686,32 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
     return session.allowCustomNicknames === true && session.anonymousMode !== true;
   }
 
+  private redirectIfCustomNicknameRequired(status: string | null | undefined): boolean {
+    if (
+      status === 'FINISHED' ||
+      !this.requiresCustomNicknameJoin() ||
+      isParticipantUuid(this.participantId()) ||
+      isParticipantUuid(this.readStoredParticipantId())
+    ) {
+      return false;
+    }
+    this.redirectToCustomNicknameJoin();
+    return true;
+  }
+
   private redirectToCustomNicknameJoin(): void {
     if (this.redirectingToCustomNicknameJoin || !this.code) {
       return;
     }
     this.redirectingToCustomNicknameJoin = true;
-    void this.router.navigate(localizeCommands(['join', this.code]));
+    const requestedTab = this.route.snapshot.queryParamMap.get('tab');
+    const returnTab =
+      requestedTab === 'quiz' || requestedTab === 'qa' || requestedTab === 'quickFeedback'
+        ? requestedTab
+        : null;
+    void this.router.navigate(localizeCommands(['join', this.code]), {
+      queryParams: returnTab ? { tab: returnTab } : undefined,
+    });
   }
 
   private async resolveParticipantIdentity(): Promise<{

@@ -763,18 +763,22 @@ export function buildQuizLearningObjectiveBundleCreate(
             ? objective.origin.derivedFromSourceQuestionIds
             : [];
         const references = [
-          ...taskSourceIds.map((sourceQuestionId) => ({
-            id: randomUUID(),
-            objectiveRowId,
-            kind: 'TASK' as const,
-            questionId: questionIdBySourceId.get(sourceQuestionId)!,
-          })),
-          ...derivationSourceIds.map((sourceQuestionId) => ({
-            id: randomUUID(),
-            objectiveRowId,
-            kind: 'DERIVATION' as const,
-            questionId: questionIdBySourceId.get(sourceQuestionId)!,
-          })),
+          ...taskSourceIds.map(
+            (sourceQuestionId) =>
+              ({
+                id: randomUUID(),
+                kind: 'TASK' as const,
+                questionId: questionIdBySourceId.get(sourceQuestionId)!,
+              }) satisfies Prisma.QuizLearningObjectiveReferenceUncheckedCreateWithoutObjectiveInput,
+          ),
+          ...derivationSourceIds.map(
+            (sourceQuestionId) =>
+              ({
+                id: randomUUID(),
+                kind: 'DERIVATION' as const,
+                questionId: questionIdBySourceId.get(sourceQuestionId)!,
+              }) satisfies Prisma.QuizLearningObjectiveReferenceUncheckedCreateWithoutObjectiveInput,
+          ),
         ];
         return {
           id: objectiveRowId,

@@ -564,26 +564,19 @@ export async function deriveLearningObjectiveDrafts(
     updatedAt: createdAt,
   }));
 
-  const limitationSet = new Set(
-    completed.flatMap(({ output }) =>
-      output.limitations.map((limitation) => limitation.trim()).filter(Boolean),
-    ),
-  );
+  // Model-authored limitations are unverified free text and often repeat the
+  // system prompt across batches. Show only limitations established here.
   const internalLimitation = wasCapped
     ? DERIVATION_LIMITATIONS[input.locale].capped
     : drafts.length === 0
       ? DERIVATION_LIMITATIONS[input.locale].empty
       : null;
-  const limitations = [...limitationSet]
-    .sort(compareCodeUnits)
-    .slice(0, internalLimitation ? 5 : 6);
-  if (internalLimitation) limitations.push(internalLimitation);
 
   const result = LearningObjectiveDerivationResultSchema.parse({
     ...resultCorrelation,
     status: 'completed',
     drafts,
-    limitations,
+    limitations: internalLimitation ? [internalLimitation] : [],
     batchCount: plan.requests.length,
   });
   logger.info('learning_objectives:derivation_completed', {

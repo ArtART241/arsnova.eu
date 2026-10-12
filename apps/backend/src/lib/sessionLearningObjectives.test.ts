@@ -183,6 +183,42 @@ describe('session learning-objective service', () => {
     });
   });
 
+  it('creates model-derived quiz references without the parent relation key', () => {
+    const create = buildQuizLearningObjectiveBundleCreate(
+      {
+        schemaVersion: 1,
+        quizId: QUIZ_A_ID,
+        revision: 1,
+        objectives: [
+          {
+            id: OBJECTIVE_ID,
+            revision: 1,
+            text: 'Steigungen interpretieren',
+            scope: { kind: 'question-set', sourceQuestionIds: [SOURCE_QUESTION_ID] },
+            origin: {
+              kind: 'model-derived',
+              modelId: 'local-model',
+              modelVersion: '1',
+              derivationVersion: 'learning-objectives-v1',
+              sourceDigest: 'a'.repeat(64),
+              derivedFromSourceQuestionIds: [SOURCE_QUESTION_ID],
+            },
+            confirmation: { state: 'draft' },
+            createdAt: NOW.toISOString(),
+            updatedAt: NOW.toISOString(),
+          },
+        ],
+      },
+      new Map([[SOURCE_QUESTION_ID, OLD_QUESTION_ID]]),
+      NOW,
+    );
+
+    expect(create.objectives.create[0]?.references.create).toEqual([
+      { id: expect.any(String), kind: 'TASK', questionId: OLD_QUESTION_ID },
+      { id: expect.any(String), kind: 'DERIVATION', questionId: OLD_QUESTION_ID },
+    ]);
+  });
+
   it('returns a bounded solution-free quiz task catalog from persisted question ids', async () => {
     prismaMock.session.findUnique.mockResolvedValue(sessionRow());
     prismaMock.sessionLearningObjective.findMany.mockResolvedValue([]);

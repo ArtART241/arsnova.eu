@@ -340,7 +340,9 @@ export class QuizLearningObjectivesComponent {
           'completed',
           applied.length === 0
             ? $localize`:@@learningObjectives.derivationCompletedEmpty:Die Herleitung ist abgeschlossen. Es wurden keine neuen Vorschläge hinzugefügt.`
-            : $localize`:@@learningObjectives.derivationCompleted:Neue Vorschläge als Entwurf hinzugefügt: ${applied.length}:count:. Prüfe und bestätige sie fachlich.`,
+            : applied.length === 1
+              ? $localize`:@@learningObjectives.derivationCompletedSingle:Ein Lernzielvorschlag wurde als Entwurf hinzugefügt. Prüfe ihn vor dem Bestätigen.`
+              : $localize`:@@learningObjectives.derivationCompleted:${applied.length}:count: Lernzielvorschläge wurden als Entwürfe hinzugefügt. Prüfe sie vor dem Bestätigen.`,
           applied[0] ? `learning-objective-edit-${applied[0].id}` : undefined,
         );
       } catch (error) {

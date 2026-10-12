@@ -340,7 +340,7 @@ describe('learningObjectiveDerivation', () => {
           text: `${request.requestId}: Ziel ${index}`,
           questionIds: [request.questions[0]!.id],
         })),
-        limitations: [],
+        limitations: ['Die Frage-IDs werden exakt verwendet und nicht verändert.'],
       },
       telemetry,
     }));
@@ -510,7 +510,7 @@ describe('learningObjectiveDerivation', () => {
     }
   });
 
-  it('deduplicates, caps metadata, and creates deterministic draft IDs and digests', async () => {
+  it('discards model-authored boilerplate and creates deterministic draft IDs and digests', async () => {
     expect(OPEN_WEIGHT_LLM_MODEL_ID).toBe(
       'unsloth/Qwen3-4B-Instruct-2507-GGUF@sha256:3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597',
     );
@@ -526,7 +526,11 @@ describe('learningObjectiveDerivation', () => {
           { text: '  Ableiten   können  ', questionIds: [request.questions[0]!.id] },
           { text: 'ableiten können', questionIds: [request.questions[0]!.id] },
         ],
-        limitations: ['Zweite', 'Erste', 'Erste'],
+        limitations: [
+          'Die Frage-IDs werden exakt verwendet und nicht transformiert.',
+          'Die IDs wurden direkt aus der Eingabe übernommen.',
+          'Die Lernziele beziehen sich nur auf Fragen und Lösungen.',
+        ],
       },
       telemetry,
     }));
@@ -545,7 +549,7 @@ describe('learningObjectiveDerivation', () => {
     expect(second).toEqual(first);
     expect(first).toMatchObject({
       status: 'completed',
-      limitations: ['Erste', 'Zweite'],
+      limitations: [],
       drafts: [
         {
           text: 'Ableiten können',

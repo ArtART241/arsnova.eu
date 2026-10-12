@@ -13,6 +13,7 @@ import {
   projectLearningObjectiveDerivationQuestion,
 } from './learningObjectiveDerivation';
 import { OPEN_WEIGHT_LLM_MODEL_ID, OPEN_WEIGHT_LLM_MODEL_VERSION } from './openWeightLlmConfig';
+import { logger } from './logger';
 
 const OPERATION_ID = '11111111-1111-4111-8111-111111111111';
 const QUIZ_ID = '22222222-2222-4222-8222-222222222222';
@@ -471,6 +472,42 @@ describe('learningObjectiveDerivation', () => {
       deriveLearningObjectiveDrafts(input(batchedQuestions), { run: crossBatch }),
     ).resolves.toEqual(expect.objectContaining({ status: 'invalid_response' }));
     expect(crossBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('protokolliert den fehlerhaften Batch ohne Aufgaben-IDs oder Entwurfstexte', async () => {
+    const info = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const questions = QUESTION_IDS.slice(0, 4).map((id, index) =>
+      choiceQuestion(id, index, '🧪'.repeat(170)),
+    );
+    let call = 0;
+    try {
+      const result = await deriveLearningObjectiveDrafts(input(questions), {
+        run: async (request) => {
+          call += 1;
+          return call === 1 ? successfulBatch(request) : { status: 'invalid_response' };
+        },
+      });
+      expect(result).toMatchObject({ status: 'invalid_response' });
+      expect(info).toHaveBeenCalledWith('learning_objectives:batch_completed', {
+        batch: 1,
+        batchCount: expect.any(Number),
+        elapsedMs: 12,
+        promptTokens: 120,
+        completionTokens: 24,
+      });
+      expect(warn).toHaveBeenCalledWith('learning_objectives:batch_failed', {
+        batch: 2,
+        batchCount: expect.any(Number),
+        status: 'invalid_response',
+      });
+      const logs = JSON.stringify([...info.mock.calls, ...warn.mock.calls]);
+      expect(logs).not.toContain(QUESTION_IDS[0]);
+      expect(logs).not.toContain('🧪');
+    } finally {
+      info.mockRestore();
+      warn.mockRestore();
+    }
   });
 
   it('deduplicates, caps metadata, and creates deterministic draft IDs and digests', async () => {

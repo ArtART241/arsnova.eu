@@ -34,6 +34,7 @@ import {
   prepareModerationSummaryContextFromAnalysis,
 } from './moderationSummaryContext';
 import { canonicalModerationPromptJson } from './moderationPromptContextPacking';
+import { logger } from './logger';
 
 const SOURCE_ID = 'qa-question:11111111-1111-4111-8111-111111111111';
 const QUESTION_ID = '22222222-2222-4222-8222-222222222222';
@@ -453,6 +454,84 @@ describe('openWeightLlmClient', () => {
     await expect(
       runOpenWeightLlmSummary(requests.qa_summary, outputs.qa_summary),
     ).resolves.toMatchObject({ status: 'fallback', reason: 'invalid_response' });
+  });
+
+  it('protokolliert bei einer abgeschnittenen Lernzielantwort nur feste Fehlercodes und Tokenzahlen', async () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    resetOpenWeightLlmClientForTests({
+      config: () => defaultConfig,
+      request: async (input) =>
+        input.path.startsWith('/slots')
+          ? { status: 200, body: '[]' }
+          : {
+              status: 200,
+              body: JSON.stringify({
+                choices: [{ finish_reason: 'length', message: { content: '{private quiz text' } }],
+                usage: { prompt_tokens: 970, completion_tokens: 768 },
+              }),
+            },
+    });
+
+    try {
+      await expect(
+        runOpenWeightLlmLearningObjectives(requests.learning_objectives),
+      ).resolves.toEqual({
+        status: 'invalid_response',
+      });
+      expect(warn).toHaveBeenCalledWith('learning_objectives:invalid_model_response', {
+        reason: 'invalid_model_json',
+        finishReason: 'length',
+        promptTokens: 970,
+        completionTokens: 768,
+        elapsedMs: expect.any(Number),
+      });
+      expect(JSON.stringify(warn.mock.calls)).not.toContain('private quiz text');
+      expect(JSON.stringify(warn.mock.calls)).not.toContain(QUESTION_ID);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('protokolliert die vollständige Lernzielanfrage und Modellantwort nur bei explizitem Debug-Flag ohne Bearer', async () => {
+    const previousFlag = process.env['OPEN_WEIGHT_LLM_LEARNING_DEBUG_LOG'];
+    const info = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
+    const response = completionResponse(outputs.learning_objectives);
+    resetOpenWeightLlmClientForTests({
+      config: () => defaultConfig,
+      request: async (input) =>
+        input.path.startsWith('/slots') ? { status: 200, body: '[]' } : response,
+    });
+
+    try {
+      delete process.env['OPEN_WEIGHT_LLM_LEARNING_DEBUG_LOG'];
+      await runOpenWeightLlmLearningObjectives(requests.learning_objectives);
+      expect(info).not.toHaveBeenCalled();
+
+      process.env['OPEN_WEIGHT_LLM_LEARNING_DEBUG_LOG'] = 'true';
+      await runOpenWeightLlmLearningObjectives(requests.learning_objectives);
+      expect(info).toHaveBeenCalledTimes(2);
+      const requestLog = JSON.parse(info.mock.calls[0]![0]) as {
+        event: string;
+        body: string;
+      };
+      const responseLog = JSON.parse(info.mock.calls[1]![0]) as {
+        event: string;
+        httpStatus: number;
+        body: string;
+      };
+      expect(requestLog.event).toBe('learning_objectives:debug_request');
+      expect(requestLog.body).toContain(requests.learning_objectives.questions[0]!.text);
+      expect(responseLog).toEqual({
+        event: 'learning_objectives:debug_response',
+        httpStatus: 200,
+        body: response.body,
+      });
+      expect(JSON.stringify(info.mock.calls)).not.toContain(defaultConfig.token);
+    } finally {
+      if (previousFlag === undefined) delete process.env['OPEN_WEIGHT_LLM_LEARNING_DEBUG_LOG'];
+      else process.env['OPEN_WEIGHT_LLM_LEARNING_DEBUG_LOG'] = previousFlag;
+      info.mockRestore();
+    }
   });
 
   it('akzeptiert DNS-Namen nur wenn jede aufgelöste Adresse privat ist', async () => {

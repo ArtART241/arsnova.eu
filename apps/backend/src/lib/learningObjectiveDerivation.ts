@@ -26,6 +26,7 @@ import {
   type OpenWeightLlmTelemetry,
 } from './openWeightLlmClient';
 import { OPEN_WEIGHT_LLM_MODEL_ID, OPEN_WEIGHT_LLM_MODEL_VERSION } from './openWeightLlmConfig';
+import { logger } from './logger';
 
 /** One explicit host action has one wall-clock budget across every deterministic batch. */
 export const LEARNING_OBJECTIVE_DERIVATION_OVERALL_TIMEOUT_MS = 20 * 60_000;
@@ -412,8 +413,15 @@ export async function deriveLearningObjectiveDrafts(
     readonly telemetry: OpenWeightLlmTelemetry;
   }> = [];
 
-  for (const request of plan.requests) {
+  for (const [batchIndex, request] of plan.requests.entries()) {
+    const batch = batchIndex + 1;
+    const batchCount = plan.requests.length;
     if (runSignal.aborted) {
+      logger.warn('learning_objectives:batch_failed', {
+        batch,
+        batchCount,
+        status: interruptedStatus(hooks.signal, deadlineSignal),
+      });
       return {
         ...resultCorrelation,
         status: interruptedStatus(hooks.signal, deadlineSignal),
@@ -421,30 +429,66 @@ export async function deriveLearningObjectiveDrafts(
     }
     const batchResult = await run(request, { signal: runSignal });
     if (runSignal.aborted) {
+      logger.warn('learning_objectives:batch_failed', {
+        batch,
+        batchCount,
+        status: interruptedStatus(hooks.signal, deadlineSignal),
+      });
       return {
         ...resultCorrelation,
         status: interruptedStatus(hooks.signal, deadlineSignal),
       };
     }
     if (batchResult.status !== 'completed') {
+      logger.warn('learning_objectives:batch_failed', {
+        batch,
+        batchCount,
+        status: batchResult.status,
+      });
       return batchResult.status === 'busy'
         ? { ...resultCorrelation, status: 'busy', retry: 'manual' }
         : { ...resultCorrelation, status: batchResult.status };
     }
     const output = OpenWeightLlmLearningObjectivesOutputSchema.safeParse(batchResult.output);
-    if (
-      !output.success ||
-      !hasOnlyAllowedOpenWeightLlmReferences(request, output.data) ||
-      output.data.objectives.some(
-        ({ questionIds }) => new Set(questionIds).size !== questionIds.length,
-      )
-    ) {
+    if (!output.success) {
+      logger.warn('learning_objectives:batch_failed', {
+        batch,
+        batchCount,
+        status: 'invalid_response',
+        reason: 'output_schema',
+      });
       return { ...resultCorrelation, status: 'invalid_response' };
     }
+    const invalidReason = !hasOnlyAllowedOpenWeightLlmReferences(request, output.data)
+      ? 'question_references'
+      : output.data.objectives.some(
+            ({ questionIds }) => new Set(questionIds).size !== questionIds.length,
+          )
+        ? 'duplicate_question_references'
+        : null;
+    if (invalidReason) {
+      logger.warn('learning_objectives:batch_failed', {
+        batch,
+        batchCount,
+        status: 'invalid_response',
+        reason: invalidReason,
+      });
+      return { ...resultCorrelation, status: 'invalid_response' };
+    }
+    logger.info('learning_objectives:batch_completed', {
+      batch,
+      batchCount,
+      elapsedMs: batchResult.telemetry.elapsedMs,
+      promptTokens: batchResult.telemetry.promptTokens,
+      completionTokens: batchResult.telemetry.completionTokens,
+    });
     completed.push({ request, output: output.data, telemetry: batchResult.telemetry });
   }
 
   if (runSignal.aborted) {
+    logger.warn('learning_objectives:derivation_failed', {
+      status: interruptedStatus(hooks.signal, deadlineSignal),
+    });
     return {
       ...resultCorrelation,
       status: interruptedStatus(hooks.signal, deadlineSignal),
@@ -528,11 +572,16 @@ export async function deriveLearningObjectiveDrafts(
       ? DERIVATION_LIMITATIONS[input.locale].empty
       : null;
 
-  return LearningObjectiveDerivationResultSchema.parse({
+  const result = LearningObjectiveDerivationResultSchema.parse({
     ...resultCorrelation,
     status: 'completed',
     drafts,
     limitations: internalLimitation ? [internalLimitation] : [],
     batchCount: plan.requests.length,
   });
+  logger.info('learning_objectives:derivation_completed', {
+    batchCount: plan.requests.length,
+    draftCount: drafts.length,
+  });
+  return result;
 }

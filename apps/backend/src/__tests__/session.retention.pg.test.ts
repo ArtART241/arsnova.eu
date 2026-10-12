@@ -134,6 +134,28 @@ describe.skipIf(!RUN_PG)('session retention (PostgreSQL)', () => {
     await client.end();
   });
 
+  it('löscht abgelaufenes entkoppeltes Feedback ohne Trigger-Konflikt', async () => {
+    const feedbackId = randomUUID();
+    await client.query('BEGIN');
+    try {
+      await client.query(
+        `
+          INSERT INTO "SessionFeedback" (id, "overallRating", "createdAt")
+          VALUES ($1, 5, timezone('UTC', statement_timestamp()) - INTERVAL '91 days')
+        `,
+        [feedbackId],
+      );
+
+      await expect(
+        client.query<{ id: string }>(`DELETE FROM "SessionFeedback" WHERE id = $1 RETURNING id`, [
+          feedbackId,
+        ]),
+      ).resolves.toMatchObject({ rowCount: 1, rows: [{ id: feedbackId }] });
+    } finally {
+      await client.query('ROLLBACK');
+    }
+  });
+
   it('hält alle Referenzaktionen des Session-Purges über Leitindizes bounded', async () => {
     const expected = PURGE_INDEXES;
     const indexes = await client.query<{

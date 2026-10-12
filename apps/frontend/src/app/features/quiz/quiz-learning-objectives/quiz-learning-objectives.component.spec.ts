@@ -372,10 +372,74 @@ describe('QuizLearningObjectivesComponent', () => {
     ) as HTMLElement;
     expect(rendered.querySelector('strong')?.textContent).toBe('Vererbung');
     expect(rendered.querySelector('a, img, button, script, .markdown-code-block__copy')).toBeNull();
+    expect(fixture.componentInstance.derivationMessage()).toBe(
+      'Ein Lernzielvorschlag wurde als Entwurf hinzugefügt. Prüfe ihn vor dem Bestätigen.',
+    );
     expect(start.disabled).toBe(true);
     expect(document.activeElement?.id).toBe(
       `learning-objective-edit-${store.getLearningObjectiveBundle(quiz.id).objectives[0]?.id}`,
     );
+  });
+
+  it('nennt mehrere neue Entwürfe klar und zeigt ohne Einschränkung keine Hinweisliste', async () => {
+    const store = TestBed.inject(QuizStoreService);
+    const quiz = store.createQuiz({ name: 'Mehrere Vorschläge' });
+    const question = store.addQuestion(quiz.id, {
+      text: 'Welche Antwort stimmt?',
+      type: 'SINGLE_CHOICE',
+      difficulty: 'EASY',
+      answers: [
+        { text: 'A', isCorrect: true },
+        { text: 'B', isCorrect: false },
+      ],
+    });
+    runDerivationMock.mockImplementation(
+      async (input: { operationId: string; quizId: string; expectedBundleRevision: number }) => ({
+        schemaVersion: 1,
+        operationId: input.operationId,
+        quizId: input.quizId,
+        expectedBundleRevision: input.expectedBundleRevision,
+        status: 'completed',
+        drafts: [1, 2].map((index) => ({
+          id: `50000000-0000-4000-8000-00000000000${index}`,
+          revision: 0,
+          text: `Lernziel ${index}`,
+          scope: { kind: 'question-set', sourceQuestionIds: [question.id] },
+          origin: {
+            kind: 'model-derived',
+            modelId: 'local-model',
+            modelVersion: '1',
+            derivationVersion: 'learning-objectives-v1',
+            derivedFromSourceQuestionIds: [question.id],
+            sourceDigest: 'c'.repeat(64),
+          },
+          confirmation: { state: 'draft' },
+          createdAt: '2026-10-05T12:00:00.000Z',
+          updatedAt: '2026-10-05T12:00:00.000Z',
+        })),
+        limitations: [],
+        batchCount: 1,
+      }),
+    );
+    const fixture = TestBed.createComponent(QuizLearningObjectivesComponent);
+    fixture.componentRef.setInput('quizId', quiz.id);
+    fixture.componentRef.setInput('questions', [question]);
+    fixture.detectChanges();
+
+    (
+      fixture.nativeElement.querySelector('#learning-objective-derive') as HTMLButtonElement
+    ).click();
+    await vi.waitFor(() =>
+      expect(store.getLearningObjectiveBundle(quiz.id).objectives).toHaveLength(2),
+    );
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.derivationMessage()).toBe(
+      '2 Lernzielvorschläge wurden als Entwürfe hinzugefügt. Prüfe sie vor dem Bestätigen.',
+    );
+    expect(
+      fixture.nativeElement.querySelector('.learning-objectives__derivation-status ul'),
+    ).toBeNull();
   });
 
   it('zeigt Auslastung als manuellen Retry und startet nicht selbst erneut', async () => {

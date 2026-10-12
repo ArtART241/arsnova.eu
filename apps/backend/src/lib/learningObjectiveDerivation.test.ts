@@ -392,7 +392,7 @@ describe('learningObjectiveDerivation', () => {
   });
 
   it('bounds the complete multi-batch lifecycle and releases the active run after deadline', async () => {
-    expect(LEARNING_OBJECTIVE_DERIVATION_OVERALL_TIMEOUT_MS).toBe(120_000);
+    expect(LEARNING_OBJECTIVE_DERIVATION_OVERALL_TIMEOUT_MS).toBe(1_200_000);
     const questions = QUESTION_IDS.slice(0, 4).map((id, index) =>
       choiceQuestion(id, index, '🧪'.repeat(170)),
     );

@@ -124,7 +124,7 @@ Das Profil `llm-http` ist ausschließlich ein lokaler Laborpfad. Der Produktions
 - vor jedem Modellaufruf `GET /slots?fail_on_no_slot=1`;
 - maximal ein POST nach erfolgreicher Slot-Sonde, keine App-interne Modellqueue;
 - belegter Slot: Label und Summary liefern sofort ihren fachlichen Fallback, Lernzielableitung `{ status: "busy", retry: "manual" }`;
-- Caller-Abbruch und auftragsspezifisches Timeout begrenzen bereits die DNS-Auflösung, brechen danach den HTTP-Aufruf ab und lösen das globale Inflight in `finally`; verspätete DNS-Ergebnisse starten keinen Request. Der Lernziel-Consumer verwendet zusätzlich ein einziges 120-Sekunden-Wall-Clock-Budget über alle deterministischen Batches;
+- Caller-Abbruch und auftragsspezifisches Timeout begrenzen bereits die DNS-Auflösung, brechen danach den HTTP-Aufruf ab und lösen das globale Inflight in `finally`; verspätete DNS-Ergebnisse starten keinen Request. Jeder Lernziel-Batch hat standardmäßig 300 Sekunden, die gesamte Ableitung zusätzlich ein gemeinsames 20-Minuten-Wall-Clock-Budget über alle deterministischen Batches;
 - Circuit Breaker öffnet nach drei Timeout-/Verfügbarkeits-/Antwortfehlern für 30 Sekunden;
 - URL-Hostnamen werden aufgelöst und auf ausschließlich Loopback/RFC1918/ULA geprüft; die Anfrage wird an die geprüfte IP gepinnt;
 - Telemetrie enthält nur Auftragstyp, Modellalias, Laufzeit und Tokenzahlen, keine Prompttexte.

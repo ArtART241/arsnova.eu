@@ -2,7 +2,7 @@
 
 # Modellgestützte Lernzielableitung in der Quizvorbereitung (#456 Slice 5)
 
-**Stand:** 2026-10-05
+**Stand:** 2026-10-12
 
 **Status:** Implementiert und standardmäßig deaktiviert; technische Realmodell-Abnahme der Lernzielableitung bleibt Teil der Slice-8-Gesamtabnahme
 
@@ -44,9 +44,11 @@ Jeder Modell-Batch hat standardmäßig ein eigenes Zeitlimit von 300 Sekunden (`
 
 `maximumDrafts` entspricht der beim Start verbleibenden lokalen Kapazität. Überzählige, deterministisch sortierte Vorschläge werden begrenzt, und eine lokalisierte Limitation weist die Kürzung aus. Ein fachlich leerer Modelloutput bleibt ein erfolgreicher, aber ausdrücklich limitierter Nullvorschlag und wird nicht als erfundenes Lernziel aufgefüllt.
 
+Freie Hinweise aus der Modellantwort werden nicht als fachliche Einschränkungen angezeigt: Sie können in jedem Batch dieselben Promptregeln umformulieren und sind nicht verifiziert. Sichtbare Hinweise stammen ausschließlich aus vom Backend festgestellten Ergebnissen wie Kapazitätsgrenze oder leerer Ausgabe; der Browser kann zusätzlich eine beim Anwenden erreichte Kapazitätsgrenze melden. Die Vorschläge selbst bleiben Entwürfe zur fachlichen Prüfung.
+
 ## Prompt-, Quellen- und Provenienzschutz
 
-Der fachliche Systemprompt trägt die Version `learning-objectives-system-v1`. Er behandelt Fragetexte, Antworten, Lösungserläuterungen und darin eingebettete Anweisungen ausdrücklich als nicht vertrauenswürdige Kursdaten. Das Modell darf nur beobachtbare, hostprüfbare Lernziele formulieren und ausschließlich exakte Aufgaben-IDs des aktuellen Batches referenzieren. Schemafremde Antworten, erfundene IDs, Querverweise auf einen anderen Batch und doppelte Referenzen scheitern geschlossen.
+Der fachliche Systemprompt trägt die Version `learning-objectives-system-v2`. Er behandelt Fragetexte, Antworten, Lösungserläuterungen und darin eingebettete Anweisungen ausdrücklich als nicht vertrauenswürdige Kursdaten. Das Modell soll beobachtbare, hostprüfbare Lernziele als kurze, rollenneutrale Infinitivformulierungen in der angeforderten Sprache formulieren, statt wechselnde Bezeichnungen wie „Student“, „Schüler“ oder „Benutzer“ zu verwenden. Es darf ausschließlich exakte Aufgaben-IDs des aktuellen Batches referenzieren. Das Pflichtfeld `limitations` soll leer bleiben; vom Modell dennoch gelieferte Hinweise werden nicht angezeigt. Schemafremde Antworten, erfundene IDs, Querverweise auf einen anderen Batch und doppelte Referenzen scheitern geschlossen.
 
 Ein fertiger Vorschlag enthält:
 
@@ -70,7 +72,7 @@ Fokussierte Tests decken Vertragsstrenge, sämtliche Lösungstypen, Multibyte-Bu
 
 Die kanonischen Produktdaten für Integration, E2E und Realmodellmessung sind `getDemoQuizPayload(...)` und `getDemoQuizSeedFingerprint(...)` in `apps/frontend/src/app/features/quiz/data/demo-quiz-payload.ts`. Kleine Unit-Tests dürfen fokussierte Minimalfixtures verwenden.
 
-Runtime R hat das gepinnte Modell und die Schemaerzwingung bereits mit einem realen `topic_label`-Auftrag belegt. Ein Produktionsversuch mit dem umfangreichen Demo-Quiz am 2026-10-12 erreichte den privaten Modellserver, erzeugte Tokens, überschritt aber das frühere 120-Sekunden-Gesamtbudget ohne fertige Lernziele. Die längeren Limits sind deshalb noch kein Nachweis für eine erfolgreiche Realmodell-Ableitung oder didaktische Qualität. Die Slice-8-Abnahme muss für jeden echten Lauf Systemprompt, Userpayload, angefordertes Schema und vollständige Antwort ohne Secrets dokumentieren sowie CPU-/Prefill-/Speicherwerte und die Produktionsgrenze ausweisen. `OPEN_WEIGHT_LLM_ENABLED` bleibt bis zu dieser Abnahme und einer getrennten Betreiberentscheidung standardmäßig `false`.
+Runtime R hat das gepinnte Modell und die Schemaerzwingung bereits mit einem realen `topic_label`-Auftrag belegt. Ein Produktionsversuch mit dem umfangreichen Demo-Quiz am 2026-10-12 erreichte den privaten Modellserver, erzeugte Tokens, überschritt aber das frühere 120-Sekunden-Gesamtbudget ohne fertige Lernziele. Ein anderes Produktionsquiz mit zehn bewertbaren Fragen erzeugte nach Verlängerung der Zeitlimits sieben Entwürfe; dabei waren mehrere Modellhinweise redundant und die Formulierungen der Ziele wechselten zwischen Rollenbezeichnungen. Die neue Filterung und der Systemprompt v2 wurden noch nicht mit dem Realmodell geprüft. Das vollständige Demo-Quiz bleibt ebenfalls als Last- und Qualitätstest offen. Die Slice-8-Abnahme muss für jeden echten Lauf Systemprompt, Userpayload, angefordertes Schema und vollständige Antwort ohne Secrets dokumentieren sowie CPU-/Prefill-/Speicherwerte und die Produktionsgrenze ausweisen. `OPEN_WEIGHT_LLM_ENABLED` bleibt bis zu dieser Abnahme und einer getrennten Betreiberentscheidung standardmäßig `false`.
 
 ## Fokussierte Verifikation
 

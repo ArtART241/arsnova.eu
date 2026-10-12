@@ -35420,8 +35420,12 @@
         <target>The local model is recovering from errors. Try again later when you choose.</target>
       </trans-unit>
       <trans-unit id="learningObjectives.derivationCompleted" datatype="html">
-        <source>Neue Vorschläge als Entwurf hinzugefügt: <x id="count" equiv-text="applied.length"/>. Prüfe und bestätige sie fachlich.</source>
-        <target>New suggestions added as drafts: <x id="count" equiv-text="applied.length"/>. Review their content and confirm them.</target>
+        <source><x id="count" equiv-text="applied.length"/> Lernzielvorschläge wurden als Entwürfe hinzugefügt. Prüfe sie vor dem Bestätigen.</source>
+        <target><x id="count" equiv-text="applied.length"/> learning objective suggestions were added as drafts. Review them before confirming.</target>
+      </trans-unit>
+      <trans-unit id="learningObjectives.derivationCompletedSingle" datatype="html">
+        <source>Ein Lernzielvorschlag wurde als Entwurf hinzugefügt. Prüfe ihn vor dem Bestätigen.</source>
+        <target>One learning objective suggestion was added as a draft. Review it before confirming.</target>
       </trans-unit>
       <trans-unit id="learningObjectives.derivationCompletedEmpty" datatype="html">
         <source>Die Herleitung ist abgeschlossen. Es wurden keine neuen Vorschläge hinzugefügt.</source>

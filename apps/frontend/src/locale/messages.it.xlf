@@ -35362,8 +35362,12 @@
         <target>Il modello locale si sta riprendendo da alcuni errori. Riprova più tardi quando vuoi.</target>
       </trans-unit>
       <trans-unit id="learningObjectives.derivationCompleted" datatype="html">
-        <source>Neue Vorschläge als Entwurf hinzugefügt: <x id="count" equiv-text="applied.length"/>. Prüfe und bestätige sie fachlich.</source>
-        <target>Nuovi suggerimenti aggiunti come bozze: <x id="count" equiv-text="applied.length"/>. Verificane il contenuto e confermali.</target>
+        <source><x id="count" equiv-text="applied.length"/> Lernzielvorschläge wurden als Entwürfe hinzugefügt. Prüfe sie vor dem Bestätigen.</source>
+        <target><x id="count" equiv-text="applied.length"/> proposte di obiettivi di apprendimento sono state aggiunte come bozze. Verificale prima di confermarle.</target>
+      </trans-unit>
+      <trans-unit id="learningObjectives.derivationCompletedSingle" datatype="html">
+        <source>Ein Lernzielvorschlag wurde als Entwurf hinzugefügt. Prüfe ihn vor dem Bestätigen.</source>
+        <target>Una proposta di obiettivo di apprendimento è stata aggiunta come bozza. Verificala prima di confermarla.</target>
       </trans-unit>
       <trans-unit id="learningObjectives.derivationCompletedEmpty" datatype="html">
         <source>Die Herleitung ist abgeschlossen. Es wurden keine neuen Vorschläge hinzugefügt.</source>

@@ -35362,8 +35362,12 @@
         <target>Le modèle local récupère actuellement après des erreurs. Réessaie plus tard lorsque tu le souhaites.</target>
       </trans-unit>
       <trans-unit id="learningObjectives.derivationCompleted" datatype="html">
-        <source>Neue Vorschläge als Entwurf hinzugefügt: <x id="count" equiv-text="applied.length"/>. Prüfe und bestätige sie fachlich.</source>
-        <target>Nouvelles suggestions ajoutées comme brouillons : <x id="count" equiv-text="applied.length"/>. Vérifie leur contenu et confirme-les.</target>
+        <source><x id="count" equiv-text="applied.length"/> Lernzielvorschläge wurden als Entwürfe hinzugefügt. Prüfe sie vor dem Bestätigen.</source>
+        <target><x id="count" equiv-text="applied.length"/> propositions d’objectifs d’apprentissage ont été ajoutées comme brouillons. Vérifie-les avant de les confirmer.</target>
+      </trans-unit>
+      <trans-unit id="learningObjectives.derivationCompletedSingle" datatype="html">
+        <source>Ein Lernzielvorschlag wurde als Entwurf hinzugefügt. Prüfe ihn vor dem Bestätigen.</source>
+        <target>Une proposition d’objectif d’apprentissage a été ajoutée comme brouillon. Vérifie-la avant de la confirmer.</target>
       </trans-unit>
       <trans-unit id="learningObjectives.derivationCompletedEmpty" datatype="html">
         <source>Die Herleitung ist abgeschlossen. Es wurden keine neuen Vorschläge hinzugefügt.</source>

@@ -931,7 +931,14 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
 
     this.hostDisplayMode.setHostSessionActive(true);
     await this.refreshSessionMeta();
+    // Nach Navigation während des Ladens keine Subscriptions oder Intervalle mehr starten.
+    if (this.destroyRef.destroyed) {
+      return;
+    }
     await this.refreshPresenterLiveData();
+    if (this.destroyRef.destroyed) {
+      return;
+    }
     this.ensurePresenterSubscriptions();
     this.startPolling();
     void this.generateJoinQr();
@@ -1024,6 +1031,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   }
 
   private startPolling(): void {
+    if (this.destroyRef.destroyed) return;
     if (typeof document !== 'undefined' && document.hidden) {
       return;
     }
@@ -1069,6 +1077,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
         return;
       }
       await this.loadPresenterLeaderboards();
+      if (this.destroyRef.destroyed) return;
       this.finishBoardsResolved.set(true);
       return;
     }
@@ -1304,6 +1313,8 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
         code: this.code.toUpperCase(),
         anonymousClientId: getAnonymousClientId(),
       });
+      // Eine späte Antwort nach ngOnDestroy darf keine Subscriptions oder Timer mehr starten.
+      if (this.destroyRef.destroyed) return;
       recordServerTimeSample(session.serverTime, requestedAt);
       this.snapshotRefreshFailed.set(false);
       this.showHomeCta.set(false);
@@ -1333,6 +1344,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
         }
         this.finishBoardsResolved.set(false);
         await this.loadPresenterLeaderboards();
+        if (this.destroyRef.destroyed) return;
         this.finishBoardsResolved.set(true);
         return;
       }
@@ -1454,6 +1466,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
         trpc.session.getLeaderboard.query({ code, anonymousClientId }),
         trpc.session.getTeamLeaderboard.query({ code, anonymousClientId }),
       ]);
+      if (this.destroyRef.destroyed) return;
       const current = this.session();
       if (!current || current.status !== requestedStatus) {
         return;
@@ -1469,6 +1482,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
         this.teamLeaderboard.set(teams);
       }
     } catch {
+      if (this.destroyRef.destroyed) return;
       if (this.session()?.status === requestedStatus) {
         this.personalLeaderboard.set([]);
         this.teamLeaderboard.set([]);
@@ -1478,6 +1492,8 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   }
 
   private syncBoardPageTimer(): void {
+    // Späte Antworten nach ngOnDestroy dürfen kein Intervall mehr anlegen, das niemand stoppt.
+    if (this.destroyRef.destroyed) return;
     if (!this.showFinishProjection() || this.personalBoardPageCount() <= 1) {
       this.stopBoardPageTimer();
       this.personalBoardPageIndex.set(0);
@@ -1723,7 +1739,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   }
 
   private ensurePresenterSubscriptions(): void {
-    if (this.code.length !== 6) {
+    if (this.destroyRef.destroyed || this.code.length !== 6) {
       return;
     }
     const code = this.code.toUpperCase();
@@ -1891,6 +1907,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   }
 
   private startCountdown(timerSeconds: number | null | undefined, activeAt?: string): void {
+    if (this.destroyRef.destroyed) return;
     if (!timerSeconds || timerSeconds <= 0) {
       this.stopCountdown();
       return;

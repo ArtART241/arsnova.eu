@@ -100,6 +100,8 @@ export class FeedbackHostComponent implements OnInit, OnDestroy {
   private readonly productFeedbackLauncher = inject(ProductFeedbackLauncherService);
   private subscription: Unsubscribable | null = null;
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  /** Nach `ngOnDestroy` dürfen späte Antworten weder Polling noch Subscription starten. */
+  private destroyed = false;
   private hostResultLoad: 'unknown' | 'ready' | 'missing' | 'failed' = 'unknown';
   /** Startseiten-Vorlage wurde angewendet oder fachlich verworfen; Polling darf sie nicht erneut versuchen. */
   private requestedFeedbackTypeHandled = false;
@@ -424,6 +426,9 @@ export class FeedbackHostComponent implements OnInit, OnDestroy {
     await this.generateQrCode();
     await this.loadInitialResult();
     await this.consumeRequestedFeedbackType();
+    if (this.destroyed) {
+      return;
+    }
     this.startPolling();
     if (this.result()) {
       this.subscribeToResults();
@@ -431,6 +436,7 @@ export class FeedbackHostComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.suppressFeedbackJoinMenuAutopen = true;
     if (this.pollTimer) {
       clearInterval(this.pollTimer);
@@ -518,6 +524,9 @@ export class FeedbackHostComponent implements OnInit, OnDestroy {
     try {
       data = await trpc.quickFeedback.hostResults.query({ sessionCode: code });
     } catch (error) {
+      if (this.destroyed) {
+        return;
+      }
       if (!this.isMissingFeedbackRound(error)) {
         if (this.result()?.type) {
           return;
@@ -531,6 +540,9 @@ export class FeedbackHostComponent implements OnInit, OnDestroy {
         return;
       }
       this.markFeedbackRoundMissing(code);
+      return;
+    }
+    if (this.destroyed) {
       return;
     }
 

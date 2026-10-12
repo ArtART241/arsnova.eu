@@ -187,6 +187,112 @@ describe('SessionPresentComponent', () => {
     TestBed.inject(ThemePresetService).setPreset('spielerisch', { silent: true });
   });
 
+  it('startet nach Zerstörung während des ersten Ladens weder Polling noch Subscriptions', async () => {
+    const session = await getInfoQueryMock();
+    let resolveInfo: (value: unknown) => void = () => undefined;
+    getInfoQueryMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveInfo = resolve;
+        }),
+    );
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+    const fixture = TestBed.createComponent(SessionPresentComponent);
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(getInfoQueryMock).toHaveBeenCalledTimes(2));
+    // Navigation weg von der Präsentation, bevor die Session-Daten ankommen.
+    fixture.destroy();
+    const intervalsAtDestroy = setIntervalSpy.mock.calls.length;
+    const subscriptionsAtDestroy = subscribeMock.mock.calls.length;
+    resolveInfo(session);
+    for (let i = 0; i < 5; i += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    expect(setIntervalSpy.mock.calls.length).toBe(intervalsAtDestroy);
+    expect(subscribeMock.mock.calls.length).toBe(subscriptionsAtDestroy);
+    setIntervalSpy.mockRestore();
+  });
+
+  it('startet nach Zerstörung während des Leaderboard-Ladens kein Board-Intervall', async () => {
+    getInfoQueryMock.mockResolvedValue({
+      id: '6a8edced-5f8f-4cfa-9176-454fac9570ad',
+      serverTime: MOCK_SERVER_TIME,
+      code: 'ABC123',
+      type: 'QUIZ',
+      status: 'FINISHED',
+      quizName: 'Großes Quiz',
+      title: null,
+      participantCount: 24,
+      teamMode: false,
+      finishProjection: 'leaderboard',
+    });
+    let resolveLeaderboard: (value: unknown) => void = () => undefined;
+    getLeaderboardQueryMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveLeaderboard = resolve;
+        }),
+    );
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+    const fixture = TestBed.createComponent(SessionPresentComponent);
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(getLeaderboardQueryMock).toHaveBeenCalled());
+    // Präsentation verlassen, während die Abschluss-Leaderboards noch laden.
+    fixture.destroy();
+    const intervalsAtDestroy = setIntervalSpy.mock.calls.length;
+    resolveLeaderboard(
+      Array.from({ length: 24 }, (_, index) => ({
+        rank: index + 1,
+        nickname: `Spieler ${index + 1}`,
+        totalScore: 240 - index * 5,
+        correctCount: 12,
+        totalQuestions: 12,
+        totalResponseTimeMs: 1000 + index * 80,
+      })),
+    );
+    for (let i = 0; i < 5; i += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    expect(setIntervalSpy.mock.calls.length).toBe(intervalsAtDestroy);
+    expect(fixture.componentInstance.finishBoardsResolved()).toBe(false);
+    setIntervalSpy.mockRestore();
+  });
+
+  it('startet nach Zerstörung während des Fragen-Abrufs keinen Countdown', async () => {
+    let resolveQuestion: (value: unknown) => void = () => undefined;
+    getCurrentQuestionForHostQueryMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveQuestion = resolve;
+        }),
+    );
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+    const fixture = TestBed.createComponent(SessionPresentComponent);
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(getCurrentQuestionForHostQueryMock).toHaveBeenCalled());
+    fixture.destroy();
+    const intervalsAtDestroy = setIntervalSpy.mock.calls.length;
+    resolveQuestion({
+      questionId: '7ed3cc25-3179-4a91-9dc3-acc00971fb46',
+      order: 1,
+      totalQuestions: 13,
+      text: 'Was war hilfreich?',
+      type: 'SINGLE_CHOICE',
+      difficulty: 'EASY',
+      showQuestionTypeIndicators: true,
+      timer: 30,
+      answers: [],
+    });
+    for (let i = 0; i < 5; i += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    expect(setIntervalSpy.mock.calls.length).toBe(intervalsAtDestroy);
+    setIntervalSpy.mockRestore();
+  });
+
   it('retries a failed page measurement and ignores a delayed result from an old context', async () => {
     vi.useFakeTimers();
     const fixture = TestBed.createComponent(SessionPresentComponent);

@@ -365,6 +365,8 @@ server {
     location / {
         proxy_pass http://app_http;
         proxy_http_version 1.1;
+        # Lernzielableitung hat ein 20-Minuten-Gesamtbudget; Nginx wartet länger.
+        proxy_read_timeout 1260s;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         # Externe XFF-Werte nicht weiterreichen; Backend vertraut genau diesem Proxy-Hop.
@@ -406,6 +408,25 @@ server {
     }
 }
 ```
+
+`proxy_read_timeout` gilt hier für normale HTTP-Anfragen einschließlich
+`quiz.deriveLearningObjectives`. Ohne diese Direktive beendet Nginx eine
+lang laufende Herleitung nach seinem 60-s-Standardwert mit HTTP 504, bevor
+das 20-Minuten-Gesamtbudget des Backends abläuft. Die 1.260 Sekunden lassen dem
+Backend Zeit, selbst eine fachliche Antwort oder einen Timeout-Status zu
+liefern. Bei einer bestehenden Installation muss der Wert vor dem App-Deploy
+auch in der aktiven Host-Datei `/etc/nginx/sites-available/arsnova-click` stehen;
+`scripts/deploy.sh` verwaltet diese Nginx-Datei nicht. Nach einer Änderung
+`sudo nginx -t` ausführen und Nginx erst bei erfolgreichem Test neu laden.
+Die vorhandene `.env.production` bleibt beim Deploy erhalten: Dort muss
+`OPEN_WEIGHT_LLM_LEARNING_TIMEOUT_MS=300000` stehen. Ein alter Wert von
+`120000` würde auch mit dem neuen App-Image jeden Batch nach zwei Minuten
+abbrechen.
+Falls die aktive Konfiguration zusätzlich eine eigene HTTP-`location /trpc`
+enthält, muss `proxy_read_timeout 1260s;` auch dort stehen: Nginx wählt für
+`/trpc/quiz.deriveLearningObjectives` die spezifischere Location, und eine
+Direktive aus der benachbarten `location /` gilt dort nicht. Die WebSocket-
+Locations `/trpc-ws` und `/yjs-ws` behalten ihre separaten Leselimits.
 
 Neu erzeugte Browser-Share-Links transportieren den Token zusätzlich im
 URL-Fragment (`#s=…`), das bei HTTP-Anfragen nie an Nginx übertragen wird.

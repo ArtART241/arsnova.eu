@@ -879,7 +879,7 @@ Tooltips und Quellenlisten erklären Varianten und Gewichtungsbasis. Gruppenausw
 | `OPEN_WEIGHT_LLM_ENABLED`                                   | Gemeinsame private LLM-Runtime      | Fünfter eigenständiger Kill-Switch gemäß ADR 0035; nur exakt `true`; Compose-Profil `llm` |
 | `OPEN_WEIGHT_LLM_URL` oder `OPEN_WEIGHT_LLM_SOCKET_PATH`    | Exklusiver Runtime-Transport        | Privates HTTP in Produktion; Unix-Socket nur Same-Host-Labor                              |
 | `OPEN_WEIGHT_LLM_TOKEN`                                     | Runtime-Authentisierung             | Separates Credential mit mindestens 32 Zeichen; nie in der URL                            |
-| `OPEN_WEIGHT_LLM_*_TIMEOUT_MS`                              | Auftragsspezifische Zeitbudgets     | Label 30 s, Summary 90 s, Lernziele 120 s; keine gemeinsame Modellqueue                   |
+| `OPEN_WEIGHT_LLM_*_TIMEOUT_MS`                              | Auftragsspezifische Zeitbudgets     | Label 30 s, Summary 90 s, Lernziele 300 s je Batch, 20 min gesamt; keine Modellqueue      |
 | `QA_SUMMARY_INFERENCE_URL` und `QA_SUMMARY_INFERENCE_TOKEN` | Bisheriger Summary-Adaptertransport | Vertrag beachten; nicht direkt mit beliebiger Chat-Completions-URL gleichsetzen           |
 | `QA_SUMMARY_MAX_SOURCES`                                    | Bisheriges Summary-Quellenlimit     | Standard 20, maximal 40; ersetzt kein 1.3-Tokenbudget                                     |
 | `QA_SUMMARY_COOLDOWN_MS`                                    | Wiederholung identischer Snapshots  | Standard 30.000 ms                                                                        |

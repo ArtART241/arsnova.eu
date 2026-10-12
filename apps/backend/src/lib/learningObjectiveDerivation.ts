@@ -25,15 +25,10 @@ import {
   runOpenWeightLlmLearningObjectives,
   type OpenWeightLlmTelemetry,
 } from './openWeightLlmClient';
-import {
-  OPEN_WEIGHT_LLM_LEARNING_TIMEOUT_DEFAULT_MS,
-  OPEN_WEIGHT_LLM_MODEL_ID,
-  OPEN_WEIGHT_LLM_MODEL_VERSION,
-} from './openWeightLlmConfig';
+import { OPEN_WEIGHT_LLM_MODEL_ID, OPEN_WEIGHT_LLM_MODEL_VERSION } from './openWeightLlmConfig';
 
 /** One explicit host action has one wall-clock budget across every deterministic batch. */
-export const LEARNING_OBJECTIVE_DERIVATION_OVERALL_TIMEOUT_MS =
-  OPEN_WEIGHT_LLM_LEARNING_TIMEOUT_DEFAULT_MS;
+export const LEARNING_OBJECTIVE_DERIVATION_OVERALL_TIMEOUT_MS = 20 * 60_000;
 
 const DERIVATION_LIMITATIONS = {
   de: {

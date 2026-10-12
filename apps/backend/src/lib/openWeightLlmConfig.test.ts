@@ -90,6 +90,17 @@ describe('openWeightLlmConfig', () => {
     });
   });
 
+  it('reserviert für Lernziel-Batches standardmäßig fünf Minuten, ohne die kurzen Aufträge zu verlängern', () => {
+    expect(resolveOpenWeightLlmConfig({}).timeoutsMs).toEqual({
+      topic_label: 30_000,
+      qa_summary: 90_000,
+      learning_objectives: 300_000,
+    });
+    expect(() =>
+      resolveOpenWeightLlmConfig({ OPEN_WEIGHT_LLM_LEARNING_TIMEOUT_MS: '300001' }),
+    ).toThrow(/zwischen 1000 und 300000/);
+  });
+
   it('verwirft zu kurze oder nicht URL-sichere Runtime-Credentials', () => {
     expect(() => resolveOpenWeightLlmConfig({ OPEN_WEIGHT_LLM_TOKEN: 'zu-kurz' })).toThrow(
       /32 bis 512/,

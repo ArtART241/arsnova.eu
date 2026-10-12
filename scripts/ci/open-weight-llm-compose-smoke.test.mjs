@@ -98,6 +98,8 @@ test('zweiter Produktionshost verlangt Digest-Image und bindet ohne Port-Mapping
   );
   assert.match(runtime, /network_mode:\s*host\b/);
   assert.doesNotMatch(runtime, /^\s+ports:/m);
+  assert.match(runtime, /mem_limit:\s*8g/, 'second-host: RAM-cgroup');
+  assert.match(runtime, /memswap_limit:\s*10g/, 'second-host: RAM-plus-Swap-cgroup');
   assert.match(runtime, /OPEN_WEIGHT_LLM_TRANSPORT:\s*http/);
   assert.match(runtime, /\/models:ro/);
 

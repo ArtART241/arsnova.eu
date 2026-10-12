@@ -329,7 +329,14 @@ mit 2.300 Teilnehmenden und 2.900 Votes sank dadurch im PostgreSQL-Plan von
 10,45 Sekunden auf 193 Millisekunden; der Purge bleibt damit deutlich unter
 Prismas 5-Sekunden-Limit für interaktive Transaktionen.
 
-Alle vier Migrationen bleiben bei einem App-Rollback vorwärts angewandt. Ein
+`20261011150000_fix_session_feedback_trigger_after_delete` legt denselben
+Statement-Trigger `SessionFeedback_cleanup_detached_retention` von
+`BEFORE DELETE` auf `AFTER DELETE` um. Ein `BEFORE DELETE` auf
+`SessionFeedback`, dessen Funktion dieselbe Tabelle bereinigt, bricht mit
+PostgreSQL `27000` (`triggered_data_change_violation`) ab. Die Funktion bleibt
+unverändert; die bereits angewandte Bridge-Migration wird nicht umgeschrieben.
+
+Die genannten Migrationen bleiben bei einem App-Rollback vorwärts angewandt. Ein
 Schema-Downgrade ist nicht vorgesehen; das Rückrollen erfolgt ausschließlich
 über das App-Image.
 

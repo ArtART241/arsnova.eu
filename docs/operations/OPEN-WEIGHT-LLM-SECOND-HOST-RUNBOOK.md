@@ -856,8 +856,9 @@ vmstat 2 10
 docker stats --no-stream arsnova-open-weight-llm
 ```
 
-Nicht die 5-GiB-Containergrenze erhöhen, ohne Abnahme und Dokumentation. Zuerst
-den App-Kill-Switch ausschalten und den Runtime-Container stoppen.
+Nicht die 8-GiB-RAM- oder 10-GiB-RAM-plus-Swap-Grenze erhöhen, ohne Abnahme und
+Dokumentation. Zuerst den App-Kill-Switch ausschalten und den Runtime-Container
+stoppen.
 
 ## 14. Kontrollierte Aktualisierung
 

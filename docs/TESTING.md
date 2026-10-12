@@ -70,7 +70,9 @@ RUN_PG_SESSION_LIFECYCLE_TESTS=1 \
 Der Test benötigt echtes PostgreSQL; ein Prisma-Mock ist kein Ersatz. Er prüft
 24-Stunden-Defaults, unveränderliche Lifecycle-Marker, fail-closed
 Child-Writes, `endedAt = expiresAt` bei verspäteter Materialisierung sowie
-Verlängerung-/Ende-Races über mehrere Verbindungen. Vor dem Test müssen die
+Verlängerung-/Ende-Races über mehrere Verbindungen. Der Retention-Test löscht
+außerdem ein abgelaufenes, entkoppeltes `SessionFeedback` direkt und prüft damit
+den Trigger-Konflikt `27000`. Vor dem Test müssen die
 versionierten Migrationen mit `npx prisma migrate deploy` angewendet sein. Die
 zugehörigen Controlled-Clock-Unit- und Frontendtests laufen im normalen
 Backend-/Frontend-Testjob. Der Retention-Test prüft zusätzlich die

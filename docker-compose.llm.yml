@@ -18,7 +18,8 @@ services:
     # Wildcards werden vom Entry-Point und vom Betreiber-Wrapper abgewiesen.
     network_mode: host
     pids_limit: 128
-    mem_limit: 5g
+    mem_limit: 8g
+    memswap_limit: 10g
     cpus: '4.0'
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777

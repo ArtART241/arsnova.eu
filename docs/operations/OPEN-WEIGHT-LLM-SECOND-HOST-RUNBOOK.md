@@ -2,7 +2,7 @@
 
 # Betriebshandbuch: private CPU-Inferenz auf einem zweiten Linux-Host
 
-Stand: 2026-10-06
+Stand: 2026-10-12
 
 Dieses Runbook installiert und betreibt die private Open-Weight-LLM-Runtime von
 arsnova.eu auf einer **zweiten Linux-Box**. Es ist für Betreiber:innen geschrieben,
@@ -30,7 +30,7 @@ arsnova.eu / App-Host  ── privates Netz, TCP 8080 ──>  CPU-Inferenz-Host
 - App und Runtime authentifizieren sich zusätzlich mit einem eigenen Secret.
 - Das Modell wird einmal heruntergeladen und vor jedem Start per SHA-256 geprüft.
 - Es gibt keinen SaaS-Fallback und keinen automatischen Modell-Download beim Start.
-- Der Container verwendet höchstens 4 CPUs, 5 GiB RAM und einen Inferenz-Slot.
+- Der Container verwendet höchstens 4 CPUs, 8 GiB RAM, 10 GiB RAM plus Swap und einen Inferenz-Slot.
 - Der normale arsnova.eu-Deploy startet oder aktualisiert diese Box nicht.
 
 > **Wichtig:** Ein grüner Runtime-Test ist noch keine allgemeine Produktivfreigabe
@@ -46,13 +46,23 @@ Als praktische Untergrenze gelten:
 | Ressource          |             Untergrenze | Empfehlung für Abnahme/Messung |
 | ------------------ | ----------------------: | -----------------------------: |
 | CPU                | 4 nutzbare 64-Bit-Kerne |                        8 Kerne |
-| RAM                |                   8 GiB |                         16 GiB |
+| RAM                |                  12 GiB |                         16 GiB |
 | freier Datenträger |                  10 GiB |                         20 GiB |
 | Netz               |    private IPv4-Adresse |  eigenes privates Segment/VLAN |
 
-Der Container selbst ist auf 4 CPUs und 5 GiB RAM begrenzt. Weniger Host-RAM kann
-zu Swap-Nutzung, hohen Latenzen oder Abbrüchen führen. GPU-Unterstützung wird nicht
-verwendet.
+Der Container selbst ist auf 4 CPUs und 8 GiB RAM begrenzt. Die kombinierte
+RAM-und-Swap-Grenze liegt bei 10 GiB; Swap ist keine Ersatzkapazität für
+zeitkritische Inferenz. Auf dem Produktionshost mit 15 GiB nutzbarem RAM löste
+das frühere 5-GiB-Containerlimit am 12.10.2026 bei Batch 3 einer vierteiligen
+Demo-Quiz-Ableitung ein Docker-OOM-Ereignis mit automatischem Neustart aus.
+Weniger Host-RAM kann zu Swap-Nutzung, hohen Latenzen oder Abbrüchen führen.
+GPU-Unterstützung wird nicht verwendet.
+
+Eine Änderung per `docker update` am laufenden Container ist nur eine
+Sofortmaßnahme für den aktuellen Container. Beim nächsten Erstellen durch Compose
+gelten wieder die Grenzen aus `docker-compose.llm.yml`. Nach jedem Runtime-Deploy
+deshalb mit `docker inspect` prüfen, dass `HostConfig.Memory` 8589934592 Byte
+und `HostConfig.MemorySwap` 10737418240 Byte beträgt.
 
 Vor dem Beginn müssen diese vier Werte bekannt sein:
 
@@ -110,7 +120,7 @@ Nicht fortfahren, wenn einer dieser Punkte zutrifft:
 
 - kein Ubuntu 24.04 beziehungsweise Debian 12/13;
 - Architektur weder `amd64` noch `arm64`;
-- weniger als 8 GiB RAM oder weniger als 10 GiB freier Speicher;
+- weniger als 12 GiB RAM oder weniger als 10 GiB freier Speicher;
 - die vorgesehene Inferenz-IP ist nicht als private Adresse vorhanden;
 - der App-Host kann die private Inferenz-IP nicht routen.
 
@@ -846,8 +856,9 @@ vmstat 2 10
 docker stats --no-stream arsnova-open-weight-llm
 ```
 
-Nicht die 5-GiB-Containergrenze erhöhen, ohne Abnahme und Dokumentation. Zuerst
-den App-Kill-Switch ausschalten und den Runtime-Container stoppen.
+Nicht die 8-GiB-RAM- oder 10-GiB-RAM-plus-Swap-Grenze erhöhen, ohne Abnahme und
+Dokumentation. Zuerst den App-Kill-Switch ausschalten und den Runtime-Container
+stoppen.
 
 ## 14. Kontrollierte Aktualisierung
 
@@ -1044,7 +1055,7 @@ Nutzerdaten und brauchen kein klassisches Datenbackup.
 
 Vor einer zeitlich begrenzten Aktivierung alle Kästchen abhaken:
 
-- [ ] Unterstütztes 64-Bit-Linux, mindestens 8 GiB RAM und 10 GiB frei
+- [ ] Unterstütztes 64-Bit-Linux, mindestens 12 GiB RAM und 10 GiB frei
 - [ ] App- und Inferenz-Host besitzen private, geroutete IP-Adressen
 - [ ] TCP 8080 ist nur vom App-Host erlaubt und nicht öffentlich weitergeleitet
 - [ ] Freigegebener Git-Commit ist vollständig dokumentiert

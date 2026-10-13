@@ -31,6 +31,8 @@ export type QaWordCloudDialogData = {
   analyzedQuestionCount: () => number;
   eligibleQuestionCount: () => number;
   analysisModelVersion?: () => string | null;
+  labelModelId?: () => string | null;
+  labelModelVersion?: () => string | null;
   analysisVariant: () => WordCloudAnalysisVariant;
   setAnalysisVariant: (variant: WordCloudAnalysisVariant) => void | Promise<void>;
   themeModeAvailable: () => boolean;
@@ -83,6 +85,8 @@ export class QaWordCloudDialogComponent {
   readonly tooltipMetricLabel = computed(() => this.data.tooltipMetricLabel());
   readonly analyzedQuestionCount = computed(() => this.data.analyzedQuestionCount());
   readonly analysisModelVersion = computed(() => this.data.analysisModelVersion?.() ?? null);
+  readonly labelModelId = computed(() => this.data.labelModelId?.() ?? null);
+  readonly labelModelVersion = computed(() => this.data.labelModelVersion?.() ?? null);
   readonly analysisVariant = computed(() => this.data.analysisVariant());
   readonly themeModeAvailable = computed(() => this.data.themeModeAvailable());
   readonly themeFallbackHint = computed(() => this.data.themeFallbackHint());

@@ -58,6 +58,7 @@ import type {
   QaQuestionDTO,
   QaQuestionSortMode,
   QaQuestionsListDTO,
+  FreetextWordCloudPresenterProjectionDTO,
   QaWordCloudPresenterProjectionDTO,
   QuickFeedbackResult,
   SessionInfoDTO,
@@ -540,8 +541,30 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   readonly wordCloudTermLocale = computed<SupportedLocale>(() =>
     getEffectiveLocale(localeIdToSupported(this.localeId)),
   );
-  readonly freetextWordCloudTerms = computed<WordCloudTerm[]>(() =>
-    this.wordCloudTermExtractor.extractTerms(
+  readonly freetextWordCloudProjection = signal<FreetextWordCloudPresenterProjectionDTO | null>(
+    null,
+  );
+  readonly freetextStageAnalysisEntries = computed(() => {
+    const projection = this.freetextWordCloudProjection();
+    if (!projection || projection.entries.length === 0) {
+      return null;
+    }
+    return projection.entries.map((entry) => ({
+      key: entry.key,
+      label: entry.label,
+      count: entry.count,
+      basisLabel: entry.label,
+      members: [{ sourceId: entry.key, text: entry.label, weight: entry.count }],
+      variants: [entry.label],
+      confidence: null,
+      labelOrigin: entry.labelOrigin,
+    }));
+  });
+  readonly freetextWordCloudTerms = computed<WordCloudTerm[] | null>(() => {
+    if (this.freetextStageAnalysisEntries()) {
+      return null;
+    }
+    return this.wordCloudTermExtractor.extractTerms(
       this.freetextResponses().map((response, index) => ({
         id: `response-${index}`,
         body: response,
@@ -551,8 +574,8 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
         maxEntries: 80,
         maxNgramLength: 3,
       },
-    ),
-  );
+    );
+  });
   readonly presenterQaWordCloudQuestions = computed(() => this.presenterQaOrderedQuestions());
   readonly presenterQaWordCloudResponses = computed(() =>
     this.presenterQaWordCloudQuestions().map((question) => question.text),
@@ -640,7 +663,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   private qaWordCloudModePill(mode: WordCloudAnalysisVariant): string {
     switch (mode) {
       case 'SEMANTIC':
-        return $localize`:@@sessionQa.wordCloudAnalysisSemantic:Themen`;
+        return $localize`:@@sessionQa.wordCloudAnalysisSemantic:Thema`;
       case 'LEXICAL':
         return $localize`:@@sessionQa.wordCloudAnalysisLexical:Wörter`;
       default:
@@ -1089,6 +1112,9 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
       await this.refreshQaQuestions();
       await this.refreshQaWordCloudProjection();
       return;
+    }
+    if (this.showPresenterFreetextResultsStage()) {
+      await this.refreshFreetextWordCloudProjection();
     }
     await this.refreshLiveFreetext();
     await this.refreshQaQuestions();
@@ -1635,6 +1661,23 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
       this.qaWordCloudProjection.set(result.projection);
     } catch {
       // Optionale Host-Projektion: ohne Snapshot bleibt der lexikalische Presenter-Pfad.
+    }
+  }
+
+  private async refreshFreetextWordCloudProjection(): Promise<void> {
+    if (!this.showPresenterFreetextResultsStage() || this.presentDeadlineClosed) {
+      return;
+    }
+    try {
+      const result = await trpc.session.getFreetextWordCloudProjection.query({
+        code: this.code.toUpperCase(),
+      });
+      if (this.presentDeadlineClosed) {
+        return;
+      }
+      this.freetextWordCloudProjection.set(result.projection);
+    } catch {
+      // Ohne Projektion bleibt die bisherige lokale Phrasenwolke.
     }
   }
 

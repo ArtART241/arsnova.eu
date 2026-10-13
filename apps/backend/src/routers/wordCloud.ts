@@ -37,7 +37,7 @@ import {
   recordWordCloudAnalyzeTelemetry,
 } from '../lib/wordCloudNlpTelemetry';
 import { acquireQaWordCloudAnalysisLock } from '../lib/qaWordCloudAnalysisLock';
-import { analyzeSemanticWordCloudSnapshot } from '../lib/wordCloudSemanticAnalyze';
+import { labelSemanticWordCloudSnapshot } from '../lib/wordCloudTopicLabels';
 import { hostProcedure, router } from '../trpc';
 
 export interface AnalyzeWordCloudSnapshotOptions {
@@ -159,7 +159,7 @@ export async function analyzeWordCloudSnapshot(
   });
   const rawOutput =
     effectiveInput.mode === 'SEMANTIC'
-      ? await analyzeSemanticWordCloudSnapshot(effectiveInput, normalized.meta, {
+      ? await labelSemanticWordCloudSnapshot(effectiveInput, normalized.meta, {
           sessionId: options.cacheScope?.sessionId,
           env: options.env,
           tokensByItemId: normalized.tokensByItemId,

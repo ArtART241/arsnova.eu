@@ -61,6 +61,8 @@ import {
   SetPresenterSurfaceOutputSchema,
   SetQaWordCloudProjectionInputSchema,
   GetQaWordCloudProjectionOutputSchema,
+  SetFreetextWordCloudProjectionInputSchema,
+  GetFreetextWordCloudProjectionOutputSchema,
   SessionFinishProjectionSchema,
   SessionTeamsPayloadSchema,
   SessionStatusUpdateSchema,
@@ -456,6 +458,10 @@ const qaWordCloudProjectionBySessionId = new Map<
   string,
   z.infer<typeof SetQaWordCloudProjectionInputSchema>['projection']
 >();
+const freetextWordCloudProjectionBySessionId = new Map<
+  string,
+  z.infer<typeof SetFreetextWordCloudProjectionInputSchema>['projection']
+>();
 const finishProjectionBySessionId = new Map<
   string,
   z.infer<typeof SessionFinishProjectionSchema>
@@ -600,6 +606,7 @@ export function resetSessionReadCachesForTests(): void {
   presenterPageBySessionId.clear();
   presenterPageIdentityBySessionId.clear();
   qaWordCloudProjectionBySessionId.clear();
+  freetextWordCloudProjectionBySessionId.clear();
   clearAllQaPresenterSortModes();
   finishProjectionBySessionId.clear();
   sessionStatusVersions.clear();
@@ -1042,6 +1049,7 @@ export async function purgeSessionRuntimeArtifacts(params: {
   presenterPageBySessionId.delete(params.sessionId);
   presenterPageIdentityBySessionId.delete(params.sessionId);
   qaWordCloudProjectionBySessionId.delete(params.sessionId);
+  freetextWordCloudProjectionBySessionId.delete(params.sessionId);
   clearQaPresenterSortMode(params.sessionId);
   finishProjectionBySessionId.delete(params.sessionId);
   for (const key of emojiStore.keys()) {
@@ -7809,6 +7817,7 @@ const sessionCoreRouter = router({
         presenterPageBySessionId.delete(identity.id);
         presenterPageIdentityBySessionId.delete(identity.id);
         qaWordCloudProjectionBySessionId.delete(identity.id);
+        freetextWordCloudProjectionBySessionId.delete(identity.id);
       }
       invalidateSessionStatusCachesForCode(code);
       const { channelChanged: _channelChanged, ...result } = changed;
@@ -7979,6 +7988,38 @@ const sessionCoreRouter = router({
         return { projection: null };
       }
       return { projection: qaWordCloudProjectionBySessionId.get(session.id) ?? null };
+    }),
+
+  setFreetextWordCloudProjection: hostProcedure
+    .input(SetFreetextWordCloudProjectionInputSchema)
+    .output(GetFreetextWordCloudProjectionOutputSchema)
+    .mutation(async ({ input }) => {
+      const code = input.code.toUpperCase();
+      const session = await prisma.session.findUnique({
+        where: { code },
+        select: { id: true, status: true },
+      });
+      if (!session) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Session nicht gefunden.' });
+      }
+      assertSessionAllowsLiveMutation(session.status);
+      freetextWordCloudProjectionBySessionId.set(session.id, input.projection);
+      return { projection: input.projection };
+    }),
+
+  getFreetextWordCloudProjection: publicProcedure
+    .input(GetSessionInfoInputSchema)
+    .output(GetFreetextWordCloudProjectionOutputSchema)
+    .query(async ({ input }) => {
+      const code = input.code.toUpperCase();
+      const session = await prisma.session.findUnique({
+        where: { code },
+        select: { id: true },
+      });
+      if (!session) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Session nicht gefunden.' });
+      }
+      return { projection: freetextWordCloudProjectionBySessionId.get(session.id) ?? null };
     }),
 
   /** Presenter-Exit: Leaderboard ausblenden, Branding „Session ist beendet.“ zeigen. */

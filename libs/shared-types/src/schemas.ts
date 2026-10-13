@@ -4443,6 +4443,11 @@ export const WordCloudAnalysisMemberDTOSchema = z.object({
 });
 export type WordCloudAnalysisMemberDTO = z.infer<typeof WordCloudAnalysisMemberDTOSchema>;
 
+export const WordCloudLabelOriginSchema = z.enum(['extractive', 'model']);
+export type WordCloudLabelOrigin = z.infer<typeof WordCloudLabelOriginSchema>;
+export const WordCloudLabelSettlementSchema = z.enum(['complete', 'transient', 'disabled']);
+export type WordCloudLabelSettlement = z.infer<typeof WordCloudLabelSettlementSchema>;
+
 /** Ein analysierter Word-Cloud-Eintrag inklusive Erklärbarkeitsdaten. */
 export const WordCloudAnalysisEntryDTOSchema = z.object({
   key: z.string().trim().min(1),
@@ -4455,6 +4460,7 @@ export const WordCloudAnalysisEntryDTOSchema = z.object({
   /** Gesamtzahl der Quellen vor einer transportbedingten Erklärbarkeitsbegrenzung. */
   memberCount: z.number().int().min(1).optional(),
   membersTruncated: z.boolean().optional(),
+  labelOrigin: WordCloudLabelOriginSchema.optional(),
 });
 export type WordCloudAnalysisEntryDTO = z.infer<typeof WordCloudAnalysisEntryDTOSchema>;
 
@@ -4476,6 +4482,9 @@ export const WordCloudAnalysisResultDTOSchema = z.object({
   modelId: z.string().min(1).max(128).nullable(),
   snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
   entries: z.array(WordCloudAnalysisEntryDTOSchema),
+  labelSettlement: WordCloudLabelSettlementSchema.optional(),
+  labelModelId: z.string().trim().min(1).max(220).nullable().optional(),
+  labelModelVersion: z.string().trim().min(1).max(220).nullable().optional(),
 });
 export type WordCloudAnalysisResultDTO = z.infer<typeof WordCloudAnalysisResultDTOSchema>;
 
@@ -4566,6 +4575,43 @@ export const GetQaWordCloudProjectionOutputSchema = z.object({
   projection: QaWordCloudPresenterProjectionDTOSchema.nullable(),
 });
 export type GetQaWordCloudProjectionOutput = z.infer<typeof GetQaWordCloudProjectionOutputSchema>;
+
+/** Öffentliche Freitext-Bühne: nur sichtbare Namen, keine Rohantworten. */
+export const FreetextWordCloudStageEntrySchema = z
+  .object({
+    key: z.string().trim().min(1).max(128),
+    label: z.string().trim().min(1).max(120),
+    count: z.number().min(0),
+    labelOrigin: WordCloudLabelOriginSchema.optional(),
+  })
+  .strict();
+export type FreetextWordCloudStageEntry = z.infer<typeof FreetextWordCloudStageEntrySchema>;
+
+export const FreetextWordCloudPresenterProjectionDTOSchema = z
+  .object({
+    mode: WordCloudAnalysisVariantEnum,
+    locale: WordCloudAnalysisLocaleEnum.nullable(),
+    smoothingActive: z.boolean(),
+    entries: z.array(FreetextWordCloudStageEntrySchema).max(80),
+  })
+  .strict();
+export type FreetextWordCloudPresenterProjectionDTO = z.infer<
+  typeof FreetextWordCloudPresenterProjectionDTOSchema
+>;
+
+export const SetFreetextWordCloudProjectionInputSchema = GetSessionInfoInputSchema.extend({
+  projection: FreetextWordCloudPresenterProjectionDTOSchema,
+});
+export type SetFreetextWordCloudProjectionInput = z.infer<
+  typeof SetFreetextWordCloudProjectionInputSchema
+>;
+
+export const GetFreetextWordCloudProjectionOutputSchema = z.object({
+  projection: FreetextWordCloudPresenterProjectionDTOSchema.nullable(),
+});
+export type GetFreetextWordCloudProjectionOutput = z.infer<
+  typeof GetFreetextWordCloudProjectionOutputSchema
+>;
 
 /** DTO: Live-Zustand authorisierter Quiz-Kopien (Story 1.10). */
 export const ActiveQuizLiveStateDTOSchema = z.object({

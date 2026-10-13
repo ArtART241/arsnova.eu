@@ -84,7 +84,7 @@ describe('QaWordCloudDialogComponent', () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Wörter');
     expect(text).toContain('Wörter & Phrasen');
-    expect(text).toContain('Themen');
+    expect(text).toContain('Thema');
     expect(text).toContain('Größe nach:');
     expect(text).toContain('Stimmen');
     expect(text).not.toContain('Meist unterstützt');

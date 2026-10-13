@@ -2,7 +2,7 @@
 
 # Implementierungsplan: Themennamen und Presenter-Inhalt (1.14c Stufe 2)
 
-**Status:** Plan, nicht umgesetzt
+**Status:** Umgesetzt, produktiv aus (`WORD_CLOUD_SEMANTIC_ENABLED` und `OPEN_WEIGHT_LLM_ENABLED` bleiben `false`)
 **Stand:** 2026-10-13
 **Story:** 1.14c Stufe 2; Host-Freitext aus Story 1.14d nutzt denselben Namen-Schritt
 **Kanonische Produktdoku:** [word-cloud-semantic.md](../features/word-cloud-semantic.md)

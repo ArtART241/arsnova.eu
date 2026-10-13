@@ -203,6 +203,8 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
   );
   readonly tooltipMetricLabel = input<string | null>(null);
   readonly analysisModelVersion = input<string | null>(null);
+  readonly labelModelId = input<string | null>(null);
+  readonly labelModelVersion = input<string | null>(null);
   readonly disableCloudLayout = input(false);
   readonly presentationMode = input(false);
   readonly outputOnly = input(false);
@@ -1297,10 +1299,16 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
     const analysisEntries = this.analysisEntries();
     if (analysisEntries && analysisEntries.length > 0) {
       const includeSemanticMeta = Boolean(this.analysisModelVersion());
+      const includeLabelModel = analysisEntries.some((entry) => entry.labelOrigin === 'model');
       const rows = [
-        includeSemanticMeta
-          ? 'label,count,variants,basis,members,confidence,modelVersion'
-          : 'label,count,variants,basis,members',
+        [
+          includeSemanticMeta
+            ? 'label,count,variants,basis,members,confidence,modelVersion'
+            : 'label,count,variants,basis,members',
+          includeLabelModel ? 'labelOrigin,labelModelId,labelModelVersion' : '',
+        ]
+          .filter((column) => column.length > 0)
+          .join(','),
         ...analysisEntries.map((entry) =>
           [
             this.escapeCsvField(entry.label),
@@ -1312,6 +1320,13 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
               ? [
                   entry.confidence === null ? '' : String(entry.confidence),
                   this.escapeCsvField(this.analysisModelVersion() ?? ''),
+                ]
+              : []),
+            ...(includeLabelModel
+              ? [
+                  this.escapeCsvField(entry.labelOrigin ?? 'extractive'),
+                  this.escapeCsvField(this.labelModelId() ?? ''),
+                  this.escapeCsvField(this.labelModelVersion() ?? ''),
                 ]
               : []),
           ].join(','),

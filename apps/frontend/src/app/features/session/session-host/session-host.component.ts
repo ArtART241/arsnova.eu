@@ -186,6 +186,7 @@ import {
   SessionStatusUpdate,
   TeamDTO,
   TeamLeaderboardEntryDTO,
+  FreetextWordCloudPresenterProjectionDTO,
   QaWordCloudPresenterProjectionDTO,
   WordCloudAnalysisEntryDTO,
   WordCloudAnalysisLocale,
@@ -1141,6 +1142,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
   private qaWordCloudLemmaAnalysisRunId = 0;
   private freetextWordCloudLemmaAnalysisRunId = 0;
   private freetextWordCloudSemanticAnalysisRunId = 0;
+  private lastFreetextWordCloudProjectionKey: string | null = null;
   private presenterProjectionSyncQueue: Promise<void> = Promise.resolve();
   private lastQaWordCloudProjectionKey: string | null = null;
   private lastQaPresenterStageViewKey: string | null = null;
@@ -2665,6 +2667,8 @@ export class SessionHostComponent implements OnInit, OnDestroy {
           eligibleQuestionCount: () =>
             this.qaWordCloudCoverage()?.eligibleQuestionCount ?? this.qaListTotalCount(),
           analysisModelVersion: () => this.qaWordCloudThemeAnalysisResult()?.modelVersion ?? null,
+          labelModelId: () => this.qaWordCloudThemeAnalysisResult()?.labelModelId ?? null,
+          labelModelVersion: () => this.qaWordCloudThemeAnalysisResult()?.labelModelVersion ?? null,
           analysisVariant: () => this.qaWordCloudEffectiveAnalysisVariant(),
           setAnalysisVariant: (variant: WordCloudAnalysisVariant) =>
             this.setQaWordCloudAnalysisVariant(variant),
@@ -4005,6 +4009,13 @@ export class SessionHostComponent implements OnInit, OnDestroy {
 
       const projection = this.buildQaWordCloudPresenterProjection();
       untracked(() => this.publishQaWordCloudProjection(projection));
+    });
+    effect(() => {
+      if (!this.code) {
+        return;
+      }
+      const projection = this.buildFreetextWordCloudPresenterProjection();
+      untracked(() => this.publishFreetextWordCloudProjection(projection));
     });
     effect(() => {
       const request = this.freetextWordCloudSemanticAnalysisRequest();
@@ -11832,6 +11843,57 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     return sanitized;
   }
 
+  private buildFreetextWordCloudPresenterProjection(): FreetextWordCloudPresenterProjectionDTO {
+    const analysis = this.displayedFreetextAnalysisEntries();
+    const entries =
+      analysis && analysis.length > 0
+        ? analysis.map((entry) => ({
+            key: entry.key.slice(0, 128),
+            label: entry.label.slice(0, 120),
+            count: entry.count,
+            ...(entry.labelOrigin ? { labelOrigin: entry.labelOrigin } : {}),
+          }))
+        : (this.displayedFreetextVisibleTerms() ?? []).map((term) => ({
+            key: term.key.slice(0, 128),
+            label: term.label.slice(0, 120),
+            count: Math.max(0, term.documentFrequency),
+          }));
+    return {
+      mode:
+        this.freetextWordCloudMode() === 'WORDS'
+          ? 'LEXICAL'
+          : this.freetextWordCloudMode() === 'SEMANTIC'
+            ? 'SEMANTIC'
+            : 'THEME',
+      locale: this.qaWordCloudAnalysisLocale(),
+      smoothingActive: this.freetextWordCloudLemmaSnapshotVisible(),
+      entries: entries.slice(0, 80),
+    };
+  }
+
+  private publishFreetextWordCloudProjection(
+    projection: FreetextWordCloudPresenterProjectionDTO,
+  ): void {
+    if (!this.code) {
+      return;
+    }
+    const key = JSON.stringify(projection);
+    if (key === this.lastFreetextWordCloudProjectionKey) {
+      return;
+    }
+    this.lastFreetextWordCloudProjectionKey = key;
+    void this.enqueuePresenterProjectionSync(async () => {
+      try {
+        await trpc.session.setFreetextWordCloudProjection.mutate({
+          code: this.code.toUpperCase(),
+          projection,
+        });
+      } catch {
+        this.lastFreetextWordCloudProjectionKey = null;
+      }
+    });
+  }
+
   private publishQaWordCloudProjection(projection: QaWordCloudPresenterProjectionDTO): void {
     if (!this.code) {
       return;
@@ -13543,7 +13605,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     if (!request) {
       return;
     }
-    this.queueFreetextWordCloudSemanticAnalysis(request);
+    this.queueFreetextWordCloudSemanticAnalysis({ ...request, refresh: true });
   }
 
   private queueFreetextWordCloudSemanticAnalysis(request: AnalyzeWordCloudInput): void {

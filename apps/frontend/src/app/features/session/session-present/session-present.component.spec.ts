@@ -23,6 +23,7 @@ const {
   getHostVoteProgressQueryMock,
   getReactionsQueryMock,
   getQaWordCloudProjectionQueryMock,
+  getFreetextWordCloudProjectionQueryMock,
   subscribeMock,
 } = vi.hoisted(() => ({
   liveQueryMock: vi.fn(),
@@ -39,6 +40,7 @@ const {
   getHostVoteProgressQueryMock: vi.fn(),
   getReactionsQueryMock: vi.fn(),
   getQaWordCloudProjectionQueryMock: vi.fn(),
+  getFreetextWordCloudProjectionQueryMock: vi.fn(),
   subscribeMock: vi.fn(() => ({ unsubscribe: vi.fn() })),
 }));
 
@@ -81,6 +83,9 @@ vi.mock('../../../core/trpc.client', () => ({
       },
       getQaWordCloudProjection: {
         query: getQaWordCloudProjectionQueryMock,
+      },
+      getFreetextWordCloudProjection: {
+        query: getFreetextWordCloudProjectionQueryMock,
       },
       onCurrentQuestionForHostChanged: {
         subscribe: subscribeMock,
@@ -165,6 +170,7 @@ describe('SessionPresentComponent', () => {
     getHostVoteProgressQueryMock.mockResolvedValue(null);
     getReactionsQueryMock.mockResolvedValue({ reactions: {}, total: 0 });
     getQaWordCloudProjectionQueryMock.mockResolvedValue({ projection: null });
+    getFreetextWordCloudProjectionQueryMock.mockResolvedValue({ projection: null });
     subscribeMock.mockClear();
     subscribeMock.mockReturnValue({ unsubscribe: vi.fn() });
 
@@ -2214,7 +2220,7 @@ describe('SessionPresentComponent', () => {
     expect(text).toContain('Kapitel 4');
     expect(text).toContain('Ähnliche Fragen sind gruppiert.');
     expect(fixture.componentInstance.qaWordCloudContextPills()).toEqual([
-      'Themen',
+      'Thema',
       'Beste Fragen',
       'ohne Glättung',
     ]);

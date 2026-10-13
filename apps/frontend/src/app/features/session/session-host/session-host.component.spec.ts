@@ -22518,9 +22518,16 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       0,
     );
     expect(buttonTexts).toEqual(['Session beenden', 'Weitere Aktionen']);
+    // Die Stopp-Aktion hängt an quickFeedbackResult; unter Coverage kann der Host-Abruf
+    // nach dem Kanalwechsel etwas länger brauchen als ein festes flush.
+    await vi.waitFor(() => {
+      expect(fixture.componentInstance.quickFeedbackResult()).not.toBeNull();
+    });
+    fixture.detectChanges();
     const roundControl = fixture.nativeElement.querySelector(
       '[data-testid="feedback-primary-round-control"]',
     ) as HTMLButtonElement;
+    expect(roundControl).not.toBeNull();
     expect(roundControl.textContent).toContain('Stopp');
     expect(roundControl.closest('app-feedback-host')).not.toBeNull();
     roundControl.click();

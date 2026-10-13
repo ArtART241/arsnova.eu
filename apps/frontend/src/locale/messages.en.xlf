@@ -20040,26 +20040,14 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudSizeAria" datatype="html">
-        <source>Größe nach Stimmen, besten Fragen, Kontroverse oder Häufigkeit</source>
-        <target>Size by votes, best questions, controversy, or frequency</target>
+        <source>Größe nach Kontroverse, besten Fragen, Ups minus Downs oder Vorkommen in Fragen</source>
+        <target>Size by controversy, best questions, ups minus downs, or occurrence in questions</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/qa-word-cloud-dialog.component.html</context>
           <context context-type="linenumber">44</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="sessionQa.wordCloudSizeTop" datatype="html">
-        <source>Stimmen</source>
-        <target>Votes</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/session/session-host/qa-word-cloud-dialog.component.html</context>
-          <context context-type="linenumber">46</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/session/session-present/session-present.component.ts</context>
-          <context context-type="linenumber">660</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="sessionQa.sortBest" datatype="html">
+            <trans-unit id="sessionQa.sortBest" datatype="html">
         <source>Beste Fragen</source>
         <target>Best questions</target>
         <context-group purpose="location">
@@ -20091,21 +20079,9 @@
           <context context-type="linenumber">2762</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="sessionQa.wordCloudMetricControversial" datatype="html">
-        <source> Kontroverse</source>
-        <target>controversy</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/session/session-host/qa-word-cloud-dialog.component.html</context>
-          <context context-type="linenumber">48,50</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
-          <context context-type="linenumber">2131</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="sessionQa.wordCloudMetricTime" datatype="html">
-        <source>Häufigkeit</source>
-        <target>Frequency</target>
+            <trans-unit id="sessionQa.wordCloudMetricTime" datatype="html">
+        <source>Vorkommen in Fragen</source>
+        <target>Occurrence in questions</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/qa-word-cloud-dialog.component.html</context>
           <context context-type="linenumber">51</context>
@@ -22197,8 +22173,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortTop" datatype="html">
-        <source>Meist unterstützt</source>
-        <target>Most supported</target>
+        <source>Ups minus Downs</source>
+        <target>Ups minus downs</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.html</context>
           <context context-type="linenumber">4407</context>
@@ -22233,8 +22209,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortControversial" datatype="html">
-        <source>Umstritten</source>
-        <target>Controversial</target>
+        <source>Kontroverse</source>
+        <target>Controversy</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.html</context>
           <context context-type="linenumber">4430</context>
@@ -22257,8 +22233,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHelpControversialAria" datatype="html">
-        <source>Hilfe zu »Umstritten«</source>
-        <target>Help for “Controversial”</target>
+        <source>Hilfe zu »Kontroverse«</source>
+        <target>Help for “Controversy”</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.html</context>
           <context context-type="linenumber">4437</context>
@@ -22365,8 +22341,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHelpControversialMenu" datatype="html">
-        <source>Hilfe: Umstritten</source>
-        <target>Help: Controversial</target>
+        <source>Hilfe: Kontroverse</source>
+        <target>Help: Controversy</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.html</context>
           <context context-type="linenumber">4597</context>
@@ -23744,15 +23720,7 @@
           <context context-type="linenumber">2129</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="sessionQa.wordCloudMetricTop" datatype="html">
-        <source>positive Stimmen</source>
-        <target>positive votes</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
-          <context context-type="linenumber">2135</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="sessionQa.wordCloudTitleSemantic" datatype="html">
+            <trans-unit id="sessionQa.wordCloudTitleSemantic" datatype="html">
         <source>Themen in den Fragen</source>
         <target>Topics in the questions</target>
         <context-group purpose="location">
@@ -23809,24 +23777,24 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudHintControversial" datatype="html">
-        <source>Große Wörter und Phrasen kommen aus Fragen mit gegensätzlichen Reaktionen. Darüberfahren zeigt die zugehörigen Fragen.</source>
-        <target>Large words and phrases come from questions with opposing reactions. Hover to see the related questions.</target>
+        <source>Große Wörter und Phrasen kommen aus Fragen mit hoher Kontroverse: Stimmen dafür und dagegen sind möglichst ausgeglichen. Darüberfahren zeigt die zugehörigen Fragen.</source>
+        <target>Large words and phrases come from questions with high controversy: votes for and against are as balanced as possible. Hover to see the related questions.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2178</context>
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudHintTime" datatype="html">
-        <source>Jede sichtbare Frage zählt gleich. Die Größe folgt der Häufigkeit, nicht den Stimmen.</source>
-        <target>Every visible question counts equally. Size follows frequency, not votes.</target>
+        <source>Ein Wort wird größer, je mehr sichtbare Fragen es enthalten. In einer Frage zählt es nur einmal.</source>
+        <target>A word grows with the number of visible questions that contain it. Within one question it counts only once.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2180</context>
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudHintTop" datatype="html">
-        <source>Große Wörter und Phrasen kommen aus Fragen mit vielen positiven Stimmen.</source>
-        <target>Large words and phrases come from questions with many positive votes.</target>
+        <source>Große Wörter und Phrasen kommen aus Fragen, bei denen Ups minus Downs hoch ist.</source>
+        <target>Large words and phrases come from questions where ups minus downs is high.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2182</context>
@@ -23861,8 +23829,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintControversial" datatype="html">
-        <source>Zeigt Fragen mit gemischter Reaktion zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
-        <target>Shows questions with mixed reactions first. Highlighted questions appear first and are marked.</target>
+        <source>Zeigt zuerst die Fragen mit der höchsten Kontroverse: Stimmen dafür und dagegen sind möglichst ausgeglichen. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
+        <target>Shows questions with the highest controversy first: votes for and against are as balanced as possible. Highlighted questions appear first and are marked.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2464</context>
@@ -23885,8 +23853,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTop" datatype="html">
-        <source>Zeigt Fragen mit den meisten positiven Stimmen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
-        <target>Shows questions with the most positive votes first. Highlighted questions appear first and are marked.</target>
+        <source>Zeigt zuerst die Fragen, bei denen Ups minus Downs am höchsten ist. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
+        <target>Shows questions with the highest ups minus downs first. Highlighted questions appear first and are marked.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2468</context>
@@ -27245,15 +27213,7 @@
           <context context-type="linenumber">636</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="sessionPresent.wordCloudMetricControversial" datatype="html">
-        <source>Kontroverse</source>
-        <target>Controversy</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/session/session-present/session-present.component.ts</context>
-          <context context-type="linenumber">656</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="sessionPresent.qaClosed" datatype="html">
+            <trans-unit id="sessionPresent.qaClosed" datatype="html">
         <source>Q&amp;A ist geschlossen.</source>
         <target>Q&amp;A is closed.</target>
         <context-group purpose="location">
@@ -30255,8 +30215,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTopVote" datatype="html">
-        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die mit den meisten Stimmen.</source>
-        <target>Highlighted questions stay first. After that come the ones with the most votes.</target>
+        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die, bei denen Ups minus Downs am höchsten ist.</source>
+        <target>Highlighted questions stay first. After that come the ones where ups minus downs is highest.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-vote/session-vote.component.ts</context>
           <context context-type="linenumber">540</context>

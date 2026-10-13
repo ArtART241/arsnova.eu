@@ -34,7 +34,7 @@ describe('QaWordCloudDialogComponent', () => {
       wordLabelSingular: () => 'Begriff',
       wordLabelPlural: () => 'Begriffe',
       weightingHint: () => null,
-      tooltipMetricLabel: () => 'positive Stimmen',
+      tooltipMetricLabel: () => 'Ups minus Downs',
       analyzedQuestionCount: () => 12,
       eligibleQuestionCount: () => 18,
       analysisModelVersion: () => null,
@@ -86,8 +86,13 @@ describe('QaWordCloudDialogComponent', () => {
     expect(text).toContain('Wörter & Phrasen');
     expect(text).toContain('Thema');
     expect(text).toContain('Größe nach:');
-    expect(text).toContain('Stimmen');
+    expect(text).toContain('Ups minus Downs');
     expect(text).not.toContain('Meist unterstützt');
+    expect(
+      [...fixture.nativeElement.querySelectorAll('.qa-word-cloud-dialog__size-select option')].map(
+        (option: HTMLOptionElement) => option.value,
+      ),
+    ).toEqual(['CONTROVERSIAL', 'BEST', 'TOP', 'TIME']);
     expect(text).toContain('Wortformen glätten');
 
     const values = [...fixture.nativeElement.querySelectorAll('mat-button-toggle')]
@@ -108,12 +113,12 @@ describe('QaWordCloudDialogComponent', () => {
   it('zeigt bei Haeufigkeit die Groessenoption ohne Coverage-Zeile', () => {
     const { fixture } = setup('THEME', {
       sortMode: () => 'TIME',
-      tooltipMetricLabel: () => 'Häufigkeit',
+      tooltipMetricLabel: () => 'Vorkommen in Fragen',
     });
     const timeOption = fixture.nativeElement.querySelector(
       'option[value="TIME"]',
     ) as HTMLOptionElement;
-    expect(timeOption.textContent?.replace(/\s+/g, ' ').trim()).toBe('Häufigkeit');
+    expect(timeOption.textContent?.replace(/\s+/g, ' ').trim()).toBe('Vorkommen in Fragen');
     expect(fixture.nativeElement.querySelector('.qa-word-cloud-dialog__coverage')).toBeNull();
   });
 

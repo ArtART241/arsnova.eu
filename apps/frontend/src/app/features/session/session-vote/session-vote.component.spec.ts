@@ -4902,9 +4902,9 @@ describe('SessionVoteComponent', { timeout: 30_000 }, () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Meist unterstützt');
+    expect(text).toContain('Ups minus Downs');
     expect(text).toContain('Beste Fragen');
-    expect(text).toContain('Umstritten');
+    expect(text).toContain('Kontroverse');
     expect(text).toContain('Zeit');
     expect(text).toContain('Fragen durchsuchen');
     expect(text).toContain('viel Zustimmung und genug Stimmen');

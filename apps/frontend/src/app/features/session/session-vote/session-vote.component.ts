@@ -554,11 +554,11 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
       case 'BEST':
         return $localize`:@@sessionQa.sortHintBest:Zeigt Fragen mit viel Zustimmung und genug Stimmen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       case 'CONTROVERSIAL':
-        return $localize`:@@sessionQa.sortHintControversial:Zeigt Fragen mit gemischter Reaktion zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
+        return $localize`:@@sessionQa.sortHintControversial:Zeigt zuerst die Fragen mit der höchsten Kontroverse: Stimmen dafür und dagegen sind möglichst ausgeglichen. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       case 'TIME':
         return $localize`:@@sessionQa.sortHintTime:Zeigt die neuesten Fragen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       default:
-        return $localize`:@@sessionQa.sortHintTopVote:Hervorgehobene Fragen stehen zuerst. Danach kommen die mit den meisten Stimmen.`;
+        return $localize`:@@sessionQa.sortHintTopVote:Hervorgehobene Fragen stehen zuerst. Danach kommen die, bei denen Ups minus Downs am höchsten ist.`;
     }
   });
   readonly qaListTotalCount = signal(0);

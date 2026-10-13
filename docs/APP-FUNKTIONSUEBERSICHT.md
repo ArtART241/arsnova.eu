@@ -521,7 +521,7 @@ Teilnehmende können:
 
 Suche und vier Sortierungen liegen im zunächst geschlossenen Bereich
 **Fragen finden & sortieren**. Aktive Kriterien bleiben außerhalb sichtbar und
-zurücksetzbar. Der Standard ist **Meist unterstützt** (`TOP`). Beim Schließen oder
+zurücksetzbar. Der Standard ist **Ups minus Downs** (`TOP`). Beim Schließen oder
 Fristablauf bleibt ein vorhandener Entwurf lesbar, ohne aktive Sendeaktion.
 
 ### 5.3 Moderation und Sichtbarkeit

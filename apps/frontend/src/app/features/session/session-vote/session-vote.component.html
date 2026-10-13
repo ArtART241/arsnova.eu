@@ -2799,9 +2799,25 @@
               aria-label="Q&A-Sortierung"
               i18n-aria-label="@@sessionQa.sortAria"
             >
-              <mat-button-toggle value="TOP" i18n="@@sessionQa.sortTop"
-                >Meist unterstützt</mat-button-toggle
-              >
+              <mat-button-toggle value="CONTROVERSIAL">
+                <span class="session-qa-sort-toggle__label">
+                  <span i18n="@@sessionQa.sortControversial">Kontroverse</span>
+                  <span
+                    class="session-qa-sort-help"
+                    role="button"
+                    tabindex="0"
+                    data-testid="qa-sort-help-controversial"
+                    i18n-aria-label="@@sessionQa.sortHelpControversialAria"
+                    aria-label="Hilfe zu »Kontroverse«"
+                    (click)="openQaSortHelp($event, 'CONTROVERSIAL')"
+                    (keydown.enter)="openQaSortHelp($event, 'CONTROVERSIAL')"
+                    (keydown.space)="openQaSortHelp($event, 'CONTROVERSIAL')"
+                    (mousedown)="$event.stopPropagation()"
+                  >
+                    <mat-icon aria-hidden="true">help_outline</mat-icon>
+                  </span>
+                </span>
+              </mat-button-toggle>
               <mat-button-toggle value="BEST">
                 <span class="session-qa-sort-toggle__label">
                   <span i18n="@@sessionQa.sortBest">Beste Fragen</span>
@@ -2821,25 +2837,9 @@
                   </span>
                 </span>
               </mat-button-toggle>
-              <mat-button-toggle value="CONTROVERSIAL">
-                <span class="session-qa-sort-toggle__label">
-                  <span i18n="@@sessionQa.sortControversial">Umstritten</span>
-                  <span
-                    class="session-qa-sort-help"
-                    role="button"
-                    tabindex="0"
-                    data-testid="qa-sort-help-controversial"
-                    i18n-aria-label="@@sessionQa.sortHelpControversialAria"
-                    aria-label="Hilfe zu »Umstritten«"
-                    (click)="openQaSortHelp($event, 'CONTROVERSIAL')"
-                    (keydown.enter)="openQaSortHelp($event, 'CONTROVERSIAL')"
-                    (keydown.space)="openQaSortHelp($event, 'CONTROVERSIAL')"
-                    (mousedown)="$event.stopPropagation()"
-                  >
-                    <mat-icon aria-hidden="true">help_outline</mat-icon>
-                  </span>
-                </span>
-              </mat-button-toggle>
+              <mat-button-toggle value="TOP" i18n="@@sessionQa.sortTop"
+                >Ups minus Downs</mat-button-toggle
+              >
               <mat-button-toggle value="TIME" i18n="@@sessionQa.sortTime">Zeit</mat-button-toggle>
             </mat-button-toggle-group>
             <p class="session-qa-sort-hint">{{ qaSortHint() }}</p>

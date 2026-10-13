@@ -164,9 +164,9 @@ const fr: Messages = {
     hostView: 'Vue Q&A de l’animateur',
     demoTitle: 'Questions sur l’événement',
     moderationActive: 'Pré-modération active',
-    sortMostSupported: 'Les plus soutenues',
+    sortMostSupported: 'Pour moins contre',
     sortBest: 'Meilleures questions',
-    sortControversial: 'Controversées',
+    sortControversial: 'Controverse',
     questions: [
       {
         score: '+18',

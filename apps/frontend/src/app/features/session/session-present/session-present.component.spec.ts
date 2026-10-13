@@ -2325,7 +2325,7 @@ describe('SessionPresentComponent', () => {
       (el.textContent ?? '').replace(/\s+/g, ' ').trim(),
     );
     expect(pills).toContain('120 Fragen');
-    expect(pills).toContain('Häufigkeit');
+    expect(pills).toContain('Vorkommen in Fragen');
     expect(
       pills.some((pill) => pill === '1 Frage' || pill === '12 Fragen' || pill === 'Zeit'),
     ).toBe(false);

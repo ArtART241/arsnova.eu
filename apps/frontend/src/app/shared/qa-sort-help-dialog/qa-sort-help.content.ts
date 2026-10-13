@@ -237,7 +237,7 @@ In caso di parità vengono confrontati, nell’ordine, il numero di voti favorev
   },
   CONTROVERSIAL: {
     de: {
-      title: 'Umstrittene Fragen',
+      title: 'Kontroverse',
       markdown: `
 Diese Sortierung bevorzugt Fragen, bei denen sich Dafür- und Dagegen-Stimmen möglichst gleichmäßig verteilen. Eine zusätzliche Schwelle verhindert, dass sehr wenige Stimmen bereits als aussagekräftiger Konflikt erscheinen.
 
@@ -269,7 +269,7 @@ Die erste Frage gilt in diesem Beispiel als umstritten. Die Frage mit 2 zu 2 Sti
 `.trim(),
     },
     en: {
-      title: 'Controversial questions',
+      title: 'Controversy',
       markdown: `
 This ranking favours questions where votes in favour and against are distributed as evenly as possible. An additional threshold prevents a very small number of votes from appearing to represent a meaningful disagreement.
 
@@ -301,7 +301,7 @@ In this example, the first question qualifies as controversial. The 2–2 result
 `.trim(),
     },
     fr: {
-      title: 'Questions controversées',
+      title: 'Controverse',
       markdown: `
 Ce classement privilégie les questions pour lesquelles les votes favorables et défavorables sont répartis de la manière la plus équilibrée possible. Un seuil supplémentaire évite qu’un très petit nombre de votes soit interprété comme un désaccord significatif.
 
@@ -333,7 +333,7 @@ Dans cet exemple, la première question est considérée comme controversée. Le
 `.trim(),
     },
     es: {
-      title: 'Preguntas controvertidas',
+      title: 'Controversia',
       markdown: `
 Esta ordenación da prioridad a las preguntas cuyos votos a favor y en contra están repartidos de la forma más equilibrada posible. Un umbral adicional evita que un número muy reducido de votos se interprete como un desacuerdo significativo.
 
@@ -365,7 +365,7 @@ En este ejemplo, la primera pregunta se considera controvertida. El resultado de
 `.trim(),
     },
     it: {
-      title: 'Domande controverse',
+      title: 'Controversia',
       markdown: `
 Questo ordinamento privilegia le domande per le quali i voti favorevoli e contrari sono distribuiti nel modo più equilibrato possibile. Una soglia aggiuntiva evita che un numero molto ridotto di voti venga interpretato come un disaccordo significativo.
 

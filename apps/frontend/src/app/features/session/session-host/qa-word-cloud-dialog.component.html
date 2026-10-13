@@ -41,14 +41,12 @@
         [value]="sortMode()"
         (change)="onSizeChange($event)"
         i18n-aria-label="@@sessionQa.wordCloudSizeAria"
-        aria-label="Größe nach Stimmen, besten Fragen, Kontroverse oder Häufigkeit"
+        aria-label="Größe nach Kontroverse, besten Fragen, Ups minus Downs oder Vorkommen in Fragen"
       >
-        <option value="TOP" i18n="@@sessionQa.wordCloudSizeTop">Stimmen</option>
+        <option value="CONTROVERSIAL" i18n="@@sessionQa.sortControversial">Kontroverse</option>
         <option value="BEST" i18n="@@sessionQa.sortBest">Beste Fragen</option>
-        <option value="CONTROVERSIAL" i18n="@@sessionQa.wordCloudMetricControversial">
-          Kontroverse
-        </option>
-        <option value="TIME" i18n="@@sessionQa.wordCloudMetricTime">Häufigkeit</option>
+        <option value="TOP" i18n="@@sessionQa.sortTop">Ups minus Downs</option>
+        <option value="TIME" i18n="@@sessionQa.wordCloudMetricTime">Vorkommen in Fragen</option>
       </select>
     </label>
 

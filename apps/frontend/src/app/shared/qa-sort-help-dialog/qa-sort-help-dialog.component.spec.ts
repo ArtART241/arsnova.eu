@@ -41,7 +41,7 @@ describe('QaSortHelpDialogComponent', () => {
   it('renders CONTROVERSIAL help with threshold explanation', async () => {
     const { el } = await create('CONTROVERSIAL');
     expect(el.querySelector('.dialog-title-header__heading')?.textContent?.trim()).toBe(
-      'Umstrittene Fragen',
+      'Kontroverse',
     );
     expect(el.querySelector('.qa-sort-help-dialog__body')?.textContent).toContain('umstritten');
     expect(el.querySelector('.qa-sort-help-dialog__body table')).toBeTruthy();

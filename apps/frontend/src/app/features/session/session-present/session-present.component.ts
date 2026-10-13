@@ -480,11 +480,11 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   qaSortModeLabel(mode: QaQuestionSortMode = this.presenterQaSortMode()): string {
     switch (mode) {
       case 'TOP':
-        return $localize`:@@sessionQa.sortTop:Meist unterstützt`;
+        return $localize`:@@sessionQa.sortTop:Ups minus Downs`;
       case 'BEST':
         return $localize`:@@sessionQa.sortBest:Beste Fragen`;
       case 'CONTROVERSIAL':
-        return $localize`:@@sessionQa.sortControversial:Umstritten`;
+        return $localize`:@@sessionQa.sortControversial:Kontroverse`;
       case 'TIME':
         return $localize`:@@sessionQa.sortTime:Zeit`;
     }
@@ -680,11 +680,11 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
       case 'BEST':
         return $localize`:@@sessionQa.sortBest:Beste Fragen`;
       case 'CONTROVERSIAL':
-        return $localize`:@@sessionPresent.wordCloudMetricControversial:Kontroverse`;
+        return $localize`:@@sessionQa.sortControversial:Kontroverse`;
       case 'TIME':
-        return $localize`:@@sessionQa.wordCloudMetricTime:Häufigkeit`;
+        return $localize`:@@sessionQa.wordCloudMetricTime:Vorkommen in Fragen`;
       default:
-        return $localize`:@@sessionQa.wordCloudSizeTop:Stimmen`;
+        return $localize`:@@sessionQa.sortTop:Ups minus Downs`;
     }
   }
 

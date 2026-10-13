@@ -60,11 +60,11 @@ const controversyDocsUrl = `${GITHUB_URL}/blob/main/docs/features/controversy-sc
       </div>
 
       <div class="mt-4 flex min-w-0 flex-wrap gap-2 text-xs font-semibold text-landing-fg-body">
-        <span class="rounded-landing-panel bg-landing-primary px-3 py-1.5 text-landing-on-primary">{q.sortMostSupported}</span>
-        <span class="rounded-landing-panel border border-landing-outline-variant px-3 py-1.5">{q.sortBest}</span>
         <span class="rounded-landing-panel border border-landing-status-rose/40 bg-landing-status-rose-bg px-3 py-1.5 text-landing-status-rose">
           {q.sortControversial}
         </span>
+        <span class="rounded-landing-panel bg-landing-primary px-3 py-1.5 text-landing-on-primary">{q.sortBest}</span>
+        <span class="rounded-landing-panel border border-landing-outline-variant px-3 py-1.5">{q.sortMostSupported}</span>
       </div>
 
       <div class="mt-5 grid min-w-0 gap-5 xl:grid-cols-[0.92fr_1.08fr]">

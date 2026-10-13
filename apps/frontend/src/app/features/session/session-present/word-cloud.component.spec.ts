@@ -1059,8 +1059,13 @@ describe('WordCloudComponent', () => {
     expect(component.wordTooltip(entry!)).toContain('validierung');
     expect(component.wordTooltip(entry!)).toContain('validiert');
     expect(component.wordTooltip(entry!)).toContain('validieren');
-    expect(component.wordTooltipBlocks(entry!).some((block) => block.kind === 'markdown')).toBe(
-      true,
+    const blocks = component.wordTooltipBlocks(entry!);
+    expect(
+      blocks.some((block) => block.kind === 'heading' && block.text === 'Weitere gezählte Formen'),
+    ).toBe(true);
+    expect(blocks.some((block) => block.kind === 'markdown')).toBe(true);
+    expect(blocks.filter((block) => block.kind === 'markdown').length).toBeLessThan(
+      entry!.variants.length,
     );
   });
 
@@ -1091,6 +1096,11 @@ describe('WordCloudComponent', () => {
     expect(tooltip).toContain('In 2 Fragen gefunden');
     expect(tooltip).toContain('Gewichtung: beste Fragen');
     expect(tooltip).toContain('Fragen:');
+    expect(
+      component
+        .wordTooltipBlocks(entry!)
+        .some((block) => block.kind === 'heading' && block.text === 'Zugehörige Fragen'),
+    ).toBe(true);
     expect(tooltip).toContain('• Sollten wir zuerst Python oder zuerst');
     expect(tooltip).toContain('   Formel herleiten?');
     expect(tooltip).toContain('• Sollten wir Python Beispiele als');

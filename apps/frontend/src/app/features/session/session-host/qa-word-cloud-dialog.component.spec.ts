@@ -34,7 +34,7 @@ describe('QaWordCloudDialogComponent', () => {
       wordLabelSingular: () => 'Begriff',
       wordLabelPlural: () => 'Begriffe',
       weightingHint: () => null,
-      tooltipMetricLabel: () => 'Ups minus Downs',
+      tooltipMetricLabel: () => 'Stimmensaldo',
       analyzedQuestionCount: () => 12,
       eligibleQuestionCount: () => 18,
       analysisModelVersion: () => null,
@@ -86,7 +86,7 @@ describe('QaWordCloudDialogComponent', () => {
     expect(text).toContain('Wörter & Phrasen');
     expect(text).toContain('Thema');
     expect(text).toContain('Größe nach:');
-    expect(text).toContain('Ups minus Downs');
+    expect(text).toContain('Stimmensaldo');
     expect(text).not.toContain('Meist unterstützt');
     expect(
       [...fixture.nativeElement.querySelectorAll('.qa-word-cloud-dialog__size-select option')].map(

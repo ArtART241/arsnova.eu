@@ -558,7 +558,7 @@ export class SessionVoteComponent implements OnInit, OnDestroy {
       case 'TIME':
         return $localize`:@@sessionQa.sortHintTime:Zeigt die neuesten Fragen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       default:
-        return $localize`:@@sessionQa.sortHintTopVote:Hervorgehobene Fragen stehen zuerst. Danach kommen die, bei denen Ups minus Downs am höchsten ist.`;
+        return $localize`:@@sessionQa.sortHintTopVote:Hervorgehobene Fragen stehen zuerst. Danach kommen die Fragen mit dem höchsten Stimmensaldo.`;
     }
   });
   readonly qaListTotalCount = signal(0);

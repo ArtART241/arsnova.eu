@@ -11646,7 +11646,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     fixture.detectChanges();
 
     expect(component.qaSortMode()).toBe('TOP');
-    expect(component.qaMobileMoreAriaLabel()).toContain('Ups minus Downs');
+    expect(component.qaMobileMoreAriaLabel()).toContain('Stimmensaldo');
     expect(document.activeElement).toBe(moreButton);
     fixture.destroy();
   });

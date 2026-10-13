@@ -1211,25 +1211,57 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
     if (meta.length > 0) {
       blocks.push({ kind: 'text', text: meta.join('\n') });
     }
-    for (const variant of entry.variants) {
-      const source = variant.trim();
-      if (source) {
-        blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(source) });
+    const extraVariants = this.tooltipExtraVariants(entry);
+    if (extraVariants.length > 0) {
+      blocks.push({
+        kind: 'heading',
+        text: $localize`:@@wordCloud.tooltipOtherForms:Weitere gezählte Formen`,
+      });
+      for (const variant of extraVariants) {
+        blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(variant) });
       }
     }
     if (this.analysisMode() === 'qa') {
-      for (const response of this.relatedResponsePreview(entry.groupKey)) {
-        if (response === '...') {
-          blocks.push({ kind: 'text', text: '…' });
-          continue;
-        }
-        const source = response.trim();
-        if (source) {
-          blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(source) });
+      const related = this.relatedResponsePreview(entry.groupKey).filter((response) =>
+        response === '...' ? true : Boolean(response.trim()),
+      );
+      if (related.length > 0) {
+        blocks.push({
+          kind: 'heading',
+          text: $localize`:@@wordCloud.tooltipRelatedQuestions:Zugehörige Fragen`,
+        });
+        for (const response of related) {
+          if (response === '...') {
+            blocks.push({ kind: 'text', text: '…' });
+            continue;
+          }
+          blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(response.trim()) });
         }
       }
     }
     return blocks;
+  }
+
+  private tooltipExtraVariants(entry: CloudWord): string[] {
+    const seen = new Set<string>();
+    const extras: string[] = [];
+    for (const variant of entry.variants) {
+      const source = variant.trim();
+      if (!source || this.tooltipFormsMatch(source, entry.word)) {
+        continue;
+      }
+      const key = source.toLocaleLowerCase('de');
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      extras.push(source);
+    }
+    return extras;
+  }
+
+  private tooltipFormsMatch(left: string, right: string): boolean {
+    return left.trim().toLocaleLowerCase('de') === right.trim().toLocaleLowerCase('de');
   }
 
   wordTooltip(entry: CloudWord): string {

@@ -19984,8 +19984,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudSizeAria" datatype="html">
-        <source>Größe nach Kontroverse, besten Fragen, Ups minus Downs oder Vorkommen in Fragen</source>
-        <target>Taille selon la controverse, les meilleures questions, pour moins contre ou la présence dans les questions</target>
+        <source>Größe nach Kontroverse, besten Fragen, Stimmensaldo oder Vorkommen in Fragen</source>
+        <target>Taille selon la controverse, les meilleures questions, le solde des votes ou la présence dans les questions</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/qa-word-cloud-dialog.component.html</context>
           <context context-type="linenumber">44</context>
@@ -22116,8 +22116,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortTop" datatype="html">
-        <source>Ups minus Downs</source>
-        <target>Pour moins contre</target>
+        <source>Stimmensaldo</source>
+        <target>Solde des votes</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.html</context>
           <context context-type="linenumber">4407</context>
@@ -23736,8 +23736,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudHintTop" datatype="html">
-        <source>Große Wörter und Phrasen kommen aus Fragen, bei denen Ups minus Downs hoch ist.</source>
-        <target>Les grands mots et groupes de mots viennent de questions où pour moins contre est élevé.</target>
+        <source>Große Einträge stammen aus Fragen mit hohem Stimmensaldo (Stimmen dafür minus Stimmen dagegen).</source>
+        <target>Les éléments les plus grands proviennent de questions dont le solde des votes est élevé (différence entre les votes pour et les votes contre).</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2182</context>
@@ -23796,8 +23796,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTop" datatype="html">
-        <source>Zeigt zuerst die Fragen, bei denen Ups minus Downs am höchsten ist. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
-        <target>Affiche d’abord les questions où pour moins contre est le plus élevé. Les questions mises en avant apparaissent en premier et sont signalées.</target>
+        <source>Zeigt Fragen mit dem höchsten Stimmensaldo zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
+        <target>Affiche d’abord les questions ayant le solde des votes le plus élevé. Les questions mises en avant apparaissent en premier et sont signalées.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2468</context>
@@ -27741,6 +27741,14 @@
           <context context-type="linenumber">1251</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="wordCloud.tooltipOtherForms" datatype="html">
+        <source>Weitere gezählte Formen</source>
+        <target>Autres formes comptées</target>
+      </trans-unit>
+      <trans-unit id="wordCloud.tooltipRelatedQuestions" datatype="html">
+        <source>Zugehörige Fragen</source>
+        <target>Questions associées</target>
+      </trans-unit>
       <trans-unit id="wordCloud.loadMoreOne" datatype="html">
         <source>1 weitere Antwort laden</source>
         <target>Charger 1 réponse supplémentaire</target>
@@ -30158,8 +30166,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTopVote" datatype="html">
-        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die, bei denen Ups minus Downs am höchsten ist.</source>
-        <target>Les questions mises en avant restent en tête. Ensuite viennent celles où pour moins contre est le plus élevé.</target>
+        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die Fragen mit dem höchsten Stimmensaldo.</source>
+        <target>Les questions mises en avant restent en tête. Ensuite viennent les questions ayant le solde des votes le plus élevé.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-vote/session-vote.component.ts</context>
           <context context-type="linenumber">540</context>

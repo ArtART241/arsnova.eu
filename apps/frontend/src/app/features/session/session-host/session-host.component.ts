@@ -2166,7 +2166,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       case 'TIME':
         return $localize`:@@sessionQa.wordCloudMetricTime:Vorkommen in Fragen`;
       default:
-        return $localize`:@@sessionQa.sortTop:Ups minus Downs`;
+        return $localize`:@@sessionQa.sortTop:Stimmensaldo`;
     }
   });
   readonly qaWordCloudTitle = computed(() =>
@@ -2213,7 +2213,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       case 'TIME':
         return $localize`:@@sessionQa.wordCloudHintTime:Ein Wort wird größer, je mehr sichtbare Fragen es enthalten. In einer Frage zählt es nur einmal.`;
       default:
-        return $localize`:@@sessionQa.wordCloudHintTop:Große Wörter und Phrasen kommen aus Fragen, bei denen Ups minus Downs hoch ist.`;
+        return $localize`:@@sessionQa.wordCloudHintTop:Große Einträge stammen aus Fragen mit hohem Stimmensaldo (Stimmen dafür minus Stimmen dagegen).`;
     }
   });
   readonly qaWordCloudWeightedResponses = computed(() =>
@@ -2499,7 +2499,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       case 'TIME':
         return $localize`:@@sessionQa.sortHintTime:Zeigt die neuesten Fragen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       default:
-        return $localize`:@@sessionQa.sortHintTop:Zeigt zuerst die Fragen, bei denen Ups minus Downs am höchsten ist. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
+        return $localize`:@@sessionQa.sortHintTop:Zeigt Fragen mit dem höchsten Stimmensaldo zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
     }
   });
   readonly qaWordCloudOpenLabel = computed(
@@ -10960,7 +10960,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
   qaSortModeLabel(mode: QaQuestionSortMode = this.qaSortMode()): string {
     switch (mode) {
       case 'TOP':
-        return $localize`:@@sessionQa.sortTop:Ups minus Downs`;
+        return $localize`:@@sessionQa.sortTop:Stimmensaldo`;
       case 'BEST':
         return $localize`:@@sessionQa.sortBest:Beste Fragen`;
       case 'CONTROVERSIAL':

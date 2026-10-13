@@ -970,7 +970,7 @@ Eine Story gilt als **fertig**, wenn **alle** folgenden Kriterien erfüllt sind:
   - **Umsetzungs- und Lehrabsicht:** Die Story wird als durchgehendes Studienobjekt im Cloud-Computing-Kurs demonstriert und in den Übungen schrittweise umgesetzt. Studierende erstellen technische Messungen und Wirtschaftlichkeitsanalysen, dokumentieren eine verantwortete Architekturentscheidung und vertreten diese im Referat. Eine Produktivaktivierung folgt daraus nicht automatisch, sondern erst nach den unten definierten Qualitäts-, Sicherheits-, Datenschutz-, Last- und Betriebsgates.
   - **Produktzuschnitt:**
     - Der Encoder-Rollout vom 2026-08-21 war host-first und für Q&A. Seit der Produktentscheidung vom 2026-10-13 benennt Stufe 2 Host-Q&A und Host-Freitext mit demselben Auftrag, und der Presenter zeigt beide vom Host aktivierten Wolken. Er startet keine eigene Analyse. Der ältere Satz, Presenter-Q&A bleibe bis zu einer Folgestory auf dem 2.x-Pfad, gilt nicht mehr. Quiz-Freitext-Clustering bleibt Story 1.14d.
-    - Der Host kann orthogonal zur Gewichtung zwischen `Einzelwörter`, `Begriffe & Phrasen` und `Thema` wechseln. `Ups minus Downs`, `Beste Fragen` und `Kontroverse` bleiben als Gewichtungsmodi unverändert wirksam. Die Auswahloption heißt **Thema**; der heutige Text **Themen** wird in Stufe 2 umbenannt.
+    - Der Host kann orthogonal zur Gewichtung zwischen `Einzelwörter`, `Begriffe & Phrasen` und `Thema` wechseln. `Stimmensaldo`, `Beste Fragen` und `Kontroverse` bleiben als Gewichtungsmodi unverändert wirksam. Die Auswahloption heißt **Thema**; der heutige Text **Themen** wird in Stufe 2 umbenannt.
     - Analysiert werden nur die im aktuellen Host-Snapshot sichtbaren `PINNED`-/`ACTIVE`-Fragen. Archivierte, nicht sichtbare oder nicht hostseitig freigegebene Inhalte gelangen nicht in den Analyseauftrag.
     - Ein Thema ist nur zulässig, wenn seine Mitgliedschaft erklärbar ist. Tooltip, Fokus-/Textalternative und CSV zeigen mindestens Label, gewichteten Wert, Metrik, Konfidenz beziehungsweise Unsicherheit, Beispiel-/Mitgliedsfragen, Modell-/Analyseversion und Erzeugungszeitpunkt.
     - Findet die semantische Pipeline keine belastbaren Cluster oder ist sie deaktiviert, überlastet, zu langsam oder fehlerhaft, bleibt die lexikalische Wolke ohne leere Zwischenkarte vollständig nutzbar.
@@ -1999,7 +1999,7 @@ ist abgeschlossen ✅. Damit ist Epic 6 geschlossen.
     - Vertrauenswürdige Tutor:innen oder Moderator:innen erhalten den Kompass ausschließlich als vollwertige Paired Hosts gemäß Story 2.10.
     - Der Kompass kann mindestens folgende vorhandene Signale zusammenführen:
       - Q&A-Fragen, Status, Pin/Archiv-Zustand, Up-/Downvote-Aggregate, `score`, `bestScore`, `controversyScore` und aktiver Q&A-Sortiermodus.
-      - Q&A-Wortwolken-Terme und deren Gewichtungsbasis (`Ups minus Downs`, `Beste Fragen`, `Kontroverse`).
+      - Q&A-Wortwolken-Terme und deren Gewichtungsbasis (`Stimmensaldo`, `Beste Fragen`, `Kontroverse`).
       - Freitext-Wortwolken-Terme und aggregierte Antwortmengen.
       - Quiz-Ergebnisstände nach Freigabe, insbesondere Antwortverteilungen, richtige/falsche Anteile und auffällige Streuung.
       - Numerische Schätzfragen nach Ergebnisfreigabe: Referenzwert, Plausibilitäts-/Toleranzband, Anteil im Band, Statistik, Histogramm-Informationen und Rundenvergleich.

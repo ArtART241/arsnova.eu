@@ -166,7 +166,7 @@ const it: Messages = {
     hostView: 'Vista Q&A di chi conduce',
     demoTitle: 'Domande sull’evento',
     moderationActive: 'Pre-moderazione attiva',
-    sortMostSupported: 'Favorevoli meno contrari',
+    sortMostSupported: 'Saldo dei voti',
     sortBest: 'Migliori domande',
     sortControversial: 'Controversia',
     questions: [

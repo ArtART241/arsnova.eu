@@ -17760,7 +17760,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudSizeAria" datatype="html">
-        <source>Größe nach Kontroverse, besten Fragen, Ups minus Downs oder Vorkommen in Fragen</source>
+        <source>Größe nach Kontroverse, besten Fragen, Stimmensaldo oder Vorkommen in Fragen</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/qa-word-cloud-dialog.component.html</context>
           <context context-type="linenumber">44</context>
@@ -19657,7 +19657,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortTop" datatype="html">
-        <source>Ups minus Downs</source>
+        <source>Stimmensaldo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.html</context>
           <context context-type="linenumber">4407</context>
@@ -21128,7 +21128,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudHintTop" datatype="html">
-        <source>Große Wörter und Phrasen kommen aus Fragen, bei denen Ups minus Downs hoch ist.</source>
+        <source>Große Einträge stammen aus Fragen mit hohem Stimmensaldo (Stimmen dafür minus Stimmen dagegen).</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2182</context>
@@ -21182,7 +21182,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTop" datatype="html">
-        <source>Zeigt zuerst die Fragen, bei denen Ups minus Downs am höchsten ist. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
+        <source>Zeigt Fragen mit dem höchsten Stimmensaldo zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2468</context>
@@ -24598,6 +24598,12 @@
           <context context-type="linenumber">1251</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="wordCloud.tooltipOtherForms" datatype="html">
+        <source>Weitere gezählte Formen</source>
+      </trans-unit>
+      <trans-unit id="wordCloud.tooltipRelatedQuestions" datatype="html">
+        <source>Zugehörige Fragen</source>
+      </trans-unit>
       <trans-unit id="wordCloud.loadMoreOne" datatype="html">
         <source>1 weitere Antwort laden</source>
         <context-group purpose="location">
@@ -26719,7 +26725,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTopVote" datatype="html">
-        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die, bei denen Ups minus Downs am höchsten ist.</source>
+        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die Fragen mit dem höchsten Stimmensaldo.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-vote/session-vote.component.ts</context>
           <context context-type="linenumber">540</context>

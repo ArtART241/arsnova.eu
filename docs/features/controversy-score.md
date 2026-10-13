@@ -17,17 +17,17 @@ Die aktuelle Q&A-Implementierung in arsnova.eu hat bereits **bidirektionales Vot
 2. **Teilnehmende behalten die heutige, leicht verständliche Standardsortierung**; die neuen Modi sind ein Werkzeug für Moderation, nicht das neue Default-Ranking der Teilnehmendenansicht.
 3. **Hervorgehobene Fragen bleiben Forum- und Presenter-Anker.** In allen Sortiermodi stehen `PINNED`-Fragen zuerst (Host: vor `PENDING` und `ACTIVE`); innerhalb jeder Statusgruppe gilt die gewählte Metrik. Die Host-Liste rotiert ab dem Navigator-Cursor (Position 1 = Hero, 2 = nächster Kandidat); der Hero ist nur per Primary-Rand markiert (gleiche Kartenfläche wie die übrigen Fragen). Die Hörsaalbühne zeigt zusätzlich Erstellungszeit und nur die aktive Sortier-Metrik (bei BEST Zustimmung %, bei CONTROVERSIAL geteilte Reaktionen %); `qa.presentProjection` liefert die Scores deshalb immer mit. `PENDING`, `ARCHIVED` und `DELETED` folgen als eigene Statusgruppen.
 4. **`QaQuestion.upvoteCount` ist im Ist-Stand ein Netto-Score, nicht die Zahl der Upvotes.** Für 8.6 und 8.7 müssen `U` und `D` aus den Einzelstimmen (`QaUpvote.direction`) aggregiert werden; der Netto-Score allein reicht fachlich nicht.
-5. **Die Q&A-UI braucht einen expliziten Sortiermodus**, z. B. `Ups minus Downs`, `Kontroverse`, `Beste Fragen`, `Zeit`. Ohne sichtbaren Moduswechsel wären 8.6/8.7 nicht nachvollziehbar.
+5. **Die Q&A-UI braucht einen expliziten Sortiermodus**, z. B. `Stimmensaldo`, `Kontroverse`, `Beste Fragen`, `Zeit`. Ohne sichtbaren Moduswechsel wären 8.6/8.7 nicht nachvollziehbar.
 
 ## Implementierungsstand (Stand 2026-05-15)
 
 Der heutige Produktstand deckt die Storys 8.6 und 8.7 in der Host-Ansicht bereits ab:
 
-- Host- und Teilnehmer-Q&A-Liste bieten die Sortiermodi `Ups minus Downs`, `Beste Fragen`, `Kontroverse` und `Zeit`. `Zeit` sortiert serverseitig nach `createdAt` (neueste zuerst); die Seite bleibt eine DB-Seite, ohne Client-Neusortierung der vollen Liste. Die Teilnehmer-DTOs bleiben ohne Wilson-, Kontroversie- und Moderationsfelder; nur die Reihenfolge ändert sich.
+- Host- und Teilnehmer-Q&A-Liste bieten die Sortiermodi `Stimmensaldo`, `Beste Fragen`, `Kontroverse` und `Zeit`. `Zeit` sortiert serverseitig nach `createdAt` (neueste zuerst); die Seite bleibt eine DB-Seite, ohne Client-Neusortierung der vollen Liste. Die Teilnehmer-DTOs bleiben ohne Wilson-, Kontroversie- und Moderationsfelder; nur die Reihenfolge ändert sich.
 - Die Router-/DTO-Schicht liefert neben dem bisherigen Nettofeld auch getrennte `UP`-/`DOWN`-Aggregate sowie `score`, `voteCount`, `bestScore`, `controversyScore` und `isControversial`.
 - Die Host-Liste aggregiert `QaUpvote.direction` serverseitig per DB-Gruppierung statt alle Einzelvotes in den Host-Poll zu laden; `QaQuestion.updatedAt` und ein Revisionsschluessel vermeiden volle Rebuilds, wenn sich seit dem letzten Poll nichts geaendert hat.
 - Im Host-Ranking werden `ACTIVE` und `PINNED` gemeinsam nach der gewaehlten Metrik sortiert; `PINNED` bleibt ein sichtbarer Status, aber kein globaler Sortier-Override.
-- Die Teilnehmendenansicht startet bei `Ups minus Downs` und kann dieselben vier Sortiermodi anfordern. In allen Sortiermodi stehen hervorgehobene Fragen zuerst; danach sortieren `Beste Fragen`, `Kontroverse` und `Zeit` nach Metrik bzw. Erstellungszeit. Die Fragen-Suche läuft wie beim Host entprellt (300 ms) über `qa.list` und durchsucht nicht die geladene Seite lokal. Der Host filtert in »Teilnahmen durchsuchen« eine Identität über `qa.list` (`authorNickname`) in PostgreSQL, nicht über die geladene Seite; die Liste und die Fragenkarten zeigen eine vorhandene Teamzugehörigkeit.
+- Die Teilnehmendenansicht startet bei `Stimmensaldo` und kann dieselben vier Sortiermodi anfordern. In allen Sortiermodi stehen hervorgehobene Fragen zuerst; danach sortieren `Beste Fragen`, `Kontroverse` und `Zeit` nach Metrik bzw. Erstellungszeit. Die Fragen-Suche läuft wie beim Host entprellt (300 ms) über `qa.list` und durchsucht nicht die geladene Seite lokal. Der Host filtert in »Teilnahmen durchsuchen« eine Identität über `qa.list` (`authorNickname`) in PostgreSQL, nicht über die geladene Seite; die Liste und die Fragenkarten zeigen eine vorhandene Teamzugehörigkeit.
 - Die Q&A-Wortwolke im Host folgt demselben Sortiermodus, kann im Dialog eingefroren werden und zeigt im Tooltip neben dem Groessenwert auch die Zahl der zugehoerigen Fragen.
 - In der maximierten Host-Vollansicht bleibt der Sortierumschalter oberhalb der Wolke sichtbar.
 
@@ -99,13 +99,13 @@ Anzeige nur wenn **beides** gilt:
 
 **Visualisierung:** Falls eine Voting-Anzeige existiert, kann ein Verlauf von neutral zu „warnend“ den steigenden Score andeuten (`prefers-reduced-motion` beachten).
 
-Die aktuelle Host-UI ergänzt diese Kennzeichnung durch eine sortierabhaengige Q&A-Wortwolke. Deren Termliste basiert auf bereinigter Document-Frequency pro Frage: Ein Begriff zaehlt je Frage maximal einmal, die aktive Sortiermetrik steuert das Dokumentgewicht. Der Tooltip zeigt den Groessenwert, die Zahl der zugehoerigen Fragen, die Gewichtungsbasis (`Ups minus Downs`, `beste Fragen`, `Kontroverse`) sowie konkrete Fragen, damit Sortierung und Themenraum zusammen lesbar bleiben.
+Die aktuelle Host-UI ergänzt diese Kennzeichnung durch eine sortierabhaengige Q&A-Wortwolke. Deren Termliste basiert auf bereinigter Document-Frequency pro Frage: Ein Begriff zaehlt je Frage maximal einmal, die aktive Sortiermetrik steuert das Dokumentgewicht. Der Tooltip zeigt den Groessenwert, die Zahl der zugehoerigen Fragen, die Gewichtungsbasis (`Stimmensaldo`, `beste Fragen`, `Kontroverse`) sowie konkrete Fragen, damit Sortierung und Themenraum zusammen lesbar bleiben.
 
 ### Sortier-UI
 
 Die Sortierauswahl sitzt in der Host-Ansicht in unmittelbarer Nähe zur Q&A-Liste, nicht in der Teilnehmeransicht. Ein Paired Host verwendet dieselbe Steuerung. Referenzoptionen:
 
-- `Ups minus Downs` — heutige Standardsortierung nach dem Saldo aus Stimmen dafür und dagegen
+- `Stimmensaldo` — heutige Standardsortierung nach dem Saldo aus Stimmen dafür und dagegen
 - `Kontroverse` — Story 8.6, derselbe `controversyScore` in Liste und Wortwolke
 - `Beste Fragen` — Story 8.7
 - `Zeit` — neueste zuerst; die Datenbank sortiert nach `createdAt DESC` (Index `sessionId, status, createdAt`)
@@ -114,7 +114,7 @@ Die Kartenzeile wiederholt den Sortiernamen nicht: bei `Beste Fragen` steht `Zus
 
 Der aktive Modus bleibt während einer Session stabil, bis ein autorisierter Host ihn bewusst ändert.
 
-Die Host-Q&A-Wortwolke nutzt denselben Modus: `Ups minus Downs` gewichtet nach dem Saldo aus Stimmen dafür und dagegen, `Beste Fragen` nach Wilson-Score und `Kontroverse` nach `controversyScore`. `Vorkommen in Fragen` zählt, in wie vielen sichtbaren Fragen ein Wort steht, jede Frage einmal; die Fragenliste bleibt nach Eingangszeit sortiert. Die Visualisierung bekommt bereits gewichtete Terme und analysiert keine Rohtexte selbst. In der maximierten Vollansicht sitzt die Sortierauswahl oberhalb der Wolke, damit der Kontext beim Wechsel sichtbar bleibt; ein Freeze-Schalter haelt die aktuell dargestellte Wolke fuer die Auditoriumssituation fest.
+Die Host-Q&A-Wortwolke nutzt denselben Modus: `Stimmensaldo` gewichtet nach dem Saldo aus Stimmen dafür und dagegen, `Beste Fragen` nach Wilson-Score und `Kontroverse` nach `controversyScore`. `Vorkommen in Fragen` zählt, in wie vielen sichtbaren Fragen ein Wort steht, jede Frage einmal; die Fragenliste bleibt nach Eingangszeit sortiert. Die Visualisierung bekommt bereits gewichtete Terme und analysiert keine Rohtexte selbst. In der maximierten Vollansicht sitzt die Sortierauswahl oberhalb der Wolke, damit der Kontext beim Wechsel sichtbar bleibt; ein Freeze-Schalter haelt die aktuell dargestellte Wolke fuer die Auditoriumssituation fest.
 
 ## Akzeptanzkriterien
 

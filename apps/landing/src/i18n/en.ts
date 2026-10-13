@@ -163,7 +163,7 @@ const en: Messages = {
     hostView: 'Facilitator’s Q&A view',
     demoTitle: 'Questions about the event',
     moderationActive: 'Pre-moderation on',
-    sortMostSupported: 'Ups minus downs',
+    sortMostSupported: 'Net votes',
     sortBest: 'Best questions',
     sortControversial: 'Controversy',
     questions: [

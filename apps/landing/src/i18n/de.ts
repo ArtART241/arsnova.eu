@@ -163,7 +163,7 @@ const de: Messages = {
     hostView: 'Host-Ansicht Q&A',
     demoTitle: 'Fragen zur Veranstaltung',
     moderationActive: 'Vorab-Moderation aktiv',
-    sortMostSupported: 'Ups minus Downs',
+    sortMostSupported: 'Stimmensaldo',
     sortBest: 'Beste Fragen',
     sortControversial: 'Kontroverse',
     questions: [

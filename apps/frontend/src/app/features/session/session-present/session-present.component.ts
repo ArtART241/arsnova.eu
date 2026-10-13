@@ -480,7 +480,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   qaSortModeLabel(mode: QaQuestionSortMode = this.presenterQaSortMode()): string {
     switch (mode) {
       case 'TOP':
-        return $localize`:@@sessionQa.sortTop:Ups minus Downs`;
+        return $localize`:@@sessionQa.sortTop:Stimmensaldo`;
       case 'BEST':
         return $localize`:@@sessionQa.sortBest:Beste Fragen`;
       case 'CONTROVERSIAL':
@@ -684,7 +684,7 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
       case 'TIME':
         return $localize`:@@sessionQa.wordCloudMetricTime:Vorkommen in Fragen`;
       default:
-        return $localize`:@@sessionQa.sortTop:Ups minus Downs`;
+        return $localize`:@@sessionQa.sortTop:Stimmensaldo`;
     }
   }
 

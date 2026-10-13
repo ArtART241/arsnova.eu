@@ -19984,8 +19984,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudSizeAria" datatype="html">
-        <source>Größe nach Kontroverse, besten Fragen, Ups minus Downs oder Vorkommen in Fragen</source>
-        <target>Dimensione in base a controversia, domande migliori, favorevoli meno contrari o presenza nelle domande</target>
+        <source>Größe nach Kontroverse, besten Fragen, Stimmensaldo oder Vorkommen in Fragen</source>
+        <target>Dimensione in base a controversia, domande migliori, saldo dei voti o presenza nelle domande</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/qa-word-cloud-dialog.component.html</context>
           <context context-type="linenumber">44</context>
@@ -22116,8 +22116,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortTop" datatype="html">
-        <source>Ups minus Downs</source>
-        <target>Favorevoli meno contrari</target>
+        <source>Stimmensaldo</source>
+        <target>Saldo dei voti</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.html</context>
           <context context-type="linenumber">4407</context>
@@ -23736,8 +23736,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.wordCloudHintTop" datatype="html">
-        <source>Große Wörter und Phrasen kommen aus Fragen, bei denen Ups minus Downs hoch ist.</source>
-        <target>Le parole e le frasi grandi provengono da domande in cui favorevoli meno contrari è alto.</target>
+        <source>Große Einträge stammen aus Fragen mit hohem Stimmensaldo (Stimmen dafür minus Stimmen dagegen).</source>
+        <target>Gli elementi più grandi provengono da domande con un saldo dei voti più alto (voti a favore meno voti contrari).</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2182</context>
@@ -23796,8 +23796,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTop" datatype="html">
-        <source>Zeigt zuerst die Fragen, bei denen Ups minus Downs am höchsten ist. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
-        <target>Mostra prima le domande in cui favorevoli meno contrari è più alto. Le domande in evidenza compaiono per prime e sono contrassegnate.</target>
+        <source>Zeigt Fragen mit dem höchsten Stimmensaldo zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.</source>
+        <target>Mostra per prime le domande con il saldo dei voti più alto. Le domande in evidenza compaiono per prime e sono contrassegnate.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
           <context context-type="linenumber">2468</context>
@@ -27741,6 +27741,14 @@
           <context context-type="linenumber">1251</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="wordCloud.tooltipOtherForms" datatype="html">
+        <source>Weitere gezählte Formen</source>
+        <target>Altre forme conteggiate</target>
+      </trans-unit>
+      <trans-unit id="wordCloud.tooltipRelatedQuestions" datatype="html">
+        <source>Zugehörige Fragen</source>
+        <target>Domande correlate</target>
+      </trans-unit>
       <trans-unit id="wordCloud.loadMoreOne" datatype="html">
         <source>1 weitere Antwort laden</source>
         <target>Carica un&apos;altra risposta</target>
@@ -30158,8 +30166,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="sessionQa.sortHintTopVote" datatype="html">
-        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die, bei denen Ups minus Downs am höchsten ist.</source>
-        <target>Le domande in evidenza restano in cima. Poi vengono quelle in cui favorevoli meno contrari è più alto.</target>
+        <source>Hervorgehobene Fragen stehen zuerst. Danach kommen die Fragen mit dem höchsten Stimmensaldo.</source>
+        <target>Le domande in evidenza restano in cima. Poi vengono le domande con il saldo dei voti più alto.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/session/session-vote/session-vote.component.ts</context>
           <context context-type="linenumber">540</context>

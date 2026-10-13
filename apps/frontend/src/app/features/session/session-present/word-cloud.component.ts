@@ -24,7 +24,12 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
-import { MatTooltip } from '@angular/material/tooltip';
+import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
+import {
+  WordCloudMarkdownTooltipDirective,
+  trustWordCloudTooltipHtml,
+  type WordCloudTooltipBlock,
+} from './word-cloud-markdown-tooltip.directive';
 import type { CloudLayout } from 'd3-cloud';
 import type { WordCloudAnalysisEntryDTO } from '@arsnova/shared-types';
 import { getEffectiveLocale, localeIdToSupported } from '../../../core/locale-from-path';
@@ -152,7 +157,7 @@ interface RoundedRectStyle {
     MatCardSubtitle,
     MatCardTitle,
     MatIcon,
-    MatTooltip,
+    WordCloudMarkdownTooltipDirective,
   ],
   templateUrl: './word-cloud.component.html',
   styleUrl: './word-cloud.component.scss',
@@ -163,6 +168,8 @@ interface RoundedRectStyle {
 })
 export class WordCloudComponent implements AfterViewInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly tooltipMarkdownCache = new Map<string, SafeHtml>();
   private readonly dialog = inject(MatDialog, { optional: true });
   private readonly localeId = inject(LOCALE_ID);
   private readonly exportSurface = viewChild<ElementRef<HTMLElement>>('exportSurface');
@@ -203,6 +210,8 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
   );
   readonly tooltipMetricLabel = input<string | null>(null);
   readonly analysisModelVersion = input<string | null>(null);
+  readonly labelModelId = input<string | null>(null);
+  readonly labelModelVersion = input<string | null>(null);
   readonly disableCloudLayout = input(false);
   readonly presentationMode = input(false);
   readonly outputOnly = input(false);
@@ -1176,6 +1185,85 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
     return Math.max(1, 200 - rank);
   }
 
+  wordTooltipBlocks(entry: CloudWord): readonly WordCloudTooltipBlock[] {
+    const blocks: WordCloudTooltipBlock[] = [];
+    const meta = [this.tooltipValueLine(entry.count)];
+    const sourceCountLine = this.tooltipSourceCountLine(entry.sourceCount);
+    if (sourceCountLine) {
+      meta.push(sourceCountLine);
+    }
+    const metricLine = this.tooltipMetricLine();
+    if (metricLine) {
+      meta.push(metricLine);
+    }
+    const basisLine = this.analysisBasisLine(entry);
+    if (basisLine) {
+      meta.push(basisLine);
+    }
+    const confidenceLine = this.analysisConfidenceLine(entry.confidence);
+    if (confidenceLine) {
+      meta.push(confidenceLine);
+    }
+    const modelLine = this.analysisModelVersionLine();
+    if (modelLine) {
+      meta.push(modelLine);
+    }
+    if (meta.length > 0) {
+      blocks.push({ kind: 'text', text: meta.join('\n') });
+    }
+    const extraVariants = this.tooltipExtraVariants(entry);
+    if (extraVariants.length > 0) {
+      blocks.push({
+        kind: 'heading',
+        text: $localize`:@@wordCloud.tooltipOtherForms:Weitere gezählte Formen`,
+      });
+      for (const variant of extraVariants) {
+        blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(variant) });
+      }
+    }
+    if (this.analysisMode() === 'qa') {
+      const related = this.relatedResponsePreview(entry.groupKey).filter((response) =>
+        response === '...' ? true : Boolean(response.trim()),
+      );
+      if (related.length > 0) {
+        blocks.push({
+          kind: 'heading',
+          text: $localize`:@@wordCloud.tooltipRelatedQuestions:Zugehörige Fragen`,
+        });
+        for (const response of related) {
+          if (response === '...') {
+            blocks.push({ kind: 'text', text: '…' });
+            continue;
+          }
+          blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(response.trim()) });
+        }
+      }
+    }
+    return blocks;
+  }
+
+  private tooltipExtraVariants(entry: CloudWord): string[] {
+    const seen = new Set<string>();
+    const extras: string[] = [];
+    for (const variant of entry.variants) {
+      const source = variant.trim();
+      if (!source || this.tooltipFormsMatch(source, entry.word)) {
+        continue;
+      }
+      const key = source.toLocaleLowerCase('de');
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      extras.push(source);
+    }
+    return extras;
+  }
+
+  private tooltipFormsMatch(left: string, right: string): boolean {
+    return left.trim().toLocaleLowerCase('de') === right.trim().toLocaleLowerCase('de');
+  }
+
   wordTooltip(entry: CloudWord): string {
     const lines = [this.tooltipValueLine(entry.count)];
     const sourceCountLine = this.tooltipSourceCountLine(entry.sourceCount);
@@ -1297,10 +1385,16 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
     const analysisEntries = this.analysisEntries();
     if (analysisEntries && analysisEntries.length > 0) {
       const includeSemanticMeta = Boolean(this.analysisModelVersion());
+      const includeLabelModel = analysisEntries.some((entry) => entry.labelOrigin === 'model');
       const rows = [
-        includeSemanticMeta
-          ? 'label,count,variants,basis,members,confidence,modelVersion'
-          : 'label,count,variants,basis,members',
+        [
+          includeSemanticMeta
+            ? 'label,count,variants,basis,members,confidence,modelVersion'
+            : 'label,count,variants,basis,members',
+          includeLabelModel ? 'labelOrigin,labelModelId,labelModelVersion' : '',
+        ]
+          .filter((column) => column.length > 0)
+          .join(','),
         ...analysisEntries.map((entry) =>
           [
             this.escapeCsvField(entry.label),
@@ -1312,6 +1406,13 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
               ? [
                   entry.confidence === null ? '' : String(entry.confidence),
                   this.escapeCsvField(this.analysisModelVersion() ?? ''),
+                ]
+              : []),
+            ...(includeLabelModel
+              ? [
+                  this.escapeCsvField(entry.labelOrigin ?? 'extractive'),
+                  this.escapeCsvField(this.labelModelId() ?? ''),
+                  this.escapeCsvField(this.labelModelVersion() ?? ''),
                 ]
               : []),
           ].join(','),
@@ -2081,6 +2182,16 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
       [];
     const preview = responses.slice(0, 4);
     return responses.length > 4 ? [...preview, '...'] : preview;
+  }
+
+  private tooltipMarkdown(source: string): SafeHtml {
+    const cached = this.tooltipMarkdownCache.get(source);
+    if (cached) {
+      return cached;
+    }
+    const html = trustWordCloudTooltipHtml(this.sanitizer, source);
+    this.tooltipMarkdownCache.set(source, html);
+    return html;
   }
 
   private formatTooltipListItem(value: string): string {

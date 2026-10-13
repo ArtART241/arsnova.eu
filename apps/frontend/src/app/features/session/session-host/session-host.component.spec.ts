@@ -150,6 +150,7 @@ const {
   setPreferredLiveChannelMutateMock,
   setPresenterSurfaceMutateMock,
   setQaWordCloudProjectionMutateMock,
+  setFreetextWordCloudProjectionMutateMock,
   setQaPresenterSortModeMutateMock,
   pauseQuizMutateMock,
   resumeQuizMutateMock,
@@ -217,6 +218,7 @@ const {
   setPreferredLiveChannelMutateMock: vi.fn(),
   setPresenterSurfaceMutateMock: vi.fn(),
   setQaWordCloudProjectionMutateMock: vi.fn(),
+  setFreetextWordCloudProjectionMutateMock: vi.fn(),
   setQaPresenterSortModeMutateMock: vi.fn(),
   pauseQuizMutateMock: vi.fn(),
   resumeQuizMutateMock: vi.fn(),
@@ -284,6 +286,7 @@ vi.mock('../../../core/trpc.client', () => ({
       setPreferredLiveChannel: { mutate: setPreferredLiveChannelMutateMock },
       setPresenterSurface: { mutate: setPresenterSurfaceMutateMock },
       setQaWordCloudProjection: { mutate: setQaWordCloudProjectionMutateMock },
+      setFreetextWordCloudProjection: { mutate: setFreetextWordCloudProjectionMutateMock },
       pauseQuiz: { mutate: pauseQuizMutateMock },
       resumeQuiz: { mutate: resumeQuizMutateMock },
       closeQaChannel: { mutate: closeQaChannelMutateMock },
@@ -11643,7 +11646,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     fixture.detectChanges();
 
     expect(component.qaSortMode()).toBe('TOP');
-    expect(component.qaMobileMoreAriaLabel()).toContain('Meist unterstützt');
+    expect(component.qaMobileMoreAriaLabel()).toContain('Stimmensaldo');
     expect(document.activeElement).toBe(moreButton);
     fixture.destroy();
   });
@@ -12649,7 +12652,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     expect(component.qaWordCloudQuestionWeight(component.qaQuestions()[0]!)).toBe(27);
     expect(component.qaWordCloudTitle()).toBe('Q&A-Wortwolke');
     expect(component.qaWordCloudInfo()).toBe('1 sichtbare Frage');
-    expect(text).toContain('Umstritten');
+    expect(text).toContain('Kontroverse');
     expect(text).toContain('Zeit');
     expect(text).not.toContain('8 positiv · 8 negativ');
     const voteStats = fixture.nativeElement.querySelectorAll('.session-qa-card__vote-stat');
@@ -12836,7 +12839,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       expect(data.sortMode()).toBe('CONTROVERSIAL');
       expect(data.title()).toBe('Q&A-Wortwolke');
       expect(data.tooltipMetricLabel()).toBe('Kontroverse');
-      expect(data.weightingHint()).toContain('gegensätzlichen Reaktionen');
+      expect(data.weightingHint()).toContain('hoher Kontroverse');
     } finally {
       if (previousDescriptor) {
         Object.defineProperty(documentRef.documentElement, 'requestFullscreen', previousDescriptor);
@@ -17243,6 +17246,75 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     fixture.detectChanges();
     expect(component.qaPresenterHeroQuestionId()).toBe('arch-2');
     expect(component.projectionQaNavDisplayIndex()).toBe(1);
+    fixture.destroy();
+  });
+
+  it('schaltet den Fragen-Navigator nach Session-Ende weiter, auch ohne Bühnen-Snapshot', async () => {
+    const questions = [
+      {
+        id: 'active-1',
+        text: 'Erste',
+        upvoteCount: 2,
+        status: 'ACTIVE' as const,
+        createdAt: '2026-03-13T12:00:00.000Z',
+        myVote: null,
+        isOwn: false,
+        hasUpvoted: false,
+      },
+      {
+        id: 'active-2',
+        text: 'Zweite',
+        upvoteCount: 1,
+        status: 'ACTIVE' as const,
+        createdAt: '2026-03-13T12:01:00.000Z',
+        myVote: null,
+        isOwn: false,
+        hasUpvoted: false,
+      },
+    ];
+    const fixture = setup();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance;
+    component.session.set({
+      ...defaultSession,
+      status: 'FINISHED',
+      preferredChannel: 'qa',
+      presenterSurface: 'default',
+      presenterPage: { context: 'qa-questions', index: 0, count: 1 },
+      channels: {
+        quiz: { enabled: true },
+        qa: { enabled: true, open: false, title: 'Fragen', moderationMode: false },
+        quickFeedback: { enabled: false, open: false },
+      },
+    });
+    qaListQueryMock.mockResolvedValue(qaHostSnapshot(questions as QaQuestionDTO[]));
+    qaPresentProjectionQueryMock.mockResolvedValue({
+      questions: [],
+      state: 'SESSION_ENDED',
+    });
+    component.activeChannel.set('qa');
+    component.qaQuestions.set(questions as never);
+    (
+      component as SessionHostComponent & {
+        qaPresenterStageOrderedQuestions: { set: (value: QaQuestionDTO[] | null) => void };
+      }
+    ).qaPresenterStageOrderedQuestions.set([]);
+    fixture.detectChanges();
+
+    expect(component.projectionPageDisplayCount()).toBe(2);
+    expect(component.projectionQaNavDisplayIndex()).toBe(0);
+    expect(fixture.nativeElement.textContent).toContain('1 / 2');
+
+    setPresenterSurfaceMutateMock.mockClear();
+    await component.changeProjectionPage(1);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.projectionQaNavDisplayIndex()).toBe(1);
+    expect(component.qaPresenterHeroQuestionId()).toBe('active-2');
+    expect(fixture.nativeElement.textContent).toContain('2 / 2');
+    expect(setPresenterSurfaceMutateMock).not.toHaveBeenCalled();
     fixture.destroy();
   });
 

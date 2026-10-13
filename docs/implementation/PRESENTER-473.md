@@ -89,6 +89,8 @@ Tastaturfokus nicht verloren geht.
   werden nur mitgezogen, wenn die navigierte Listenfrage auf der Bühne liegt;
   fehlt der Snapshot, navigiert der Host über die aktuelle Listenreihenfolge;
   fehlt der Snapshot während der Projektion nicht mehr als harte Leersperre für den Host-Hero;
+  nach Session-Ende ist `presentProjection` leer (`SESSION_ENDED`); der Navigator folgt dann
+  der geladenen Host-Liste und synchronisiert den Presenter nicht;
   Host publiziert den Sortiermodus beim Q&A-Abonnement und vor dem Öffnen der
   Präsentation (`qa.setPresenterSortMode`), damit Forum und Bühne denselben Modus nutzen;
   weicht `presentProjection.sortMode` vom Host ab (z. B. nach Backend-Restart),

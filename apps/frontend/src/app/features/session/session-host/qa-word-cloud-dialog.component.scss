@@ -81,7 +81,7 @@
   box-sizing: border-box;
   min-height: 2.2rem;
   width: auto;
-  max-width: min(100%, 14rem);
+  max-width: min(100%, 22rem);
   padding: 0.2rem 0.15rem 0.2rem 0.45rem;
   border: 0;
   background: transparent;
@@ -248,7 +248,7 @@
 
   .qa-word-cloud-dialog__size-select {
     flex: 0 1 auto;
-    max-width: min(100%, 14rem);
+    max-width: min(100%, 22rem);
   }
 
   .qa-word-cloud-dialog__analysis-toggle {

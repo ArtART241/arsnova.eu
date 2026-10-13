@@ -28,7 +28,7 @@
         >Wörter &amp; Phrasen</mat-button-toggle
       >
       <mat-button-toggle value="SEMANTIC" i18n="@@sessionQa.wordCloudAnalysisSemantic"
-        >Themen</mat-button-toggle
+        >Thema</mat-button-toggle
       >
     </mat-button-toggle-group>
 
@@ -41,14 +41,12 @@
         [value]="sortMode()"
         (change)="onSizeChange($event)"
         i18n-aria-label="@@sessionQa.wordCloudSizeAria"
-        aria-label="Größe nach Stimmen, besten Fragen, Kontroverse oder Häufigkeit"
+        aria-label="Größe nach Kontroverse, besten Fragen, Stimmensaldo oder Vorkommen in Fragen"
       >
-        <option value="TOP" i18n="@@sessionQa.wordCloudSizeTop">Stimmen</option>
+        <option value="CONTROVERSIAL" i18n="@@sessionQa.sortControversial">Kontroverse</option>
         <option value="BEST" i18n="@@sessionQa.sortBest">Beste Fragen</option>
-        <option value="CONTROVERSIAL" i18n="@@sessionQa.wordCloudMetricControversial">
-          Kontroverse
-        </option>
-        <option value="TIME" i18n="@@sessionQa.wordCloudMetricTime">Häufigkeit</option>
+        <option value="TOP" i18n="@@sessionQa.sortTop">Stimmensaldo</option>
+        <option value="TIME" i18n="@@sessionQa.wordCloudMetricTime">Vorkommen in Fragen</option>
       </select>
     </label>
 
@@ -141,6 +139,8 @@
     [weightingHint]="null"
     [tooltipMetricLabel]="tooltipMetricLabel()"
     [analysisModelVersion]="analysisModelVersion()"
+    [labelModelId]="labelModelId()"
+    [labelModelVersion]="labelModelVersion()"
     [showReleaseNote]="false"
     [showMaximizeAction]="false"
     [presentationMode]="true"

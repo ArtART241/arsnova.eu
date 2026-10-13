@@ -4,7 +4,7 @@
  *
  * Für lokale spaCy-UI-Tests: ohne --code wird der Session-Code interaktiv abgefragt.
  * Default sind 500 Fragen (Analyse-Cap) mit Flexionsformen, 2–3-Wort-Phrasen und
- * gemischten Vote-Profilen für Meist unterstützt / Beste Fragen / Umstritten.
+ * gemischten Vote-Profilen für Stimmensaldo / Beste Fragen / Umstritten.
  *
  * `--corpus semantic` füllt statt dessen Paraphrasencluster für Host-Q&A-Themen
  * (1.14c Stufe 1 Encoder, vorbereitet auf Stufe-2-LLM-Labels).
@@ -227,7 +227,7 @@ Hinweise:
   - Das semantic-Korpus bündelt Klausur-, Regression-, Folien- und Beamer-Paraphrasen plus längere Fragen für LLM-Kurzlabels.
   - Das betriebsversammlung-Korpus stammt aus dem Screenshot-Corpus (realistische Fragen, Mitarbeiternamen).
   - Das markdown-Korpus mischt KaTeX, Links, Bilder, Listen, Tabellen, Code und Auszeichnungen.
-  - Vote-Profile bleiben gemischt, damit Sortierung Meist unterstützt / Beste Fragen / Umstritten die Analyse neu anstößt.
+  - Vote-Profile bleiben gemischt, damit Sortierung Stimmensaldo / Beste Fragen / Umstritten die Analyse neu anstößt.
 `);
 }
 

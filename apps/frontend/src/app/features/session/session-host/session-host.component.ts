@@ -186,6 +186,7 @@ import {
   SessionStatusUpdate,
   TeamDTO,
   TeamLeaderboardEntryDTO,
+  FreetextWordCloudPresenterProjectionDTO,
   QaWordCloudPresenterProjectionDTO,
   WordCloudAnalysisEntryDTO,
   WordCloudAnalysisLocale,
@@ -1141,6 +1142,8 @@ export class SessionHostComponent implements OnInit, OnDestroy {
   private qaWordCloudLemmaAnalysisRunId = 0;
   private freetextWordCloudLemmaAnalysisRunId = 0;
   private freetextWordCloudSemanticAnalysisRunId = 0;
+  private lastFreetextWordCloudProjectionKey: string | null = null;
+  private freetextProjectionScope: string | null = null;
   private presenterProjectionSyncQueue: Promise<void> = Promise.resolve();
   private lastQaWordCloudProjectionKey: string | null = null;
   private lastQaPresenterStageViewKey: string | null = null;
@@ -2159,11 +2162,11 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       case 'BEST':
         return $localize`:@@sessionQa.wordCloudMetricBest:beste Fragen`;
       case 'CONTROVERSIAL':
-        return $localize`:@@sessionQa.wordCloudMetricControversial:Kontroverse`;
+        return $localize`:@@sessionQa.sortControversial:Kontroverse`;
       case 'TIME':
-        return $localize`:@@sessionQa.wordCloudMetricTime:Häufigkeit`;
+        return $localize`:@@sessionQa.wordCloudMetricTime:Vorkommen in Fragen`;
       default:
-        return $localize`:@@sessionQa.wordCloudMetricTop:positive Stimmen`;
+        return $localize`:@@sessionQa.sortTop:Stimmensaldo`;
     }
   });
   readonly qaWordCloudTitle = computed(() =>
@@ -2206,11 +2209,11 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       case 'BEST':
         return $localize`:@@sessionQa.wordCloudHintBest:Große Wörter und Phrasen kommen aus Fragen mit viel Zustimmung und ausreichend Stimmen.`;
       case 'CONTROVERSIAL':
-        return $localize`:@@sessionQa.wordCloudHintControversial:Große Wörter und Phrasen kommen aus Fragen mit gegensätzlichen Reaktionen. Darüberfahren zeigt die zugehörigen Fragen.`;
+        return $localize`:@@sessionQa.wordCloudHintControversial:Große Wörter und Phrasen kommen aus Fragen mit hoher Kontroverse: Stimmen dafür und dagegen sind möglichst ausgeglichen. Darüberfahren zeigt die zugehörigen Fragen.`;
       case 'TIME':
-        return $localize`:@@sessionQa.wordCloudHintTime:Jede sichtbare Frage zählt gleich. Die Größe folgt der Häufigkeit, nicht den Stimmen.`;
+        return $localize`:@@sessionQa.wordCloudHintTime:Ein Wort wird größer, je mehr sichtbare Fragen es enthalten. In einer Frage zählt es nur einmal.`;
       default:
-        return $localize`:@@sessionQa.wordCloudHintTop:Große Wörter und Phrasen kommen aus Fragen mit vielen positiven Stimmen.`;
+        return $localize`:@@sessionQa.wordCloudHintTop:Große Einträge stammen aus Fragen mit hohem Stimmensaldo (Stimmen dafür minus Stimmen dagegen).`;
     }
   });
   readonly qaWordCloudWeightedResponses = computed(() =>
@@ -2492,11 +2495,11 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       case 'BEST':
         return $localize`:@@sessionQa.sortHintBest:Zeigt Fragen mit viel Zustimmung und genug Stimmen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       case 'CONTROVERSIAL':
-        return $localize`:@@sessionQa.sortHintControversial:Zeigt Fragen mit gemischter Reaktion zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
+        return $localize`:@@sessionQa.sortHintControversial:Zeigt zuerst die Fragen mit der höchsten Kontroverse: Stimmen dafür und dagegen sind möglichst ausgeglichen. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       case 'TIME':
         return $localize`:@@sessionQa.sortHintTime:Zeigt die neuesten Fragen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
       default:
-        return $localize`:@@sessionQa.sortHintTop:Zeigt Fragen mit den meisten positiven Stimmen zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
+        return $localize`:@@sessionQa.sortHintTop:Zeigt Fragen mit dem höchsten Stimmensaldo zuerst. Hervorgehobene Fragen erscheinen zuerst und sind markiert.`;
     }
   });
   readonly qaWordCloudOpenLabel = computed(
@@ -2665,6 +2668,8 @@ export class SessionHostComponent implements OnInit, OnDestroy {
           eligibleQuestionCount: () =>
             this.qaWordCloudCoverage()?.eligibleQuestionCount ?? this.qaListTotalCount(),
           analysisModelVersion: () => this.qaWordCloudThemeAnalysisResult()?.modelVersion ?? null,
+          labelModelId: () => this.qaWordCloudThemeAnalysisResult()?.labelModelId ?? null,
+          labelModelVersion: () => this.qaWordCloudThemeAnalysisResult()?.labelModelVersion ?? null,
           analysisVariant: () => this.qaWordCloudEffectiveAnalysisVariant(),
           setAnalysisVariant: (variant: WordCloudAnalysisVariant) =>
             this.setQaWordCloudAnalysisVariant(variant),
@@ -3915,10 +3920,8 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     effect(() => {
       // Presenter-Index → Listen-Cursor, solange die Bühnenfrage in der Liste liegt
       // und der Cursor nicht auf einer rein listenbasierten Frage (Pending/Archiv) steht.
-      if (!this.projectionNavigationIsQaQuestions()) {
-        return;
-      }
-      if (this.session()?.presenterSurface === 'ended') {
+      // Nach Session-Ende bleibt der Host-Cursor in der Liste; die leere Bühne zieht ihn nicht zurück.
+      if (!this.projectionFollowsLiveStage()) {
         return;
       }
       const navigable = this.qaNavigableStageQuestions();
@@ -4005,6 +4008,28 @@ export class SessionHostComponent implements OnInit, OnDestroy {
 
       const projection = this.buildQaWordCloudPresenterProjection();
       untracked(() => this.publishQaWordCloudProjection(projection));
+    });
+    effect(() => {
+      if (!this.code) {
+        return;
+      }
+      const scope = [
+        this.session()?.id ?? '',
+        this.session()?.preferredChannel ?? '',
+        this.session()?.presenterSurface ?? '',
+        this.displayedCurrentQuestionForHost()?.questionId ?? '',
+        String(Math.floor(Date.parse(this.session()?.serverTime ?? '') / 60_000)),
+      ].join('|');
+      const projection = this.buildFreetextWordCloudPresenterProjection();
+      untracked(() => {
+        if (scope !== this.freetextProjectionScope) {
+          this.freetextProjectionScope = scope;
+          this.lastFreetextWordCloudProjectionKey = null;
+        }
+        if (projection) {
+          this.publishFreetextWordCloudProjection(projection);
+        }
+      });
     });
     effect(() => {
       const request = this.freetextWordCloudSemanticAnalysisRequest();
@@ -6213,6 +6238,18 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     return session.preferredChannel === 'qa';
   });
   /**
+   * Live-Bühne nur während der Session.
+   * Nach Session-Ende liefert `presentProjection` keine Fragen (`SESSION_ENDED`).
+   * Der Host-Navigator folgt dann der geladenen Liste und zieht den Presenter nicht mit.
+   */
+  private projectionFollowsLiveStage(): boolean {
+    return (
+      this.projectionNavigationIsQaQuestions() &&
+      this.session()?.presenterSurface !== 'ended' &&
+      this.effectiveStatus() !== 'FINISHED'
+    );
+  }
+  /**
    * Bühnenreihenfolge wie `qa.presentProjection`: PINNED vor ACTIVE, Host-Sortierung
    * und derselbe präsentierbare Such-/Pin-/Autor-Filter. Presenter und absolute
    * `presenterPage.index` beziehen sich auf diese Liste.
@@ -6248,11 +6285,11 @@ export class SessionHostComponent implements OnInit, OnDestroy {
    * Host-Navigator-Schritte.
    * Live-Projektion: nur ACTIVE|PINNED (Beamer-Bühne) in Listenreihenfolge —
    * Pending/Archiv dürfen Hero und »Aktuell in der Präsentation« nicht beanspruchen.
-   * Nach Projektionsende (`ended`): volle gefilterte Liste (z. B. Archiv-Durchsicht).
+   * Nach Projektionsende (`ended`) und nach Session-Ende: volle gefilterte Liste.
    */
   readonly qaNavigableStageQuestions = computed(() => {
     const filtered = this.qaFilteredQuestions();
-    if (this.projectionNavigationIsQaQuestions() && this.session()?.presenterSurface !== 'ended') {
+    if (this.projectionFollowsLiveStage()) {
       return filtered.filter(
         (question) => question.status === 'PINNED' || question.status === 'ACTIVE',
       );
@@ -6537,7 +6574,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       if (!nextQuestion) {
         return;
       }
-      const liveProjection = this.session()?.presenterSurface !== 'ended';
+      const liveProjection = this.projectionFollowsLiveStage();
       const stage = this.qaProjectionStageQuestions();
       const stageIndex = stage.findIndex((question) => question.id === nextQuestion.id);
       // Live: Cursor/Hero nur auf Bühnenfragen — sonst Host/Beamer-Widerspruch.
@@ -10923,11 +10960,11 @@ export class SessionHostComponent implements OnInit, OnDestroy {
   qaSortModeLabel(mode: QaQuestionSortMode = this.qaSortMode()): string {
     switch (mode) {
       case 'TOP':
-        return $localize`:@@sessionQa.sortTop:Meist unterstützt`;
+        return $localize`:@@sessionQa.sortTop:Stimmensaldo`;
       case 'BEST':
         return $localize`:@@sessionQa.sortBest:Beste Fragen`;
       case 'CONTROVERSIAL':
-        return $localize`:@@sessionQa.sortControversial:Umstritten`;
+        return $localize`:@@sessionQa.sortControversial:Kontroverse`;
       case 'TIME':
         return $localize`:@@sessionQa.sortTime:Zeit`;
     }
@@ -11830,6 +11867,62 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       }
     }
     return sanitized;
+  }
+
+  private buildFreetextWordCloudPresenterProjection(): FreetextWordCloudPresenterProjectionDTO | null {
+    const questionId = this.displayedCurrentQuestionForHost()?.questionId;
+    if (!questionId) {
+      return null;
+    }
+    const analysis = this.displayedFreetextAnalysisEntries();
+    const entries =
+      analysis && analysis.length > 0
+        ? analysis.map((entry) => ({
+            key: entry.key.slice(0, 128),
+            label: entry.label.slice(0, 120),
+            count: entry.count,
+            ...(entry.labelOrigin ? { labelOrigin: entry.labelOrigin } : {}),
+          }))
+        : (this.displayedFreetextVisibleTerms() ?? []).map((term) => ({
+            key: term.key.slice(0, 128),
+            label: term.label.slice(0, 120),
+            count: Math.max(0, term.documentFrequency),
+          }));
+    return {
+      mode:
+        this.freetextWordCloudMode() === 'WORDS'
+          ? 'LEXICAL'
+          : this.freetextWordCloudMode() === 'SEMANTIC'
+            ? 'SEMANTIC'
+            : 'THEME',
+      locale: this.qaWordCloudAnalysisLocale(),
+      questionId,
+      smoothingActive: this.freetextWordCloudLemmaSnapshotVisible(),
+      entries: entries.slice(0, 80),
+    };
+  }
+
+  private publishFreetextWordCloudProjection(
+    projection: FreetextWordCloudPresenterProjectionDTO,
+  ): void {
+    if (!this.code) {
+      return;
+    }
+    const key = JSON.stringify(projection);
+    if (key === this.lastFreetextWordCloudProjectionKey) {
+      return;
+    }
+    this.lastFreetextWordCloudProjectionKey = key;
+    void this.enqueuePresenterProjectionSync(async () => {
+      try {
+        await trpc.session.setFreetextWordCloudProjection.mutate({
+          code: this.code.toUpperCase(),
+          projection,
+        });
+      } catch {
+        this.lastFreetextWordCloudProjectionKey = null;
+      }
+    });
   }
 
   private publishQaWordCloudProjection(projection: QaWordCloudPresenterProjectionDTO): void {
@@ -13543,7 +13636,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     if (!request) {
       return;
     }
-    this.queueFreetextWordCloudSemanticAnalysis(request);
+    this.queueFreetextWordCloudSemanticAnalysis({ ...request, refresh: true });
   }
 
   private queueFreetextWordCloudSemanticAnalysis(request: AnalyzeWordCloudInput): void {

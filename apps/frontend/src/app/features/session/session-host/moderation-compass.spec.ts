@@ -1245,6 +1245,29 @@ describe('mergeModerationQuizSources', () => {
       'aaaaaaaa-1111-4111-8111-111111111111',
     ]);
   });
+
+  it('schreibt eine geänderte Evidenzrolle in den Quiz-Cache', () => {
+    const questionId = 'aaaaaaaa-1111-4111-8111-111111111111';
+    const cached = rememberModerationQuizSnapshot([], questionId, [
+      {
+        kind: 'quiz-result',
+        label: 'Häufige Verwechslung: IaaS → SaaS',
+        evidenceRole: 'mention',
+        target: { channel: 'quiz', questionId },
+      },
+    ]);
+    const refreshed = rememberModerationQuizSnapshot(cached, questionId, [
+      {
+        kind: 'quiz-result',
+        label: 'Häufige Verwechslung: IaaS → SaaS',
+        evidenceRole: 'clarification',
+        target: { channel: 'quiz', questionId },
+      },
+    ]);
+
+    expect(refreshed).not.toBe(cached);
+    expect(refreshed[0]?.sources[0]?.evidenceRole).toBe('clarification');
+  });
 });
 
 describe('resolveModerationCompassAnalysisMode', () => {

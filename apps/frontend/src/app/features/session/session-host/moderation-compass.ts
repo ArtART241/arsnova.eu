@@ -385,6 +385,7 @@ function quizSourceCacheEquals(
       entry.sources.every(
         (source, sourceIndex) =>
           source.label === other.sources[sourceIndex]?.label &&
+          source.evidenceRole === other.sources[sourceIndex]?.evidenceRole &&
           JSON.stringify(source.target ?? null) ===
             JSON.stringify(other.sources[sourceIndex]?.target ?? null),
       )

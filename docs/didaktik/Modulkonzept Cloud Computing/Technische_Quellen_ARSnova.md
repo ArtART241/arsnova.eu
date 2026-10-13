@@ -768,7 +768,7 @@ Nicht zulässig ist: **ARSnova ist für 500 Teilnehmende vollständig produktiv 
 
 **Belegt:** Story 1.14c Stufe 1 für Host-Q&A und Story 1.14d für Host-Freitext mit privatem multilingualem E5-Encoder, ONNX-Runtime, deterministischem Clustering im Backend, extraktiven Labels, Cache, Timeout, Circuit Breaker und lexikalischem Fallback. `de`/`en` nutzen den Encoder, `fr`/`es` den lexikalischen Backend-Fallback; unter italienischer UI wird ohne gewählte unterstützte Wolkensprache kein Backendauftrag gesendet. Pro Session hält die Orchestrierung nur `active + latest`; verdrängte wartende Aufrufe fallen nicht cachebar zurück, Ersatzarbeit läuft serialisiert, und ein Purge invalidiert aktive sowie wartende Arbeit. Öffentliche SaaS-Endpunkte sind im Konfigurationspfad gesperrt.
 
-**Belegt nicht:** LLM-Labels, allgemeines Sprachverständnis, produktive Aktivierung, Produktivqualität, Encoderqualität für `fr`/`es`/`it` oder einen eigenen Presenter-Freitext-Analysejob. Stufe 2 bleibt Zielbild; `WORD_CLOUD_SEMANTIC_ENABLED=false` ist weiterhin der dokumentierte Produktionsdefault.
+**Belegt nicht:** LLM-Labels, allgemeines Sprachverständnis, produktive Aktivierung, Produktivqualität, Encoderqualität für `fr`/`es`/`it` oder die Presenter-Anzeige der vom Host aktivierten Freitext-Wolke. Ein eigener Presenter-Analysejob ist weder belegt noch vorgesehen. Stufe 2 bleibt Zielbild; `WORD_CLOUD_SEMANTIC_ENABLED=false` ist weiterhin der dokumentierte Produktionsdefault.
 
 ### `SRC-ML-QA-KASKADE` – Host-only Moderationssignale
 

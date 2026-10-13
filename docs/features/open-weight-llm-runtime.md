@@ -12,11 +12,11 @@
 
 Runtime R stellt eine gemeinsame, private CPU-Runtime für drei getrennte technische Aufträge bereit:
 
-- `topic_label` für 1.14c Stufe 2,
+- `topic_label` für 1.14c Stufe 2 auf Host-Q&A und Host-Freitext,
 - `qa_summary` für 8.9c Slice 4,
 - `learning_objectives` für Issue #456 Slice 5.
 
-Die versionierten Zod-Verträge liegen in `libs/shared-types/src/open-weight-llm.ts`. Der Backend-Client übersetzt ausschließlich diese Verträge nach llama.cpp Chat Completions, prüft die strukturierte Antwort erneut und verwirft unbekannte Quellen- oder Aufgabenreferenzen. #456 Slice 5 verdrahtet den bewusst ausgelösten Vorbereitungsauftrag aus [Modellgestützte Lernzielableitung](learning-objective-derivation.md); Slice 7 verdrahtet `qa_summary` V2 mit dem versionierten [Moderations-Prompt-Kontext](moderation-prompt-context.md), einem hostgeschützten Vorschaupfad und dem extraktiven Backend-Fallback. Der Labelpfad bleibt fachlich offen. Alle drei Aufträge behalten eigene Aktivierungs-, Schema-, Timeout- und Fallbackgrenzen.
+Die versionierten Zod-Verträge liegen in `libs/shared-types/src/open-weight-llm.ts`. Der Backend-Client übersetzt ausschließlich diese Verträge nach llama.cpp Chat Completions, prüft die strukturierte Antwort erneut und verwirft unbekannte Quellen- oder Aufgabenreferenzen. #456 Slice 5 verdrahtet den bewusst ausgelösten Vorbereitungsauftrag aus [Modellgestützte Lernzielableitung](learning-objective-derivation.md); Slice 7 verdrahtet `qa_summary` V2 mit dem versionierten [Moderations-Prompt-Kontext](moderation-prompt-context.md), einem hostgeschützten Vorschaupfad und dem extraktiven Backend-Fallback. Der Labelpfad bleibt fachlich offen und soll beide Host-Kanäle mit demselben Auftrag benennen: [WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md](../implementation/WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md). Alle drei Aufträge behalten eigene Aktivierungs-, Schema-, Timeout- und Fallbackgrenzen.
 
 `topic_label`, `learning_objectives` und der Legacy-Summaryauftrag sind zusätzlich auf 2.500 UTF-8-Bytes für die vollständig serialisierte User-Nachricht begrenzt. Größere Lernzielmengen werden deterministisch in sequenzielle Aufträge geteilt. Summary V2 besitzt bewusst nicht diese historische Gesamtgrenze, sondern den bereits gepackten `ModerationPromptContextV1` mit seinem eigenen Kontext-, Instruktions-, Definitions-, Antwort- und Sicherheitsbudget. Sein festes Profil reserviert bei 4.096 insgesamt 640 für die Antwort und 128 als Sicherheitsmarge.
 

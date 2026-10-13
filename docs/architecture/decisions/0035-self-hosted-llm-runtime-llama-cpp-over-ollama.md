@@ -5,7 +5,7 @@
 **Status:** Accepted
 **Datum:** 2026-08-22
 **Entscheider:** Projektteam (Architekturentscheid auf Basis der 1.14c-Voranalyse, PO-Auftrag 2026-08-22)
-**Letzter Repo-Abgleich:** 2026-10-05 (Runtime R, Lernziel- und Summary-V2-Consumer implementiert; Produktivaktivierung, Label-Consumer und reale Consumerabnahme offen)
+**Letzter Repo-Abgleich:** 2026-10-13 (Runtime R, Lernziel- und Summary-V2-Consumer implementiert; Produktivaktivierung, Label-Consumer und reale Consumerabnahme offen; PO-Entscheidung: `topic_label` gilt für Host-Q&A und Host-Freitext)
 **Kontext-Tags:** Machine Learning, Inferenz-Runtime, Selbst-Hosting, Backend-Architektur, Betrieb, Open-Weight-LLM
 
 **Ersetzt keine Produktentscheidung, nur die Runtime:** [WORD-CLOUD-3.0-1.14c-VORANALYSE-2026-08-20.md](../../implementation/WORD-CLOUD-3.0-1.14c-VORANALYSE-2026-08-20.md), [ADR-0032](0032-optional-nlp-cascade-for-qa-moderation-signals.md), Backlog Story 1.14c, Story 8.9c, Story 8.9d.
@@ -251,7 +251,7 @@ Diese Entscheidung betrifft ausschließlich die **Betreiber-seitige** Serving-Ru
   Entwicklerwerkzeug, kein Produktionspfad,
 - die verworfene Bring-your-own-LLM-Option für Hosts,
 - 8.9b (in-process Gatekeeper/k-NN) — kein dritter Auftrag auf dem llama.cpp-Slot,
-- Freitext-Encoder-Clustering (Story 1.14d) — kein LLM-Label.
+- Freitext-Encoder-Clustering (Story 1.14d) als eigener Modellauftrag. Die Mitgliedschaft bleibt der Encoder. Seit der Produktentscheidung vom 2026-10-13 benennt derselbe Auftrag `topic_label` auch Host-Freitext-Cluster; das ist kein zweiter Pfad und keine Änderung dieser Runtime-Wahl.
 
 Implementierungsfolge: **Runtime-Baustein zuerst** (Image, Profil,
 Flags, gemeinsames Inflight, Health, Tests ohne Modell-Download) → 1.14c Stufe 2 (kurze Labels)

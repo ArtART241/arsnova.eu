@@ -3,12 +3,13 @@
 # Wortwolke: semantischer Themenmodus für Q&A und Freitext (Stories 1.14c/1.14d)
 
 **Zielgruppe:** Product Owner, Entwickler, Betrieb, Lehre
-**Stand:** 2026-10-04
-**Status:** Q&A- und Freitext-Encoderpfad im Repo (Clustering, extraktive Labels); zusätzlich minimierter interner Latest-Q&A-Themenbeleg für #456 Slice 2; Kill-Switch produktiv default aus; kein LLM
+**Stand:** 2026-10-13
+**Status:** Q&A- und Freitext-Encoderpfad im Repo (Clustering, extraktive Labels); zusätzlich minimierter interner Latest-Q&A-Themenbeleg für #456 Slice 2; Kill-Switch produktiv default aus; Modellnamen noch nicht angeschlossen. Produktentscheidung 2026-10-13: Stufe 2 benennt Host-Q&A und Host-Freitext mit demselben Auftrag
 **Backlog:** Story 1.14c (Q&A-Themen), Story 1.14d (Freitext-Themen, implementiert; keine Produktivfreigabe)
 **Glättung bleibt getrennt:** Story 1.14b / [word-cloud-spacy.md](word-cloud-spacy.md)
 **Zielbild:** [WORD-CLOUD-3.0-STORY-VORSCHLAG.md](../implementation/WORD-CLOUD-3.0-STORY-VORSCHLAG.md)
 **Voranalyse:** [WORD-CLOUD-3.0-1.14c-VORANALYSE-2026-08-20.md](../implementation/WORD-CLOUD-3.0-1.14c-VORANALYSE-2026-08-20.md)
+**Umsetzungsplan Stufe 2:** [WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md](../implementation/WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md)
 **ADR (Stufe-2-LLM-Runtime):** [0035-self-hosted-llm-runtime-llama-cpp-over-ollama.md](../architecture/decisions/0035-self-hosted-llm-runtime-llama-cpp-over-ollama.md)
 
 ## Zweck
@@ -21,7 +22,7 @@ Kein Encoder-Code im Browser. Teilnehmer-DTOs enthalten keine Cluster-Felder. Li
 
 ## UI-Begriffe
 
-Das Host-Label ist **Themen**. Intern heißt die Variante `SEMANTIC`. Nicht in der Host-UI: `Semantische Themen`, `Encoder`, `e5`, `Embedding`, `Clustering`.
+Das Host-Label der Auswahl ist heute **Themen**. Die Stufe 2 benennt diese Option in **Thema** um, in Q&A, Freitext und auf der Presenter-Pille; Statussätze wie **Themen werden vorbereitet.** bleiben in der Mehrzahl. Intern heißt die Variante `SEMANTIC`. Nicht in der Host-UI: `Semantische Themen`, `Encoder`, `e5`, `Embedding`, `Clustering`.
 
 | Zustand         | Host-Text                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -32,7 +33,7 @@ Das Host-Label ist **Themen**. Intern heißt die Variante `SEMANTIC`. Nicht in d
 | Nicht belastbar | **Themen sind gerade nicht belastbar. Es gelten Wörter und Phrasen.**                                          |
 | Nicht verfügbar | **Themen sind noch nicht verfügbar. Es gelten Wörter und Phrasen.**                                            |
 
-`THEME` bleibt **Wörter & Phrasen** (lexikalisch 2.x) und wird nicht auf `SEMANTIC` umgebogen. Der Q&A-Presenter analysiert nicht selbst, sondern projiziert den aktuellen Host-Snapshot (`session.setQaWordCloudProjection` / `session.getQaWordCloudProjection`) und zeigt Variante, Metrik und Glättung als Pills. Story **1.14d** führt Host-Freitext bei `de`/`en` durch denselben Encoderpfad wie Q&A; `fr`/`es` antworten kontrolliert mit 2.x (`status: fallback`). Bei italienischer UI bleibt die bestehende lokale 2.x-Wolke aktiv, bis der Host eine unterstützte Analysesprache wählt; es wird kein Encoderauftrag gesendet. Presenter-Freitext bleibt außerhalb des Umfangs.
+`THEME` bleibt **Wörter & Phrasen** (lexikalisch 2.x) und wird nicht auf `SEMANTIC` umgebogen. Der Presenter analysiert nicht selbst. Für Q&A projiziert er den aktuellen Host-Snapshot (`session.setQaWordCloudProjection` / `session.getQaWordCloudProjection`) und zeigt Variante, Metrik und Glättung als Pills. Story **1.14d** führt Host-Freitext bei `de`/`en` durch denselben Encoderpfad wie Q&A; `fr`/`es` antworten kontrolliert mit 2.x (`status: fallback`). Bei italienischer UI bleibt die bestehende lokale 2.x-Wolke aktiv, bis der Host eine unterstützte Analysesprache wählt; es wird kein Encoderauftrag gesendet. Seit der Produktentscheidung vom 2026-10-13 zeigt der Presenter für Q&A und Freitext denselben Inhalt wie die vom Host aktivierte Ansicht. Die Bühnenoptimierung bleibt: `outputOnly`, Schrift 30–80 px, höchstens 24 Begriffe, Schwelle 30 px. Heute baut der Presenter die Freitext-Fläche noch lokal als Phrasenwolke. Der Anschluss steht im [Stufe-2-Plan](../implementation/WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md).
 
 Texte sind in `de`, `en`, `fr`, `es` und `it` gepflegt.
 
@@ -40,11 +41,11 @@ Texte sind in `de`, `en`, `fr`, `es` und `it` gepflegt.
 
 Nur der Host löst `wordCloud.analyze` aus (`hostProcedure`). Es gibt keine automatische Runde bei jeder neuen Frage, Abstimmung oder Tastendruck.
 
-| Kanal     | Encoder-Clustering                                                                                                    | Ohne Kill-Switch / tot / Timeout            |
-| --------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| Q&A       | `PINNED`/`ACTIVE`, Locale `de`/`en`, Kanal `QA`                                                                       | 2.x-Phrasen, keine leere Karte              |
-| Freitext  | sichtbare Antworten der aktuellen Host-Frage, Locale `de`/`en`, Kanal `FREETEXT`; Mindestclustergröße 2               | 2.x wie Stufe 0                             |
-| Presenter | keine eigene Analyse; Q&A übernimmt den Host-Snapshot, Presenter-Freitext bleibt ohne eigenen semantischen Analysejob | Host-Projektion oder lexikalischer Fallback |
+| Kanal     | Encoder-Clustering                                                                                                                                                             | Ohne Kill-Switch / tot / Timeout                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| Q&A       | `PINNED`/`ACTIVE`, Locale `de`/`en`, Kanal `QA`                                                                                                                                | 2.x-Phrasen, keine leere Karte                              |
+| Freitext  | sichtbare Antworten der aktuellen Host-Frage, Locale `de`/`en`, Kanal `FREETEXT`; Mindestclustergröße 2                                                                        | 2.x wie Stufe 0                                             |
+| Presenter | keine eigene Analyse; Q&A- und Freitext-Inhalt aus der aktivierten Host-Ansicht, gezeichnet mit der bestehenden `outputOnly`-Bühnenoptimierung; Freitext-Projektion in Stufe 2 | Host-Inhalt in Bühnengröße, sonst die bisherige Darstellung |
 
 - **Neue Fragen oder Antworten:** vorhandenes Ergebnis bleibt sichtbar, Status **veraltet**, Button **Neu analysieren**. Keine Dauerschleife. Schlägt die Neuanalyse fehl, bleiben veraltete Cluster und der Retry-Hinweis stehen. Nach einem `ready`-Lauf bleibt **Neu analysieren** bedienbar und umgeht den Snapshot-Cache (`refresh`), damit derselbe Locale-Snapshot ohne Sprachwechsel neu gerechnet wird.
 - **Sort- oder Locale-Wechsel** im Themenmodus ist eine Host-Aktion und startet eine neue Analyse desselben Kanal-Snapshots. Locale steckt im Snapshot-Hash: `de` und `en` sind getrennte Caches. Deutsche Q&A bleibt auf **DE**; EN startet keine bessere Analyse, nur einen zweiten Lauf.
@@ -172,13 +173,13 @@ Siehe [TESTING.md](../TESTING.md).
 
 ## Story 1.14d (Host-Freitext-Themen)
 
-Im Repo implementiert. Derselbe Encoder, dieselbe Complete-Linkage-Schwelle 0,87, dieselbe Mindestclustergröße 2 und derselbe Kill-Switch verarbeiten den getrennten Snapshot der sichtbaren Freitextantworten der aktuellen Frage. Die frühere Sperre für `channel: 'FREETEXT'` beziehungsweise `response-{index}` ist entfernt. `de`/`en` clustern bei aktivem Encoder; `fr`/`es`, einzelne Antworten, reine Singletons, Timeout und Fehler fallen im Backend lexikalisch zurück. Italienisch bleibt bereits vor dem Backendauftrag auf der lokalen 2.x-Wolke, solange keine unterstützte Analysesprache gewählt ist. Live-Submit, Vote, Join und WebSocket bleiben frei von Inferenz. Das Produktivflag bleibt bis zur gesonderten Betriebs- und Qualitätsfreigabe aus. Presenter-Freitext und LLM-Labels bleiben Nicht-Ziele. Zuschnitt: [Backlog.md](../../Backlog.md) Story 1.14d.
+Im Repo implementiert. Derselbe Encoder, dieselbe Complete-Linkage-Schwelle 0,87, dieselbe Mindestclustergröße 2 und derselbe Kill-Switch verarbeiten den getrennten Snapshot der sichtbaren Freitextantworten der aktuellen Frage. Die frühere Sperre für `channel: 'FREETEXT'` beziehungsweise `response-{index}` ist entfernt. `de`/`en` clustern bei aktivem Encoder; `fr`/`es`, einzelne Antworten, reine Singletons, Timeout und Fehler fallen im Backend lexikalisch zurück. Italienisch bleibt bereits vor dem Backendauftrag auf der lokalen 2.x-Wolke, solange keine unterstützte Analysesprache gewählt ist. Live-Submit, Vote, Join und WebSocket bleiben frei von Inferenz. Das Produktivflag bleibt bis zur gesonderten Betriebs- und Qualitätsfreigabe aus. Die kurze Themenzeile der Stufe 2 gilt für diesen Host-Kanal genauso wie für Q&A. Der Presenter zeigt diese Ansicht mit, sobald der Host sie aktiviert hat, und startet keinen eigenen Analysejob. Zuschnitt: [Backlog.md](../../Backlog.md) Story 1.14d.
 
 ## Nicht-Ziele (bewusst außerhalb von Stufe 1)
 
-LLM-Labels (Stufe 2), 8.9c Slice 4, 8.9b-Transformer, Presenter-Freitext-Themen, SaaS-Fallback, Angular-Initial-Bundle-`maximumError` anheben, Produktivaktivierung.
+LLM-Labels (Stufe 2, einschließlich Presenter-Anzeige der Host-Ansicht), 8.9c Slice 4, 8.9b-Transformer, ein vom Presenter selbst gestarteter Analysejob, SaaS-Fallback, Angular-Initial-Bundle-`maximumError` anheben, Produktivaktivierung.
 
-Stufe 2 bleibt offen hinter Story 8.9d / [ADR-0035](../architecture/decisions/0035-self-hosted-llm-runtime-llama-cpp-over-ollama.md): das LLM darf nur das Label ersetzen. Clustering bleibt Stufe 1; LLM-Ausfall fällt auf das extraktive Label, nicht auf lexikalisch 2.x. `OPEN_WEIGHT_LLM_ENABLED` aus lässt `WORD_CLOUD_SEMANTIC_ENABLED` unberührt.
+Stufe 2 bleibt offen hinter Story 8.9d / [ADR-0035](../architecture/decisions/0035-self-hosted-llm-runtime-llama-cpp-over-ollama.md). Der Anschluss ist geplant in [WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md](../implementation/WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md): dasselbe Modell ersetzt in Host-Q&A und Host-Freitext nur den sichtbaren Namen, die Mitgliedschaft bleibt Stufe 1, und ein fehlendes Modelllabel behält den Mitgliedstext. `OPEN_WEIGHT_LLM_ENABLED` aus lässt `WORD_CLOUD_SEMANTIC_ENABLED` unberührt.
 
 ## Verträge und Code
 

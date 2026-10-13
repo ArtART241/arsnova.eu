@@ -2800,7 +2800,11 @@ export class SessionHostComponent implements OnInit, OnDestroy {
   readonly showHostModerationStack = computed(
     () => this.moderationCompassReturn() !== null || this.showModerationCompass(),
   );
-  readonly moderationCompassReturn = signal<{ readonly channel: SessionChannelTab } | null>(null);
+  readonly moderationCompassReturn = signal<{
+    readonly channel: SessionChannelTab;
+    /** False, wenn der Sprung die Präsentation nicht mitwechseln durfte. */
+    readonly present?: boolean;
+  } | null>(null);
   readonly moderationCompassFocusedTerm = signal<string | null>(null);
   readonly moderationCompassButtonAria = computed(() => {
     if (!this.moderationCompassHasSignals()) {
@@ -3099,7 +3103,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
         this.wordCloudExpanded.set(true);
         this.maximizeFreetextWordCloud();
       }
-      this.moderationCompassReturn.set({ channel: returnChannel });
+      this.moderationCompassReturn.set({ channel: returnChannel, present: false });
       return;
     }
     if (target.channel === 'qa') {
@@ -3455,7 +3459,8 @@ export class SessionHostComponent implements OnInit, OnDestroy {
   }
 
   async returnToModerationCompass(): Promise<void> {
-    const returnChannel = this.moderationCompassReturn()?.channel ?? null;
+    const returnState = this.moderationCompassReturn();
+    const returnChannel = returnState?.channel ?? null;
     this.moderationCompassReturn.set(null);
     this.clearQaCompassFocus();
     this.moderationCompassFocusedTerm.set(null);
@@ -3464,7 +3469,10 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       this.isChannelEnabled(returnChannel) &&
       this.activeChannel() !== returnChannel
     ) {
-      await this.selectChannel(returnChannel);
+      await this.selectChannel(
+        returnChannel,
+        returnState?.present === false ? { present: false } : undefined,
+      );
     }
     const trigger = this.moderationCompassButtonRef?.nativeElement;
     if (trigger) {

@@ -27112,6 +27112,12 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       await fixture.whenStable();
       expect(setPresenterSurfaceMutateMock).not.toHaveBeenCalled();
       expect(setPreferredLiveChannelMutateMock).not.toHaveBeenCalled();
+
+      await component.returnToModerationCompass();
+      expect(component.activeChannel()).toBe('quiz');
+      expect(setPreferredLiveChannelMutateMock).not.toHaveBeenCalled();
+      expect(setPresenterSurfaceMutateMock).not.toHaveBeenCalled();
+      expect(component.session()?.presenterSurface).toBe('freetextWordCloud');
       fixture.destroy();
     });
 

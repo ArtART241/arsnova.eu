@@ -499,11 +499,11 @@ Bei einem LLM-Ausfall bleiben Cluster und extraktive Labels erhalten. Bei einem 
 
 ### 9.5 Q&A, Freitext und Präsentation
 
-Story 1.14c analysiert Q&A-Quellen. Story 1.14d verwendet denselben Encoder für freigegebene Freitextergebnisse einer Quizfrage. Das ist kein zweiter Encoder und kein Anlass für einen separaten LLM-Labelpfad. Quellenumfang, Fragebezug und Freigabe unterscheiden sich dennoch.
+Story 1.14c analysiert Q&A-Quellen. Story 1.14d verwendet denselben Encoder für freigegebene Freitextergebnisse einer Quizfrage. Das ist kein zweiter Encoder und kein Anlass für einen separaten LLM-Labelpfad. Quellenumfang, Fragebezug und Freigabe unterscheiden sich dennoch. Seit der Produktentscheidung vom 2026-10-13 benennt der eine Auftrag `topic_label` beide Host-Kanäle; die Mitgliedschaft bleibt jeweils beim Encoder. Dieselbe Entscheidung verlangt, dass der Presenter die vom Host aktivierte Wortwolke für Q&A und Freitext vollständig anzeigt. Er startet dafür keinen eigenen Analysejob.
 
 Eine Präsentationsprojektion muss erkennen lassen, ob sie Q&A-Themen oder die Freitexte der aktuellen Frage zeigt. Ein allgemeines „Themen“-Objekt darf diese Herkunft nicht verwischen. Quellenrechte werden beim Projizieren erneut berücksichtigt.
 
-Dabei ist die Releasegrenze ausdrücklich zu beachten: Die semantische Freitextauswertung aus 1.14d ist ein **Host-Pfad**; eine neue semantische Freitext-Präsentation gehört nicht allein dadurch zum Umfang. Die vorhandene Freitext-Wortwolke auf der Präsentation ist davon zu unterscheiden. Die 1.3-Projektionsarbeit für semantische Themen betrifft den dafür spezifizierten Q&A-Zuschnitt.
+Die Analyse bleibt ein Host-Pfad. Die Presenter-Fläche übernimmt das fertige Ergebnis, für Q&A über die bestehende Projektion und für Freitext über eine gleichartige Projektion. Die heute lokal berechnete Freitext-Phrasenwolke auf der Präsentation ist der abzulösende Stand, nicht die Zielansicht.
 
 ### 9.6 Cache und Aktualität
 

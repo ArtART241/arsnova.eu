@@ -24,7 +24,12 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
-import { MatTooltip } from '@angular/material/tooltip';
+import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
+import {
+  WordCloudMarkdownTooltipDirective,
+  trustWordCloudTooltipHtml,
+  type WordCloudTooltipBlock,
+} from './word-cloud-markdown-tooltip.directive';
 import type { CloudLayout } from 'd3-cloud';
 import type { WordCloudAnalysisEntryDTO } from '@arsnova/shared-types';
 import { getEffectiveLocale, localeIdToSupported } from '../../../core/locale-from-path';
@@ -152,7 +157,7 @@ interface RoundedRectStyle {
     MatCardSubtitle,
     MatCardTitle,
     MatIcon,
-    MatTooltip,
+    WordCloudMarkdownTooltipDirective,
   ],
   templateUrl: './word-cloud.component.html',
   styleUrl: './word-cloud.component.scss',
@@ -163,6 +168,8 @@ interface RoundedRectStyle {
 })
 export class WordCloudComponent implements AfterViewInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly tooltipMarkdownCache = new Map<string, SafeHtml>();
   private readonly dialog = inject(MatDialog, { optional: true });
   private readonly localeId = inject(LOCALE_ID);
   private readonly exportSurface = viewChild<ElementRef<HTMLElement>>('exportSurface');
@@ -1178,6 +1185,53 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
     return Math.max(1, 200 - rank);
   }
 
+  wordTooltipBlocks(entry: CloudWord): readonly WordCloudTooltipBlock[] {
+    const blocks: WordCloudTooltipBlock[] = [];
+    const meta = [this.tooltipValueLine(entry.count)];
+    const sourceCountLine = this.tooltipSourceCountLine(entry.sourceCount);
+    if (sourceCountLine) {
+      meta.push(sourceCountLine);
+    }
+    const metricLine = this.tooltipMetricLine();
+    if (metricLine) {
+      meta.push(metricLine);
+    }
+    const basisLine = this.analysisBasisLine(entry);
+    if (basisLine) {
+      meta.push(basisLine);
+    }
+    const confidenceLine = this.analysisConfidenceLine(entry.confidence);
+    if (confidenceLine) {
+      meta.push(confidenceLine);
+    }
+    const modelLine = this.analysisModelVersionLine();
+    if (modelLine) {
+      meta.push(modelLine);
+    }
+    if (meta.length > 0) {
+      blocks.push({ kind: 'text', text: meta.join('\n') });
+    }
+    for (const variant of entry.variants) {
+      const source = variant.trim();
+      if (source) {
+        blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(source) });
+      }
+    }
+    if (this.analysisMode() === 'qa') {
+      for (const response of this.relatedResponsePreview(entry.groupKey)) {
+        if (response === '...') {
+          blocks.push({ kind: 'text', text: '…' });
+          continue;
+        }
+        const source = response.trim();
+        if (source) {
+          blocks.push({ kind: 'markdown', html: this.tooltipMarkdown(source) });
+        }
+      }
+    }
+    return blocks;
+  }
+
   wordTooltip(entry: CloudWord): string {
     const lines = [this.tooltipValueLine(entry.count)];
     const sourceCountLine = this.tooltipSourceCountLine(entry.sourceCount);
@@ -2096,6 +2150,16 @@ export class WordCloudComponent implements AfterViewInit, OnDestroy {
       [];
     const preview = responses.slice(0, 4);
     return responses.length > 4 ? [...preview, '...'] : preview;
+  }
+
+  private tooltipMarkdown(source: string): SafeHtml {
+    const cached = this.tooltipMarkdownCache.get(source);
+    if (cached) {
+      return cached;
+    }
+    const html = trustWordCloudTooltipHtml(this.sanitizer, source);
+    this.tooltipMarkdownCache.set(source, html);
+    return html;
   }
 
   private formatTooltipListItem(value: string): string {

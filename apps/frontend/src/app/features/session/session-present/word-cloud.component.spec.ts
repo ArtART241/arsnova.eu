@@ -1059,6 +1059,9 @@ describe('WordCloudComponent', () => {
     expect(component.wordTooltip(entry!)).toContain('validierung');
     expect(component.wordTooltip(entry!)).toContain('validiert');
     expect(component.wordTooltip(entry!)).toContain('validieren');
+    expect(component.wordTooltipBlocks(entry!).some((block) => block.kind === 'markdown')).toBe(
+      true,
+    );
   });
 
   it('zeigt im Q&A-Tooltip den gewichteten Wert, die Metrikbasis und zugehörige Fragen', () => {

@@ -123,7 +123,7 @@
                   [style.top.px]="cloudWordTop(entry)"
                   [style.transform]="cloudWordTransform(entry)"
                   [style.z-index]="wordZIndex(entry.rank)"
-                  [attr.title]="wordTooltipDisplay(entry)"
+                  [appWordCloudMarkdownTooltip]="wordTooltipBlocks(entry)"
                 >
                   {{ entry.word }}
                 </span>
@@ -140,9 +140,7 @@
                   [style.top.px]="cloudWordTop(entry)"
                   [style.transform]="cloudWordTransform(entry)"
                   [style.z-index]="wordZIndex(entry.rank)"
-                  [matTooltip]="wordTooltipDisplay(entry)"
-                  matTooltipClass="word-cloud-tooltip"
-                  [matTooltipShowDelay]="120"
+                  [appWordCloudMarkdownTooltip]="wordTooltipBlocks(entry)"
                   [attr.aria-pressed]="selectedGroupKey() === entry.groupKey"
                   (click)="toggleWord(entry.groupKey)"
                 >
@@ -158,7 +156,7 @@
                   [class.word-cloud__word--top]="entry.rank < 2"
                   [class.word-cloud__word--featured]="entry.rank >= 2 && entry.rank < 6"
                   [style.font-size.px]="entry.size"
-                  [attr.title]="wordTooltipDisplay(entry)"
+                  [appWordCloudMarkdownTooltip]="wordTooltipBlocks(entry)"
                 >
                   {{ entry.word }}
                 </span>
@@ -171,9 +169,7 @@
                   [class.word-cloud__word--top]="entry.rank < 2"
                   [class.word-cloud__word--featured]="entry.rank >= 2 && entry.rank < 6"
                   [style.font-size.px]="entry.size"
-                  [matTooltip]="wordTooltipDisplay(entry)"
-                  matTooltipClass="word-cloud-tooltip"
-                  [matTooltipShowDelay]="120"
+                  [appWordCloudMarkdownTooltip]="wordTooltipBlocks(entry)"
                   [attr.aria-pressed]="selectedGroupKey() === entry.groupKey"
                   (click)="toggleWord(entry.groupKey)"
                 >

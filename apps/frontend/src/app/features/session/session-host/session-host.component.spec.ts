@@ -23085,6 +23085,32 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     fixture.destroy();
   });
 
+  it('lädt die Rangliste nach Session-Ende nur einmal', async () => {
+    getInfoQueryMock.mockResolvedValue({
+      ...defaultSession,
+      status: 'FINISHED',
+    });
+    onStatusChangedSubscribeMock.mockImplementation(
+      (_input: unknown, opts: { onData: (d: unknown) => void }) => {
+        opts.onData({ status: 'FINISHED', currentQuestion: null });
+        return { unsubscribe: unsubscribeMock };
+      },
+    );
+    getLeaderboardQueryMock.mockResolvedValue([]);
+    getTeamLeaderboardQueryMock.mockResolvedValue([]);
+
+    const fixture = setup();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await flushComponentAfterStable(fixture, 50);
+    const afterStart = getLeaderboardQueryMock.mock.calls.length;
+    expect(afterStart).toBeGreaterThan(0);
+    expect(afterStart).toBeLessThan(5);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(getLeaderboardQueryMock.mock.calls.length).toBe(afterStart);
+    fixture.destroy();
+  });
+
   it('zeigt Team-Leaderboard bei Teammodus im Abschlussstatus', async () => {
     getInfoQueryMock.mockResolvedValue({
       ...defaultSession,

@@ -4271,9 +4271,14 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     });
     effect(() => {
       const status = this.effectiveStatus();
-      if (status === 'FINISHED' || status === 'RESULTS') {
-        void this.loadLeaderboard();
+      if (status !== 'FINISHED' && status !== 'RESULTS') {
+        return;
       }
+      // loadLeaderboard liest und setzt leaderboardLoading synchron.
+      // Ohne untracked startet jeder Ladewechsel den Effect sofort neu.
+      untracked(() => {
+        void this.loadLeaderboard();
+      });
     });
     effect(() => {
       const finished = this.effectiveStatus() === 'FINISHED';

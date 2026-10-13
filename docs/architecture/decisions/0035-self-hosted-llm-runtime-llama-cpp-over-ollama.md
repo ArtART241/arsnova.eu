@@ -5,7 +5,7 @@
 **Status:** Accepted
 **Datum:** 2026-08-22
 **Entscheider:** Projektteam (Architekturentscheid auf Basis der 1.14c-Voranalyse, PO-Auftrag 2026-08-22)
-**Letzter Repo-Abgleich:** 2026-10-13 (Runtime R, Lernziel- und Summary-V2-Consumer implementiert; Produktivaktivierung, Label-Consumer und reale Consumerabnahme offen; PO-Entscheidung: `topic_label` gilt für Host-Q&A und Host-Freitext)
+**Letzter Repo-Abgleich:** 2026-10-13 (Runtime R und Consumer implementiert; vollständiger Demo-Quiz-Lernziellauf erfolgreich; Label-Consumer, Summary-V2-Realmodelllauf und formale Betriebsabnahme offen; PO-Entscheidung: `topic_label` gilt für Host-Q&A und Host-Freitext)
 **Kontext-Tags:** Machine Learning, Inferenz-Runtime, Selbst-Hosting, Backend-Architektur, Betrieb, Open-Weight-LLM
 
 **Ersetzt keine Produktentscheidung, nur die Runtime:** [WORD-CLOUD-3.0-1.14c-VORANALYSE-2026-08-20.md](../../implementation/WORD-CLOUD-3.0-1.14c-VORANALYSE-2026-08-20.md), [ADR-0032](0032-optional-nlp-cascade-for-qa-moderation-signals.md), Backlog Story 1.14c, Story 8.9c, Story 8.9d.
@@ -257,9 +257,11 @@ Implementierungsfolge: **Runtime-Baustein zuerst** (Image, Profil,
 Flags, gemeinsames Inflight, Health, Tests ohne Modell-Download) → 1.14c Stufe 2 (kurze Labels)
 → 8.9c Slice 4 nach Prefill-Messung. Runtime R sowie der ausdrücklich gestartete
 Lernziel-Consumer und der Summary-V2-Consumer sind umgesetzt; diese ADR autorisiert weiterhin
-keine Produktivaktivierung. Label benötigt seine eigene Ausbaustufe. Summary und Lernzielpfad
-benötigen reale Consumer-/Hardwareläufe; das reichhaltige 4.096-Summaryprofil ist derzeit nicht
-belegt.
+keine allgemeine Produktivfreigabe. Label benötigt seine eigene Ausbaustufe. Der
+Lernzielpfad erzeugte am 12.10.2026 auf dem privaten Produktionshost für das
+vollständige Demo-Quiz zehn Entwürfe; seine vollständige Mess- und Qualitätsabnahme
+bleibt offen. Summary V2 benötigt weiterhin einen realen Consumer-/Hardwarelauf;
+das reichhaltige 4.096-Summaryprofil ist derzeit nicht belegt.
 
 ## Performance-Steckbrief
 

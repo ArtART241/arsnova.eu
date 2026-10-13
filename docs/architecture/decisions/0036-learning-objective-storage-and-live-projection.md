@@ -5,7 +5,7 @@
 **Status:** Accepted
 **Datum:** 2026-10-03
 **Entscheider:** Projektteam (Issue #456, Slice 1)
-**Letzter Repo-Abgleich:** 2026-10-04 (Issue #456, Slice-4-Implementierung)
+**Letzter Repo-Abgleich:** 2026-10-13 (Issue #456, Slices 4–8 und Demo-Quiz-Lernziellauf)
 
 ## Kontext
 
@@ -173,6 +173,6 @@ Der bestehende Quiz-Historiennachweis wird nicht still verändert. `sourceQuesti
 
 Mit #456 Slice 4 sind der Yjs-/Local-Mirror-Sidecar, Datenbankmodelle und Migration, Export/Import V2, Live-Upload und Sessionprojektion, Q&A-only-Ziele sowie die lokale und live-sessiongebundene Host-UI umgesetzt. Quelländerungen und -löschungen, optimistische Konkurrenz, ausdrücklich leere Bestände, Quizersetzung, Reload und das Nachbereitungsfenster besitzen eigene Zustände und Tests. Slice 5 ergänzt den versionierten, lösungshaltigen und ausschließlich durch eine ausdrückliche Aktion gestarteten Runtimeauftrag mit Einmal-Capability, deterministischem Byte-Batching, gemeinsamem Gesamttimeout, strengem Entwurfsresultat und auditierbarer Modell-/Quellprovenienz. Manuelle und bestätigte Ziele werden weder bei Fehlern noch bei erneuter Ableitung überschrieben.
 
-Noch getrennt bleiben die Übernahme der Ziele in den vollständigen gepackten Moderationskontext aus Slice 6 sowie Adapter-/Vorschauintegration und Betriebsabnahme aus Slices 7 und 8. Der Slice-5-Vertrag und seine modellfreien Tests sind kein Nachweis didaktischer Modellqualität; ein realer Lernzielauftrag und die Produktionsmessung müssen vor Aktivierung gesondert dokumentiert werden.
+Die Übernahme der Ziele in den gepackten Moderationskontext aus Slice 6 sowie Adapter und Vorschau aus Slice 7 sind inzwischen implementiert. Am 12.10.2026 erzeugte ein realer Auftrag für das vollständige Demo-Quiz auf dem privaten Produktionshost zehn Entwürfe. Der Slice-5-Vertrag, seine modellfreien Tests und dieser einzelne Lauf belegen noch keine didaktische Modellqualität. Vollständige Produktionsmessung, fachliche Prüfung der Entwürfe, der reale Summary-V2-Lauf und das reichhaltige Kontextprofil bleiben Teil der offenen Slice-8-Abnahme; die Betreiberaktivierung für den Test ist keine allgemeine Freigabe.
 
 Die Integrationsgrenzen und der vollständige Slice-Status stehen in [moderation-prompt-context.md](../../features/moderation-prompt-context.md).

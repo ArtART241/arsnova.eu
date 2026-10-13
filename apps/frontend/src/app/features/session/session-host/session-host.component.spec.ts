@@ -27355,7 +27355,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       fixture.destroy();
     });
 
-    it('nimmt angepinnte Fragen in die Themenkarte und lässt Archiv weg', async () => {
+    it('lässt angepinnte Fragen aus der Themenkarte und Archiv aus der Reibung', async () => {
       const fixture = setup();
       fixture.detectChanges();
       await fixture.whenStable();
@@ -27393,7 +27393,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       const topics = component.moderationCompassCards().find((card) => card.kind === 'topics');
       expect(
         topics?.sources.some((source) => source.label.includes('Bitte Kapitel 4 erklären')),
-      ).toBe(true);
+      ).toBeFalsy();
       expect(
         component
           .moderationCompassCards()

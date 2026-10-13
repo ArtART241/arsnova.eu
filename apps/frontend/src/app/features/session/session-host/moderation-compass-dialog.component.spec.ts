@@ -198,10 +198,11 @@ describe('ModerationCompassDialogComponent', () => {
     expect(fixture.nativeElement.querySelector('.moderation-compass-card__suggestion')).toBeNull();
   });
 
-  it('zeigt den ruhigen Zustand wenn die Analyse aus ist', () => {
+  it('zeigt den ruhigen Zustand ohne Hinweis auf ausgeschaltete Sortierung', () => {
     const { fixture } = setup([], vi.fn(), 'disabled');
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Die automatische Sortierung der Fragen ist aus.');
+    expect(text).not.toContain('Die automatische Sortierung der Fragen ist aus.');
+    expect(text).toContain('Sobald Fragen oder ein Blitzlicht da sind');
     expect(text).not.toContain('Aus der Live-Runde');
   });
 

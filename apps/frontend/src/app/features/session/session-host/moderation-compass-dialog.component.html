@@ -85,6 +85,9 @@
             }}</mat-icon>
             <h3 class="moderation-compass-card__title">{{ cardTitle(card) }}</h3>
           </header>
+          @if (card.hint) {
+            <p class="moderation-compass-card__hint">{{ card.hint }}</p>
+          }
           @if (visibleSources(card).length > 0) {
             <ul class="moderation-compass-card__sources">
               @for (source of visibleSources(card); track source.kind + source.label) {

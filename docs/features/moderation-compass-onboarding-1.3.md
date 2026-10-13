@@ -21,6 +21,12 @@ Builder, Persistenz, UI, Runtime und Adapterintegration bleiben Zielstand späte
 die übrige Bestandsanalyse dieses Onboardings bleibt auf den oben genannten Commit `fc84d7f`
 bezogen.
 
+**Ergänzender Status 2026-10-13:** Der live geschaltete Regelkompass ist in
+[moderation-compass.md](moderation-compass.md) beschrieben. Abschnitt 5 und der
+Quellenklick in Abschnitt 15.1 folgen diesem Stand. Umfragen haben eine eigene
+Karte, schwache Quiz-Hinweise stehen hinter Moderationsstau und Reibung, und ein
+Sprung auf ein anderes Quiz-Ergebnis wird bestätigt.
+
 ## Inhalt
 
 1. [Zweck, Umfang und Grenzen](#1-zweck-umfang-und-grenzen)
@@ -50,7 +56,7 @@ bezogen.
 
 Der Moderationskompass unterstützt Lehrpersonen dabei, aus Live-Signalen eine begründete nächste Moderationshandlung abzuleiten. Er verbindet Fragen aus dem Q&A, deren Bewertungen, wiederkehrende Themen, freigegebene Quiz- und Schätzergebnisse sowie Tempo- und Blitzlicht-Aggregate. Die Lehrperson soll erkennen können, **was beobachtet wurde, welche Quellen die Beobachtung tragen und welche Handlung daraus vorgeschlagen wird**.
 
-Der Kompass führt keine Moderationshandlung selbst aus. Er ist weder eine automatische Benotung noch eine individuelle Lerndiagnose. Eine hohe Zustimmung macht eine Aussage nicht fachlich richtig; eine kontroverse Frage beweist kein Verständnisproblem; eine offene Moderationsfreigabe ist kein Nachweis von Unsicherheit bei Lernenden. Diese Unterschiede sind Teil des Datenvertrags und müssen auch in generierten Texten erhalten bleiben.
+Der Kompass startet weder Pin noch Archiv noch eine Quizphase von selbst. Ein bestätigter Sprung auf ein früheres Quiz-Ergebnis wechselt die gemeinsame Ergebnisansicht. Er ist weder eine automatische Benotung noch eine individuelle Lerndiagnose. Eine hohe Zustimmung macht eine Aussage nicht fachlich richtig; eine kontroverse Frage beweist kein Verständnisproblem; eine offene Moderationsfreigabe ist kein Nachweis von Unsicherheit bei Lernenden. Diese Unterschiede sind Teil des Datenvertrags und müssen auch in generierten Texten erhalten bleiben.
 
 ### 1.1 Fünf getrennte Verarbeitungspfade
 
@@ -216,16 +222,17 @@ Die Kernfunktion `buildModerationCompassCards(snapshot)` im Frontend bildet eine
 
 ### 5.1 Karten und Evidenz
 
-| Kartenart       | Beobachtung                                                   | Wichtige Abgrenzung                                                       |
-| --------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `topics`        | Wiederkehrende Begriffe oder gruppierte Anliegen              | Wortwiederholung und semantische Gleichheit sind unterschiedliche Evidenz |
-| `clarification` | Ausstehende Moderationsfreigaben und einschlägige Quizsignale | `PENDING` bedeutet zunächst Freigabebedarf                                |
-| `friction`      | Geteilte bzw. kontroverse Bewertungen                         | Kontroverse ist weder Ablehnung allein noch ein Fehlernachweis            |
-| `tempo`         | Tendenz des Tempo-Feedbacks                                   | Vorhandenes Blitzlichtverfahren, kein zusätzlicher Kanal                  |
+| Kartenart       | Beobachtung                                                 | Wichtige Abgrenzung                                                                      |
+| --------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `tempo`         | Tendenz des Tempo-Feedbacks                                 | Vorhandenes Blitzlichtverfahren, kein zusätzlicher Kanal                                 |
+| `friction`      | Geteilte bzw. kontroverse Bewertungen                       | Kontroverse ist weder Ablehnung allein noch ein Fehlernachweis                           |
+| `clarification` | Ausstehende Moderationsfreigaben und belastbare Quizsignale | `PENDING` bedeutet zunächst Freigabebedarf                                               |
+| `survey`        | Führende Antwort einer Umfrage                              | Keine Richtigkeit und nicht die Karte **Noch klären**                                    |
+| `topics`        | Wiederkehrende Begriffe oder gruppierte Anliegen            | Hervorhebungen sind keine Themenquelle; die Gewichtung steht als Hinweis unter der Karte |
 
-Die Darstellung ordnet Karten als Tempo, Reibung, Klärung und Themen. Die Quellen eines Hinweises bleiben anklickbar. Intern werden pro einschlägiger Sammlung höchstens acht Quellen gehalten; die kompakte Ansicht zeigt zunächst drei und bietet Erweiterung an. Anzeigetexte werden gekürzt; Quiz-Markdown und Medienbestandteile werden nicht ungefiltert in Quellenlabels übernommen.
+Die Darstellung ordnet Karten als Tempo, Reibung, Klärung, Antwortverteilung und Themen. Die Quellen eines Hinweises bleiben anklickbar. Intern werden pro einschlägiger Sammlung höchstens acht Quellen gehalten; die kompakte Ansicht zeigt zunächst drei und bietet Erweiterung an. Anzeigetexte werden gekürzt; Quiz-Markdown und Medienbestandteile werden nicht ungefiltert in Quellenlabels übernommen. Der Dialog liest den ungefilterten Host-Bestand, nicht die gerade gefilterte Q&A-Seite.
 
-Ein wiederkehrender Begriff braucht grundsätzlich mindestens zwei Dokumentvorkommen oder zwei Quellen. Die gesonderte Darstellung von NLP-Kategorien ist nicht mit dieser Häufigkeitsregel gleichzusetzen. Reibung berücksichtigt keine archivierten oder gelöschten Fragen. Relevant sind eine explizite Kontroversitätsmarkierung oder ein Kontroversitätswert über 0,5.
+Ein wiederkehrender Begriff braucht grundsätzlich mindestens zwei Dokumentvorkommen oder zwei Quellen. Die gesonderte Darstellung von NLP-Kategorien ist nicht mit dieser Häufigkeitsregel gleichzusetzen. Reibung berücksichtigt keine archivierten oder gelöschten Fragen. Relevant sind eine explizite Kontroversitätsmarkierung oder ein Kontroversitätswert über 0,5. Ohne Q&A-Klassifikation nennt der Dialog nicht, dass eine automatische Sortierung aus ist.
 
 ### 5.2 Auswahl von „Als Nächstes“
 
@@ -233,46 +240,48 @@ Ein wiederkehrender Begriff braucht grundsätzlich mindestens zwei Dokumentvorko
 flowchart TB
   A[Host-Snapshot] --> B{Tempo alarmierend?}
   B -- Ja --> T[Tempo zuerst adressieren]
-  B -- Nein --> C{Quiz-Evidenz vorhanden?}
-  C -- Ja --> Q[Passende Ergebnisintervention]
+  B -- Nein --> C{Belastbare Quiz-Klärung?}
+  C -- Ja --> Q[Lösung und typische Fehler]
   C -- Nein --> D{Tempo auffällig?}
   D -- Ja --> T
   D -- Nein --> E{Freigaben offen?}
   E -- Ja --> M[Moderationsbedarf bearbeiten]
   E -- Nein --> F{Kontroverse vorhanden?}
   F -- Ja --> K[Geteilte Bewertungen aufgreifen]
-  F -- Nein --> G{Themen vorhanden?}
+  F -- Nein --> S{Freitext, Umfrage oder einzelne andere Antwort?}
+  S -- Ja --> U[Schwächeren Hinweis nennen]
+  S -- Nein --> G{Themen vorhanden?}
   G -- Ja --> H[Wiederkehrendes Anliegen aufgreifen]
   G -- Nein --> I[Ruhigen Verlauf einordnen]
 ```
 
-Quiz-Evidenz wird nach Fragetyp interpretiert: Eine Umfrage verlangt eine andere Einordnung als eine falsch beantwortete Wissensfrage. Die Töne `neutral`, `caution` und `alert` unterstützen diese Abstufung. Wiederholt ein alleinstehender Vorschlag lediglich den Inhalt einer einzelnen Freigabe-, Reibungs- oder Themenkarte, kann die redundante zusätzliche Handlungszeile entfallen.
+Belastbare Quiz-Klärung umfasst Mehrheitsfehler, eine Histogrammspitze außerhalb eines nachgewiesenen Toleranzbands, einen klaren Rundenrückgang und strukturierte Verwechslungen ab 30 % der Antworten. Eine einzelne falsche Option, eine Umfrage und wiederholter Freitext bleiben sichtbar, stehen aber hinter offenen Freigaben und Reibung. Umfragen liegen auf `survey`. Freitext bekommt einen eigenen Vorschlag und keine Lösungsanweisung. **Kommen nicht mit** gilt bei zu schnell oder abgehängt; zu langsam und gemischte Tempo-Rückmeldungen haben eigene Sätze. Die Töne `neutral`, `caution` und `alert` unterstützen diese Abstufung. Wiederholt ein alleinstehender Vorschlag lediglich den Inhalt einer einzelnen Freigabe-, Reibungs- oder Themenkarte, kann die redundante zusätzliche Handlungszeile entfallen.
 
 ### 5.3 Regeln für Quiz- und Schätzergebnisse
 
 `collectModerationQuizFacts(question)` sammelt höchstens sechs Fakten pro Frage. Es verarbeitet die dafür vorgesehenen freigegebenen Resultate. Die reine Funktion stellt selbst keine Zugriffsgrenze dar; der Aufrufer muss ihr zulässige Daten liefern.
 
-| Signal                                   | Regel im untersuchten Code                                                            | Zulässige Interpretation                               |
-| ---------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Falsche Antworten überwiegen             | Falschzahl größer als Richtigzahl bei vorhandenen Antworten                           | Ergebnis gemeinsam prüfen                              |
-| Schätzung außerhalb Toleranzband         | Anteil im Band unter 50 %                                                             | Referenz und Toleranz erläutern                        |
-| Auffälliger Histogrammbereich            | Mindestens acht Antworten; stärkster Bereich außerhalb des Bandes mit mindestens 30 % | Verteilung gezielt besprechen                          |
-| Verschlechterung des Bandanteils         | Veränderung um mindestens fünf Prozentpunkte nach unten                               | Entwicklung zwischen Runden prüfen                     |
-| Individuelle Veränderung zwischen Runden | Mehr zuordenbare Antworten entfernen sich vom Ziel als sich annähern                  | Wirkung der Zwischenintervention hinterfragen          |
-| Matching, Ordering, Categorization       | Häufige Verwechslung, Vertauschung oder Fehlzuordnung mit positiver Anzahl            | Konkrete Fehlvorstellung anhand der Aufgabe besprechen |
-| Falsche Auswahloption                    | Häufigste falsche Option mit Stimmen                                                  | Distraktor erläutern                                   |
-| Abweichender Median                      | Relative Abweichung mindestens 0,1; Nenner mindestens 1                               | Lage der Schätzwerte erläutern                         |
-| Große Streuung                           | Mindestens acht Werte; Standardabweichung größer als 0,75 der Bandbreite              | Unterschiedliche Größenordnungen sichtbar machen       |
-| Zweite Runde schwächer                   | Weniger richtige Antworten als in Runde eins                                          | Rundenvergleich einordnen                              |
-| Wiederholter Freitext                    | Normalisierter Text mindestens zweimal                                                | Wiederkehrende Formulierung aufgreifen                 |
+| Signal                                   | Regel                                                                                 | Zulässige Interpretation                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Falsche Antworten überwiegen             | Falschzahl größer als Richtigzahl bei vorhandenen Antworten                           | Ergebnis gemeinsam prüfen                                    |
+| Schätzung außerhalb Toleranzband         | Anteil im Band unter 50 %                                                             | Referenz und Toleranz erläutern                              |
+| Auffälliger Histogrammbereich            | Mindestens acht Antworten; stärkster Bereich außerhalb des Bandes mit mindestens 30 % | Verteilung gezielt besprechen                                |
+| Verschlechterung des Bandanteils         | Veränderung um mindestens fünf Prozentpunkte nach unten                               | Entwicklung zwischen Runden prüfen                           |
+| Individuelle Veränderung zwischen Runden | Mehr zuordenbare Antworten entfernen sich vom Ziel als sich annähern                  | Wirkung der Zwischenintervention hinterfragen                |
+| Matching, Ordering, Categorization       | Anteil mindestens 30 % wird Klärung; darunter nur eine Erwähnung                      | Konkrete Fehlvorstellung anhand der Aufgabe besprechen       |
+| Falsche Auswahloption                    | Häufigste falsche Option mit Stimmen, als Erwähnung und nicht vor Freigaben           | Distraktor nur nennen, wenn nichts Dringenderes ansteht      |
+| Abweichender Median                      | Relative Abweichung mindestens 0,1; Nenner mindestens 1                               | Lage der Schätzwerte erläutern                               |
+| Große Streuung                           | Mindestens acht Werte; Standardabweichung größer als 0,75 der Bandbreite              | Unterschiedliche Größenordnungen sichtbar machen             |
+| Zweite Runde schwächer                   | Weniger richtige Antworten als in Runde eins                                          | Rundenvergleich einordnen                                    |
+| Wiederholter Freitext                    | Normalisierter Text mindestens zweimal; eigener Vorschlag hinter Reibung              | Wiederkehrende Formulierung vorlesen, keine Lösung behaupten |
 
-Bei `SURVEY` wird die führende Antwortverteilung beschrieben, keine Richtigkeit. Bei `RATING` ist unter anderem ein Durchschnitt von höchstens 2,5 bei mindestens drei Antworten relevant. `FREETEXT` kann Wiederholungen liefern, aber keine automatische fachliche Bewertung. Treffen Freigabebedarf und Quizquellen zusammen, begrenzt die Zusammenführung den Quizanteil in dieser Quellensammlung auf zwei und ergänzt Freigabequellen bis zum Gesamtlimit.
+Bei `SURVEY` beschreibt die Karte **Antwortverteilung** die führende Antwort, ohne Richtigkeit und ohne die Karte **Noch klären**. Bei `RATING` ist unter anderem ein Durchschnitt von höchstens 2,5 bei mindestens drei Antworten relevant. `FREETEXT` kann Wiederholungen liefern, aber keine automatische fachliche Bewertung. Treffen Freigabebedarf und belastbare Quizquellen zusammen, begrenzt die Zusammenführung den Quizanteil in dieser Quellensammlung auf zwei und ergänzt Freigabequellen bis zum Gesamtlimit. Erwähnungen und Freitext folgen danach.
 
 `rememberModerationQuizSnapshot` und `mergeModerationQuizSources` unterstützen die Zusammenführung bereits freigegebener Quizbeobachtungen. Ein neuer Kanalzustand darf nicht aus Versehen auf noch gesperrte Resultate zugreifen.
 
 ### 5.4 Tempo und allgemeines Blitzlicht
 
-Tempo nutzt gemäß ADR 0029 eine vordefinierte Blitzlichtvorlage. Es gibt jeweils ein aktives Feedback; ein neues ersetzt das bisher aktive. Das bestehende Verfahren arbeitet mit einem Grundzustand und gespeicherten Abweichungen, Redis-Lua-Operationen, zeitlich begrenzten Buckets und einer geglätteten Tendenz mit Hysterese. Der Kompass konsumiert diese Tendenz, statt eine zweite Tempoauswertung mit anderen Schwellen einzuführen.
+Tempo nutzt gemäß ADR 0029 eine vordefinierte Blitzlichtvorlage. Es gibt jeweils ein aktives Feedback; ein neues ersetzt das bisher aktive. Das bestehende Verfahren arbeitet mit einem Grundzustand und gespeicherten Abweichungen, Redis-Lua-Operationen, zeitlich begrenzten Buckets und einer geglätteten Tendenz mit Hysterese. Der Kompass konsumiert diese Tendenz, statt eine zweite Tempoauswertung mit anderen Schwellen einzuführen. Die Formulierung folgt dem Status: zu schnell und abgehängt werden langsamer, zu langsam wird zügiger, ein gemischtes Bild bleibt gemischt.
 
 Für allgemeine Blitzlichter erkennt `notableQuickFeedbackSplit` eine auffällige Teilung, wenn der größte Anteil unter 60 % und der zweitgrößte mindestens 30 % liegt. Sternebewertungen verwenden einen gewichteten Durchschnitt der zulässigen Werte von eins bis fünf. Stichprobengröße und Zeitbezug bleiben für die Interpretation notwendig.
 
@@ -834,7 +843,7 @@ Die Host-Oberfläche verwendet Angular, Signals und die bestehende Material-3-Ge
 
 Bereits geladene Host-Daten fließen in den Snapshot und die reinen Kartenfunktionen. Die UI berechnet daraus die Darstellung. Zusatzanalysen liefern eigene Statusobjekte und dürfen den vorhandenen Snapshot nicht durch scheinbar gleichartige, aber anders autorisierte Modellinhalte ersetzen.
 
-Ein Klick auf eine Quelle schließt den Dialog, wechselt bei Bedarf zum passenden Kanal und hebt das relevante Element hervor. Der Rückweg berücksichtigt den vorherigen Kanalzustand. Fokuswiederherstellung, verständliche Beschriftungen und Tastaturbedienung sind Teil dieses Ablaufs, keine nachträgliche Dekoration.
+Ein Klick auf eine Quelle wechselt bei Bedarf zum passenden Kanal und hebt das relevante Element hervor. Ein Quiz-Sprung auf eine andere bereits geöffnete Ergebnisfrage fragt zuerst nach, weil Teilnehmende und Präsentation diese Frage dann im Ergebnis sehen; bei Abbruch bleibt der Kompass offen. Die Q&A-Wortwolke aus dem Kompass öffnet sich nur in der Host-Ansicht und schaltet die Präsentation nicht mit. Der Rückweg berücksichtigt den vorherigen Kanalzustand. Fokuswiederherstellung, verständliche Beschriftungen und Tastaturbedienung sind Teil dieses Ablaufs, keine nachträgliche Dekoration.
 
 ### 15.2 Kompakte Summary-Darstellung
 

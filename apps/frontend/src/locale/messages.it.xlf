@@ -19019,6 +19019,102 @@
           <context context-type="linenumber">326</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="sessionHost.moderationCardSurvey" datatype="html">
+        <source>Antwortverteilung</source>
+        <target>Distribuzione delle risposte</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationCardFreetext" datatype="html">
+        <source>Ähnliche Antworten</source>
+        <target>Risposte simili</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationCardMention" datatype="html">
+        <source>Andere Antworten</source>
+        <target>Altre risposte</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextFreetext" datatype="html">
+        <source>Lies die wiederkehrenden Freitextantworten kurz vor.</source>
+        <target>Leggi brevemente le risposte aperte che si ripetono.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextMention" datatype="html">
+        <source>Einzelne andere Antworten sind sichtbar. Du musst sie nicht zum Thema machen.</source>
+        <target>Si vedono alcune risposte diverse. Non devi farne il tema.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextTempoSlow" datatype="html">
+        <source>Die Gruppe kann schneller. Du kannst das Tempo anziehen.</source>
+        <target>Il gruppo può andare più veloce. Puoi aumentare il ritmo.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextTempoMixed" datatype="html">
+        <source>Die Rückmeldungen sind gemischt. Frag kurz nach, woran es liegt.</source>
+        <target>I riscontri sono divisi. Chiedi brevemente da che cosa dipende.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpTitle" datatype="html">
+        <source>Ergebnis für alle zeigen?</source>
+        <target>Mostrare questo risultato a tutte le persone?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpMessage" datatype="html">
+        <source>Die laufende Ansicht wechselt für den Raum auf dieses frühere Ergebnis.</source>
+        <target>La vista in corso porta l’aula a questo risultato precedente.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpConsequence" datatype="html">
+        <source>Teilnehmende und Präsentation sehen diese Frage im Ergebnis.</source>
+        <target>Chi partecipa e la presentazione vedono il risultato di questa domanda.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpConfirm" datatype="html">
+        <source>Ergebnis zeigen</source>
+        <target>Mostra risultato</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpCancel" datatype="html">
+        <source>Abbrechen</source>
+        <target>Annulla</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="sessionHost.moderationNextFeedback" datatype="html">
         <source>Sieh dir das Blitzlicht kurz an.</source>
         <target>Dai un’occhiata al sondaggio rapido.</target>

@@ -8,12 +8,15 @@ import {
   notableQuickFeedbackSplit,
   planModerationCompass,
   resolveModerationCompassAnalysisMode,
+  moderationQuizFactEvidenceRole,
+  type ModerationCompassEvidenceRole,
   selectFrictionQuestionSourceIds,
   selectModerationCompassTopicSourceIds,
   selectPendingModerationQuestionSourceIds,
   type QaNlpCategory,
   type QaNlpResult,
   type QuestionType,
+  type TempoTrendStatus,
   type ModerationCompassAnalysisMode as SharedModerationCompassAnalysisMode,
   type ModerationCompassCardKind as SharedModerationCompassCardKind,
   type ModerationCompassCardTone as SharedModerationCompassCardTone,
@@ -35,9 +38,12 @@ export {
   MODERATION_COMPASS_STORED_SOURCE_COUNT,
   MODERATION_COMPASS_VISIBLE_SOURCE_COUNT,
   isNegativeFeedbackKey,
+  moderationQuizFactEvidenceRole,
   notableQuickFeedbackSplit,
   resolveModerationCompassAnalysisMode,
 };
+
+export type { ModerationCompassEvidenceRole };
 
 export type ModerationCompassCardKind = SharedModerationCompassCardKind | 'nextStep';
 
@@ -70,6 +76,7 @@ export type ModerationCompassSource = {
   readonly label: string;
   readonly focusHint?: string;
   readonly target?: ModerationCompassSourceTarget;
+  readonly evidenceRole?: ModerationCompassEvidenceRole;
 };
 
 export type ModerationCompassCardTone = SharedModerationCompassCardTone;
@@ -79,7 +86,9 @@ export type ModerationCompassCard = {
   readonly sources: readonly ModerationCompassSource[];
   readonly nextStepReason?: ModerationCompassNextStepReason;
   readonly title?: string;
+  readonly hint?: string;
   readonly tone?: ModerationCompassCardTone;
+  readonly tempoStatus?: Exclude<TempoTrendStatus, 'NEUTRAL'>;
 };
 
 export type ModerationCompassQuizSourceCacheEntry = {
@@ -124,6 +133,7 @@ export type ModerationCompassTempo = {
   readonly tone: 'neutral' | 'good' | 'caution' | 'alert';
   readonly variant?: 'tempo' | 'feedback';
   readonly title?: string;
+  readonly tempoStatus?: Exclude<TempoTrendStatus, 'NEUTRAL'>;
 };
 
 export type ModerationCompassSnapshot = {
@@ -597,19 +607,6 @@ export function buildModerationCompassCards(
   snapshot: ModerationCompassSnapshot,
 ): ModerationCompassCard[] {
   const registry = new Map<string, ModerationCompassSource>();
-  const topicWeightSource: ModerationCompassSource | null = snapshot.topicWeightLabel
-    ? {
-        kind: 'qa-term',
-        label: snapshot.topicWeightLabel,
-        target: { channel: 'qa' },
-      }
-    : null;
-  const topicWeight = topicWeightSource
-    ? {
-        sourceId: registerRuleSource(registry, 'topic:weight', topicWeightSource),
-        dedupeKey: sourceDedupeKey(topicWeightSource),
-      }
-    : null;
   const topicSourceIds = selectModerationCompassTopicSourceIds({
     classified: topicRuleSources(snapshot.nlpTopicSources ?? [], 'topic:nlp', registry),
     qaTerms: topicTermRuleSources(snapshot.qaTerms, 'qa-term', 'topic:qa', registry),
@@ -620,7 +617,6 @@ export function buildModerationCompassCards(
       registry,
     ),
     extras: topicRuleSources(snapshot.extraTopicSources, 'topic:extra', registry),
-    topicWeight,
   });
   const pendingQuestionSourceIds = selectPendingModerationQuestionSourceIds(
     questionRuleSources(snapshot.qaQuestions, 'pending', registry),
@@ -630,7 +626,28 @@ export function buildModerationCompassCards(
     questionRuleSources(snapshot.qaQuestions, 'friction', registry),
   );
   const quizSources = quizConfusionSources(snapshot.quizSources);
-  const quizResultSourceIds = registeredSourceIds(quizSources, 'quiz', registry);
+  const quizRole = (source: ModerationCompassSource): ModerationCompassEvidenceRole =>
+    source.evidenceRole ?? 'clarification';
+  const quizResultSourceIds = registeredSourceIds(
+    quizSources.filter((source) => quizRole(source) === 'clarification'),
+    'quiz',
+    registry,
+  );
+  const surveySourceIds = registeredSourceIds(
+    quizSources.filter((source) => quizRole(source) === 'survey'),
+    'survey',
+    registry,
+  );
+  const freetextSourceIds = registeredSourceIds(
+    quizSources.filter((source) => quizRole(source) === 'freetext'),
+    'freetext',
+    registry,
+  );
+  const mentionQuizSourceIds = registeredSourceIds(
+    quizSources.filter((source) => quizRole(source) === 'mention'),
+    'mention',
+    registry,
+  );
   const feedback = snapshot.tempo
     ? {
         sourceId: registerRuleSource(registry, 'feedback:0', {
@@ -640,6 +657,7 @@ export function buildModerationCompassCards(
         }),
         tone: snapshot.tempo.tone,
         variant: snapshot.tempo.variant,
+        ...(snapshot.tempo.tempoStatus ? { tempoStatus: snapshot.tempo.tempoStatus } : {}),
       }
     : null;
   const plan = planModerationCompass({
@@ -647,7 +665,13 @@ export function buildModerationCompassCards(
     pendingQuestionSourceIds,
     frictionQuestionSourceIds,
     quizResultSourceIds,
-    quizInsightKind: snapshot.quizInsightKind,
+    surveySourceIds,
+    freetextSourceIds,
+    mentionQuizSourceIds,
+    quizInsightKind:
+      quizResultSourceIds.length > 0 && snapshot.quizInsightKind !== 'survey'
+        ? snapshot.quizInsightKind
+        : null,
     feedback,
   });
   return plan.cards.map((card) => {
@@ -660,7 +684,17 @@ export function buildModerationCompassCards(
       }),
       ...(card.nextStepReason ? { nextStepReason: card.nextStepReason } : {}),
     };
-    return card.kind === 'tempo' ? { ...mapped, title: snapshot.tempo?.title } : mapped;
+    if (card.kind === 'tempo') {
+      return {
+        ...mapped,
+        title: snapshot.tempo?.title,
+        ...(snapshot.tempo?.tempoStatus ? { tempoStatus: snapshot.tempo.tempoStatus } : {}),
+      };
+    }
+    if (card.kind === 'topics' && snapshot.topicWeightLabel) {
+      return { ...mapped, hint: snapshot.topicWeightLabel };
+    }
+    return mapped;
   });
 }
 

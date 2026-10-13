@@ -16912,6 +16912,90 @@
           <context context-type="linenumber">326</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="sessionHost.moderationCardSurvey" datatype="html">
+        <source>Antwortverteilung</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationCardFreetext" datatype="html">
+        <source>Ähnliche Antworten</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationCardMention" datatype="html">
+        <source>Andere Antworten</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextFreetext" datatype="html">
+        <source>Lies die wiederkehrenden Freitextantworten kurz vor.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextMention" datatype="html">
+        <source>Einzelne andere Antworten sind sichtbar. Du musst sie nicht zum Thema machen.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextTempoSlow" datatype="html">
+        <source>Die Gruppe kann schneller. Du kannst das Tempo anziehen.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationNextTempoMixed" datatype="html">
+        <source>Die Rückmeldungen sind gemischt. Frag kurz nach, woran es liegt.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/moderation-compass-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpTitle" datatype="html">
+        <source>Ergebnis für alle zeigen?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpMessage" datatype="html">
+        <source>Die laufende Ansicht wechselt für den Raum auf dieses frühere Ergebnis.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpConsequence" datatype="html">
+        <source>Teilnehmende und Präsentation sehen diese Frage im Ergebnis.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpConfirm" datatype="html">
+        <source>Ergebnis zeigen</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sessionHost.moderationQuizJumpCancel" datatype="html">
+        <source>Abbrechen</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/session/session-host/session-host.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="sessionHost.moderationNextFeedback" datatype="html">
         <source>Sieh dir das Blitzlicht kurz an.</source>
         <context-group purpose="location">

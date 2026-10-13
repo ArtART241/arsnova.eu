@@ -2,9 +2,9 @@
 
 # Modellgestützte Lernzielableitung in der Quizvorbereitung (#456 Slice 5)
 
-**Stand:** 2026-10-12
+**Stand:** 2026-10-13
 
-**Status:** Implementiert und standardmäßig deaktiviert; technische Realmodell-Abnahme der Lernzielableitung bleibt Teil der Slice-8-Gesamtabnahme
+**Status:** Implementiert und standardmäßig deaktiviert; ein vollständiger Demo-Quiz-Lauf auf dem privaten Produktionshost erzeugte zehn Entwürfe, die formale Slice-8-Gesamtabnahme bleibt offen
 
 **Runtime:** [Private Open-Weight-LLM-Runtime](open-weight-llm-runtime.md)
 **Datenhaltung:** [ADR-0036](../architecture/decisions/0036-learning-objective-storage-and-live-projection.md)
@@ -76,7 +76,11 @@ Fokussierte Tests decken Vertragsstrenge, sämtliche Lösungstypen, Multibyte-Bu
 
 Die kanonischen Produktdaten für Integration, E2E und Realmodellmessung sind `getDemoQuizPayload(...)` und `getDemoQuizSeedFingerprint(...)` in `apps/frontend/src/app/features/quiz/data/demo-quiz-payload.ts`. Kleine Unit-Tests dürfen fokussierte Minimalfixtures verwenden.
 
-Runtime R hat das gepinnte Modell und die Schemaerzwingung bereits mit einem realen `topic_label`-Auftrag belegt. Ein Produktionsversuch mit dem umfangreichen Demo-Quiz am 2026-10-12 erreichte den privaten Modellserver, erzeugte Tokens, überschritt aber das frühere 120-Sekunden-Gesamtbudget ohne fertige Lernziele. Ein anderes Produktionsquiz mit zehn bewertbaren Fragen erzeugte nach Verlängerung der Zeitlimits sieben Entwürfe; dabei waren mehrere Modellhinweise redundant und die Formulierungen der Ziele wechselten zwischen Rollenbezeichnungen. Die neue Filterung und der Systemprompt v2 wurden noch nicht mit dem Realmodell geprüft. Das vollständige Demo-Quiz bleibt ebenfalls als Last- und Qualitätstest offen. Die Slice-8-Abnahme muss für jeden echten Lauf Systemprompt, Userpayload, angefordertes Schema und vollständige Antwort ohne Secrets dokumentieren sowie CPU-/Prefill-/Speicherwerte und die Produktionsgrenze ausweisen. `OPEN_WEIGHT_LLM_ENABLED` bleibt bis zu dieser Abnahme und einer getrennten Betreiberentscheidung standardmäßig `false`.
+Runtime R hat das gepinnte Modell und die Schemaerzwingung bereits mit einem realen `topic_label`-Auftrag belegt. Ein früherer Produktionsversuch mit dem umfangreichen Demo-Quiz am 2026-10-12 überschritt das damalige Zeitbudget ohne fertige Lernziele. Ein anderes Produktionsquiz mit zehn bewertbaren Fragen erzeugte nach Verlängerung der Zeitlimits sieben Entwürfe; mehrere Modellhinweise waren redundant und die Formulierungen wechselten zwischen Rollenbezeichnungen. Die anschließende Promptversion v2 und die Filterung unterdrücken solche freien Hinweise.
+
+Bei einem weiteren vollständigen Demo-Quiz-Lauf am 2026-10-12 scheiterten nach zwei erfolgreichen Batches die folgenden Modellaufrufe, als der Inferenzcontainer an seiner damaligen 5-GiB-Grenze ein Docker-OOM-Ereignis erlitt und neu startete. Der Betreiber erhöhte die Grenze des laufenden Containers auf 8 GiB RAM und 10 GiB RAM plus Swap; [PR #566](https://github.com/kqc-real/arsnova.eu/pull/566) übernahm diese Werte in die Zweit-Host-Compose-Datei. Beim anschließenden vollständigen Demo-Quiz-Lauf wurden zehn Vorschläge als Entwürfe hinzugefügt. Der Restart-Zähler blieb bei 1, der Container war gesund, und die aktuelle cgroup meldete `memory.peak=3825471488` Byte (ca. 3,56 GiB) sowie `oom=0` und `oom_kill=0`. Das belegt diesen erfolgreichen Lauf, nicht die Qualität aller Vorschläge oder eine Lastobergrenze für beliebige Quizzes.
+
+Für die formale Slice-8-Abnahme fehlen weiterhin ein dauerhaft dokumentierter, redigierter Systemprompt, Userpayload, Antwortschema und vollständiger Modellresponse sowie CPU-/Prefill-/Laufzeitmesswerte und eine fachliche Prüfung der zehn Entwürfe. Der Demo-Quiz-Lauf ersetzt auch keinen realen Summary-V2-Lauf. Das Repository-Default für `OPEN_WEIGHT_LLM_ENABLED` bleibt `false`; der Betreiber hatte es für den Produktionslauf aktiviert. Eine allgemeine Produktivfreigabe wird aus diesem einzelnen Lauf nicht abgeleitet.
 
 ## Fokussierte Verifikation
 

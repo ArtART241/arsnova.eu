@@ -123,8 +123,19 @@ hostgeschützte Vorschau sind ebenfalls implementiert. Kanonisch:
 [features/moderation-prompt-context.md](features/moderation-prompt-context.md),
 [features/learning-objective-derivation.md](features/learning-objective-derivation.md) und
 [ADR-0036](architecture/decisions/0036-learning-objective-storage-and-live-projection.md).
-Die reale Summary-/Lernzielmessung auf der vorgesehenen Hardware und ein reichhaltiges
-Vollkontextprofil innerhalb von 4.096 bleiben offen; beide Produktivflags bleiben aus.
+Zum Stand dieser Integration fehlten reale Summary-/Lernzielmessungen auf der
+vorgesehenen Hardware und ein reichhaltiges Vollkontextprofil innerhalb von
+4.096; beide Flags waren im Repository standardmäßig aus.
+
+**Betriebsabgleich 2026-10-13:** Der Betreiber meldete für den privaten
+Produktionshost einen erfolgreichen vollständigen Demo-Quiz-Lernziellauf mit zehn
+Entwürfen. Nach einem früheren Docker-OOM wurde die Laufzeitgrenze auf 8 GiB RAM
+und 10 GiB RAM plus Swap erhöht und in [PR #566](https://github.com/kqc-real/arsnova.eu/pull/566)
+für den nächsten Inferenzhost-Deploy festgeschrieben. Die obige Aussage beschreibt
+den Integrationsstand vom 05.10.; aktuell fehlen weiterhin vollständige
+Lernziel-Mess- und Qualitätsdaten, ein realer Summary-V2-Lauf und ein nutzbares
+reichhaltiges Kontextprofil. Die Repository-Defaults bleiben aus; die
+Betreiberaktivierung des LLM für den Test ist keine allgemeine Freigabe.
 
 **Ergänzung 2026-10-03:** Story **1.14d** ist für Host-Freitext im Repo implementiert und verwendet denselben privaten Encoder- und Clusteringpfad wie **1.14c**. `de`/`en` nutzen den Encoder, `fr`/`es` den lexikalischen Backend-Fallback; unter italienischer UI bleibt der Fallback lokal und sendet ohne gewählte unterstützte Wolkensprache keinen Backendauftrag. `WORD_CLOUD_SEMANTIC_ENABLED` bleibt standardmäßig aus; eine Produktivaktivierung ist nicht belegt.
 

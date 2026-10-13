@@ -2,9 +2,9 @@
 
 # Private Open-Weight-LLM-Runtime (Story 8.9d / Runtime R)
 
-**Stand:** 2026-10-05
+**Stand:** 2026-10-13
 
-**Status:** Runtime, App-Verträge und Betriebswrapper implementiert; Lernzielableitung und Summary V2 als getrennte Consumer verdrahtet; produktiv standardmäßig aus; reale Consumer-/Hardwareabnahme offen
+**Status:** Runtime, App-Verträge und Betriebswrapper implementiert; Lernzielableitung und Summary V2 als getrennte Consumer verdrahtet; vollständiger Demo-Quiz-Lernziellauf auf dem privaten Produktionshost erfolgreich, Summary-V2- und formale Betriebsabnahme offen
 
 **ADR:** [ADR-0035](../architecture/decisions/0035-self-hosted-llm-runtime-llama-cpp-over-ollama.md)
 
@@ -234,7 +234,9 @@ docker exec -i arsnova-v3-open-weight-llm sh -c \
 
 Der finale isolierte Container war zusätzlich effektiv als UID/GID `65532:65532`, read-only, `network_mode: none`, 128 PIDs, `cap_drop: ALL`, `no-new-privileges` und `healthy` geprüft. Am geschützten Slot-Endpunkt lieferte das exakte Credential unter der abweichenden App-UID und gemeinsamen Socket-Gruppe HTTP 200, ein anderes formal gültiges Credential HTTP 401. Ein anschließendes `SIGTERM` wurde sauber an den Server weitergegeben; der Container beendete sich innerhalb der Grace Period mit Exitcode 0 und ohne OOM. Der `/health`-Endpunkt bleibt, wie oben beschrieben, nur eine Readiness-Sonde.
 
-Die drei Läufe belegen Schemaerzwingung und Ausführbarkeit des kurzen Labelauftrags. Sie belegen nicht Summary-Prefill auf der echten 8-vCPU-Inferenzbox, einen realen Lernzielauftrag, Lernzielqualität, p95 unter Last, Produktions-RSS oder fachliche Freigabe. Die Slices 5–7 ergänzen dafür modellfreie Consumer-, Prompt-, Adapter-, Quellen- und Lebenszyklustests. Für den integrierten Head stand keine reale Zielruntime für `qa_summary` V2 oder `learning_objectives` zur Verfügung; die fehlenden Läufe und der nicht passende reichhaltige 4.096-Kontext bleiben in der [Slice-8-Abnahme](../implementation/ISSUE-456-SLICE-8-ABNAHME.md) offen. Die Produktivflags bleiben aus.
+Die drei lokalen Läufe belegen Schemaerzwingung und Ausführbarkeit des kurzen Labelauftrags. Danach wurde `learning_objectives` am 12.10.2026 auf dem privaten Produktionshost mit dem vollständigen Demo-Quiz ausgeführt: Nach Anpassung der Containergrenze auf 8 GiB RAM und 10 GiB RAM plus Swap wurden zehn Vorschläge als Entwürfe hinzugefügt; `memory.peak` der aktuellen cgroup betrug rund 3,56 GiB ohne neues OOM-Ereignis. Der vorangegangene Versuch war bei Batch 3 an der früheren 5-GiB-Grenze durch ein Docker-OOM-Ereignis abgebrochen. Details und verbleibende Nachweise stehen in [Modellgestützte Lernzielableitung](learning-objective-derivation.md) und der [Slice-8-Abnahme](../implementation/ISSUE-456-SLICE-8-ABNAHME.md).
+
+Dieser Produktionslauf belegt keine vollständige Lernzielqualität, keine p95 unter Last und keine Summary-V2-Prefill-/RSS-Messung. Der reichhaltige 4.096-Kontext bleibt offen. `OPEN_WEIGHT_LLM_ENABLED` ist im Repository standardmäßig `false`; der Betreiber hatte es für den Produktionslauf aktiviert. Aus diesem Lauf folgt keine allgemeine Freigabe der optionalen Consumer.
 
 ## Verifikation
 

@@ -2,10 +2,10 @@
 
 # Issue #456 – Slice-8-Abnahme und offene Betriebsgrenzen
 
-**Stand:** 2026-10-05
+**Stand:** 2026-10-13
 
 **Scope:** finaler Integrationsstand der Slices 5–8 auf Basis der bereits gemergten Runtime R
-**Produktivstatus:** `QA_SUMMARY_ENABLED=false` und `OPEN_WEIGHT_LLM_ENABLED=false`; keine Aktivierungsfreigabe
+**Produktivstatus:** Beide Flags sind im Repository standardmäßig aus. Der Betreiber hatte `OPEN_WEIGHT_LLM_ENABLED` für einen erfolgreichen Demo-Quiz-Lernziellauf in Produktion aktiviert; daraus folgt keine allgemeine Aktivierungsfreigabe. Der aktuelle Wert von `QA_SUMMARY_ENABLED` auf dem App-Host ist hier nicht belegt.
 
 ## Ergebnis
 
@@ -37,7 +37,7 @@ npm run load:issue-456:validate
 - den kuratierten Bezug der Fragen zum Demo-Quiz oder zu Funktionen, Nutzung, Barrierefreiheit und Datenschutz von arsnova.eu;
 - Text- und Vertragsgrenzen ohne technische Platzhalterfragen.
 
-Der netzwerkfreie Lauf vom 2026-10-05 bestand mit 14/14 Tests: 250 Teilnahmen, genau 2.500 Fragen, davon 1.250 zum Demo-Quiz und 1.250 zu arsnova.eu. Der echte lokale `--run` wurde in diesem Dokumentationslauf nicht ausgeführt.
+Der netzwerkfreie Lauf vom 2026-10-05 bestand mit 14/14 Tests: 250 Teilnahmen, genau 2.500 Fragen, davon 1.250 zum Demo-Quiz und 1.250 zu arsnova.eu. Am 2026-10-13 wurde `npm run load:issue-456:validate` erneut mit 14/14 bestandenen Tests und denselben Korpusmengen ausgeführt. Der echte lokale `--run` wurde bei diesem Dokumentationsabgleich nicht ausgeführt.
 
 Der echte Lauf ist absichtlich nur gegen Loopbackziele zugelassen:
 
@@ -86,9 +86,11 @@ Damit sind V2-Vertrag, Quellenbindung, Vorschau und Fallback ausführbar. **Nich
 
 Runtime R besitzt einen vollständig dokumentierten realen Kurzlauf für `topic_label`; Systemtext, Usernachricht, JSON-Schema, vollständige Antworten, Digests, Hardware und Laufzeiten stehen in [Private Open-Weight-LLM-Runtime](../features/open-weight-llm-runtime.md#vollständig-protokollierte-lokale-modellprüfung-vom-2026-10-05).
 
-Für den neuen `qa_summary`-V2-Auftrag und für `learning_objectives` war in dieser Abschlussarbeit keine vorgesehene reale Runtime-/Hardwareumgebung verfügbar. Deshalb existiert kein ehrlicher CPU-/Prefill-/RSS-Nachweis für den reichhaltigen Kontext und kein realer Demo-Quiz-Lernzieloutput. Mocks, Vertragstests und der extraktive Fallback ersetzen diesen Nachweis nicht.
+Seit dem ursprünglichen Integrationsstand liegt für `learning_objectives` ein realer Lauf auf dem privaten Produktionshost vor. Bei einem vollständigen Demo-Quiz-Versuch am 12.10.2026 waren zwei Batches erfolgreich; Batch 3 scheiterte zeitgleich mit einem Docker-OOM-Ereignis am damaligen 5-GiB-Containerlimit. Bereits erzeugte Teilresultate wurden nicht als Lernziele angewendet. Der Betreiber setzte den laufenden Container auf 8 GiB RAM und 10 GiB RAM plus Swap; [PR #566](https://github.com/kqc-real/arsnova.eu/pull/566) schreibt diese Grenze in `docker-compose.llm.yml` fest. Beim anschließenden vollständigen Demo-Quiz-Lauf wurden zehn Lernzielvorschläge als Entwürfe hinzugefügt. Der Container blieb gesund und sein Restart-Zähler bei 1; die aktuelle cgroup meldete `memory.peak=3825471488` Byte (ca. 3,56 GiB), `oom=0` und `oom_kill=0`. Das `memory.events`-Ergebnis betrifft die aktuelle cgroup und widerlegt das zuvor protokollierte Docker-OOM-Ereignis nicht.
 
-Vor einem echten Lauf müssen ohne Secrets dauerhaft in der Abnahmedokumentation festgehalten werden:
+Dieser Lauf war eine interaktive Lernzielableitung, **nicht** der lokale 250-Teilnahmen-/2.500-Q&A-Integrationsrunner aus dem vorigen Abschnitt. Er belegt einen erfolgreichen Modell-Consumerlauf mit zehn Entwürfen, aber keine fachliche Abnahme der Vorschlagstexte, keine p95 unter Last und keinen realen `qa_summary`-V2-Auftrag. Für den reichhaltigen Kontext fehlen weiterhin CPU-/Prefill-/RSS-Nachweise und ein nutzbares Budgetprofil.
+
+Für die noch offene formale Abnahme müssen ohne Secrets dauerhaft in der Abnahmedokumentation festgehalten werden:
 
 - Hardware, Containerlimits, Image-, llama.cpp- und Modelldigest;
 - Kontextlimit, exakte Eingabe- und Antwortreserve, Prompt-/Completiontokens;
@@ -96,21 +98,21 @@ Vor einem echten Lauf müssen ohne Secrets dauerhaft in der Abnahmedokumentation
 - Prefill/TTFT, Gesamtlaufzeit, Tokens pro Sekunde und Spitzen-/stabiler RSS;
 - Kalt-/Warmlauf, Slotbelegung, Cachezustand, Timeout und Fallbackbedingung.
 
-Bis das für Summary V2 und Lernzielableitung auf der vorgesehenen CPU-Box vorliegt, bleibt der Betriebsanteil von Slice 8 ausdrücklich offen und beide Produktivflags bleiben aus.
+Bis diese Daten und die fachliche Prüfung für Lernziele sowie der reale Summary-V2-Nachweis auf der vorgesehenen CPU-Box vorliegen, bleibt der Betriebsanteil von Slice 8 ausdrücklich offen. Die Repository-Defaults bleiben aus; der vom Betreiber aktivierte Produktionswert ist eine getrennte Betriebsentscheidung.
 
 ## Zuordnung der Slice-8-Abnahme
 
-| Abnahmepunkt                                                                    | Stand dieses Integrationsheads                                                                                                                                                                                                                          |
-| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vorbereitung → Lernziele → Q&A/Quiz/Feedback → Vorschau → versionierter Auftrag | lokaler Demo-Quiz-Runner und modellfreie Verträge vorhanden; echter Modelllauf offen                                                                                                                                                                    |
-| Vollständiger Kontext und Minimalfall nur Q&A-Texte                             | beide Vertragswege getestet; 4.096-Profil degradiert den reichhaltigen Kontext jedoch auf die ausgewiesene Q&A-Baseline                                                                                                                                 |
-| Produktionsnahe CPU-/Prefill-/Speichermessung                                   | **offen**, keine geeignete Runtime-/Zielhardware in diesem Lauf                                                                                                                                                                                         |
-| Nutzbares Budgetprofil                                                          | Q&A-Baseline technisch begrenzt; reichhaltiger Vollkontext bei 4.096 **nicht belegt**                                                                                                                                                                   |
-| Join, Vote, Q&A-Submit und WebSocket unabhängig vom Modell                      | Architektur und modellfreie Hotpath-/Slot-/Queue-Tests vorhanden; keine automatische Inferenz in diesen Pfaden                                                                                                                                          |
-| Telemetrie ohne Rohprompt, Texte oder Personenkennungen                         | Der Runnerbericht enthält nur freigegebene Mengen, Budgetzähler, Hashes, Status, Modus, Fallback und Laufzeiten; die Queue aggregiert Status, Modus, Fallbackgrund und Latenz. Prompt-/Completiontoken-Telemetrie ist für diese Consumer noch **offen** |
-| Berechtigung, Freigabe, Cache, Quellenintegrität, Fallback                      | fokussierte Shared-/Backend-/Frontendtests decken positive, negative und Änderungsfälle ab                                                                                                                                                              |
-| Fünf Locales und mobile Hostansicht                                             | XLF-Verträge und responsive UI sind implementiert; eine abschließende manuelle Fünf-Locale-/Mobile-Browserabnahme ist im finalen PR als ausgeführter Nachweis oder als offen auszuweisen                                                                |
-| Endgültiger Moderationsprompt und didaktische Wirksamkeit                       | ausdrücklich außerhalb von #456; nur technische, quellengebundene Übergabe                                                                                                                                                                              |
+| Abnahmepunkt                                                                    | Stand am 2026-10-13                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vorbereitung → Lernziele → Q&A/Quiz/Feedback → Vorschau → versionierter Auftrag | Realmodell-Lernziellauf mit vollständigem Demo-Quiz erfolgreich; lokaler Integrationsrunner und modellfreie Verträge vorhanden, aber sein echter `--run` hier nicht nachgewiesen                        |
+| Vollständiger Kontext und Minimalfall nur Q&A-Texte                             | beide Vertragswege getestet; 4.096-Profil degradiert den reichhaltigen Kontext jedoch auf die ausgewiesene Q&A-Baseline                                                                                 |
+| Produktionsnahe CPU-/Prefill-/Speichermessung                                   | cgroup-Spitzenwert für erfolgreichen Lernziellauf gemeldet; CPU, Prefill/TTFT, Gesamtlaufzeit, Modell-RSS und reale Summary-V2-Messung weiterhin offen                                                  |
+| Nutzbares Budgetprofil                                                          | Lernziel-Demo-Quiz lief mit dem bestehenden Profil durch; reichhaltiger Summary-Vollkontext bei 4.096 **nicht belegt**                                                                                  |
+| Join, Vote, Q&A-Submit und WebSocket unabhängig vom Modell                      | Architektur und modellfreie Hotpath-/Slot-/Queue-Tests vorhanden; keine automatische Inferenz in diesen Pfaden                                                                                          |
+| Telemetrie ohne Rohprompt, Texte oder Personenkennungen                         | Standardlogs der Lernziel-Batches enthalten Laufzeit und Tokenzahlen ohne Rohinhalt; vollständige Prompt-/Antwortdaten nur im ausdrücklich aktivierbaren Diagnosemodus; Summary-V2-Realtelemetrie offen |
+| Berechtigung, Freigabe, Cache, Quellenintegrität, Fallback                      | fokussierte Shared-/Backend-/Frontendtests decken positive, negative und Änderungsfälle ab                                                                                                              |
+| Fünf Locales und mobile Hostansicht                                             | XLF-Verträge und responsive UI sind implementiert; abschließende manuelle Fünf-Locale-/Mobile-Browserabnahme offen                                                                                      |
+| Endgültiger Moderationsprompt und didaktische Wirksamkeit                       | ausdrücklich außerhalb von #456; nur technische, quellengebundene Übergabe                                                                                                                              |
 
 ## Verifikationspaket
 

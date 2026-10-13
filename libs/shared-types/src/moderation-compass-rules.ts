@@ -7,6 +7,7 @@ export const MODERATION_COMPASS_RULES_VERSION = 'moderation-compass-rules-v1' as
 export const MODERATION_COMPASS_CARD_KINDS = [
   'topics',
   'clarification',
+  'survey',
   'friction',
   'tempo',
 ] as const;
@@ -26,6 +27,7 @@ export const MODERATION_COMPASS_RULE_THRESHOLDS = {
     inBandPercentExclusiveMaximum: 50,
     histogramMinimumResponses: 8,
     histogramMinimumPeakShare: 0.3,
+    structuredConfusionMinimumShare: 0.3,
     roundInBandDeltaMaximum: -5,
     medianMinimumRelativeDeviation: 0.1,
     spreadMinimumResponses: 8,
@@ -624,13 +626,66 @@ export function selectModerationCompassTopicSourceIds(input: {
   return mixed;
 }
 
+export type ModerationCompassEvidenceRole = 'clarification' | 'survey' | 'freetext' | 'mention';
+
+export function moderationQuizFactEvidenceRole(
+  fact: ModerationQuizFact,
+  question: ModerationCompassQuizQuestion,
+): ModerationCompassEvidenceRole {
+  switch (fact.type) {
+    case 'survey-top':
+      return 'survey';
+    case 'freetext-repeat':
+      return 'freetext';
+    case 'wrong-option':
+      return 'mention';
+    case 'matching-confusion':
+      return structuredConfusionIsPrimary(
+        question.matchingStats?.commonConfusions?.[0]?.count,
+        question.matchingStats?.totalVotes,
+      )
+        ? 'clarification'
+        : 'mention';
+    case 'ordering-swap':
+      return structuredConfusionIsPrimary(
+        question.orderingStats?.commonSwaps?.[0]?.count,
+        question.orderingStats?.totalVotes,
+      )
+        ? 'clarification'
+        : 'mention';
+    case 'categorization-miss':
+      return structuredConfusionIsPrimary(
+        question.categorizationStats?.commonMisclassifications?.[0]?.count,
+        question.categorizationStats?.totalVotes,
+      )
+        ? 'clarification'
+        : 'mention';
+    default:
+      return 'clarification';
+  }
+}
+
+function structuredConfusionIsPrimary(
+  count: number | undefined,
+  total: number | undefined,
+): boolean {
+  if (!count || count <= 0 || !total || total <= 0) {
+    return false;
+  }
+  return count / total >= MODERATION_COMPASS_RULE_THRESHOLDS.quiz.structuredConfusionMinimumShare;
+}
+
 export type ModerationCompassNextStepReason =
   | 'pending-qa'
   | 'quiz-confusion'
   | 'quiz-survey'
   | 'quiz-rating'
+  | 'quiz-freetext'
+  | 'quiz-mention'
   | 'controversy'
   | 'tempo'
+  | 'tempo-slow'
+  | 'tempo-mixed'
   | 'feedback'
   | 'topics'
   | 'steady';
@@ -648,6 +703,7 @@ export type ModerationCompassFeedbackRuleInput = {
   readonly sourceId: string;
   readonly tone: 'neutral' | 'good' | 'caution' | 'alert';
   readonly variant?: 'tempo' | 'feedback';
+  readonly tempoStatus?: Exclude<TempoTrendStatus, 'NEUTRAL'>;
 };
 
 export type ModerationCompassPlanInput = {
@@ -655,6 +711,9 @@ export type ModerationCompassPlanInput = {
   readonly pendingQuestionSourceIds: readonly string[];
   readonly frictionQuestionSourceIds: readonly string[];
   readonly quizResultSourceIds: readonly string[];
+  readonly surveySourceIds?: readonly string[];
+  readonly freetextSourceIds?: readonly string[];
+  readonly mentionQuizSourceIds?: readonly string[];
   readonly quizInsightKind?: ModerationCompassQuizInsightKind | null;
   readonly feedback?: ModerationCompassFeedbackRuleInput | null;
 };
@@ -675,6 +734,7 @@ const CARD_KIND_ORDER: readonly ModerationCompassCardKind[] = [
   'tempo',
   'friction',
   'clarification',
+  'survey',
   'topics',
 ];
 
@@ -692,17 +752,33 @@ function uniqueNonEmptySourceIds(sourceIds: readonly string[]): string[] {
   return result;
 }
 
+function tempoPaceReason(
+  status: ModerationCompassFeedbackRuleInput['tempoStatus'],
+): Extract<ModerationCompassNextStepReason, 'tempo' | 'tempo-slow' | 'tempo-mixed'> {
+  if (status === 'TOO_SLOW') {
+    return 'tempo-slow';
+  }
+  if (status === 'HETEROGENEOUS') {
+    return 'tempo-mixed';
+  }
+  return 'tempo';
+}
+
 function nextStepReason(input: {
   pendingCount: number;
   hasQuizConfusion: boolean;
+  hasSurvey: boolean;
+  hasFreetext: boolean;
+  hasMention: boolean;
   quizInsightKind?: ModerationCompassQuizInsightKind | null;
   hasFriction: boolean;
   feedbackTone: ModerationCompassFeedbackRuleInput['tone'] | null;
   feedbackVariant?: ModerationCompassFeedbackRuleInput['variant'];
+  tempoStatus?: ModerationCompassFeedbackRuleInput['tempoStatus'];
   hasTopics: boolean;
 }): ModerationCompassNextStepReason | null {
   if (input.feedbackTone === 'alert') {
-    return input.feedbackVariant === 'feedback' ? 'feedback' : 'tempo';
+    return input.feedbackVariant === 'feedback' ? 'feedback' : tempoPaceReason(input.tempoStatus);
   }
   if (input.hasQuizConfusion) {
     if (input.quizInsightKind === 'survey') {
@@ -714,13 +790,22 @@ function nextStepReason(input: {
     return 'quiz-confusion';
   }
   if (input.feedbackTone === 'caution') {
-    return input.feedbackVariant === 'feedback' ? 'feedback' : 'tempo';
+    return input.feedbackVariant === 'feedback' ? 'feedback' : tempoPaceReason(input.tempoStatus);
   }
   if (input.pendingCount > 0) {
     return 'pending-qa';
   }
   if (input.hasFriction) {
     return 'controversy';
+  }
+  if (input.hasFreetext) {
+    return 'quiz-freetext';
+  }
+  if (input.hasSurvey) {
+    return 'quiz-survey';
+  }
+  if (input.hasMention) {
+    return 'quiz-mention';
   }
   if (input.hasTopics) {
     return 'topics';
@@ -735,12 +820,17 @@ function nextStepSourceKind(reason: ModerationCompassNextStepReason): Moderation
   switch (reason) {
     case 'pending-qa':
     case 'quiz-confusion':
-    case 'quiz-survey':
     case 'quiz-rating':
+    case 'quiz-freetext':
+    case 'quiz-mention':
       return 'clarification';
+    case 'quiz-survey':
+      return 'survey';
     case 'controversy':
       return 'friction';
     case 'tempo':
+    case 'tempo-slow':
+    case 'tempo-mixed':
     case 'feedback':
     case 'steady':
       return 'tempo';
@@ -756,7 +846,13 @@ function nextStepCardTone(
   if ((reason === 'tempo' || reason === 'feedback') && feedbackTone === 'alert') {
     return 'alert';
   }
-  if (reason === 'topics' || reason === 'steady') {
+  if (
+    reason === 'topics' ||
+    reason === 'steady' ||
+    reason === 'quiz-survey' ||
+    reason === 'quiz-freetext' ||
+    reason === 'quiz-mention'
+  ) {
     return 'neutral';
   }
   return 'caution';
@@ -770,6 +866,12 @@ function preferredNextStepCardIndex(
   const preferred = cards.findIndex((card) => card.kind === preferredKind);
   if (preferred >= 0) {
     return preferred;
+  }
+  if (reason === 'quiz-survey') {
+    const clarification = cards.findIndex((card) => card.kind === 'clarification');
+    if (clarification >= 0) {
+      return clarification;
+    }
   }
   const tempo = cards.findIndex((card) => card.kind === 'tempo');
   return tempo >= 0 ? tempo : 0;
@@ -814,6 +916,12 @@ export function planModerationCompass(
     0,
     MODERATION_COMPASS_STORED_SOURCE_COUNT,
   );
+  const surveySourceIds = uniqueNonEmptySourceIds(input.surveySourceIds ?? []).slice(
+    0,
+    MODERATION_COMPASS_STORED_SOURCE_COUNT,
+  );
+  const freetextSourceIds = uniqueNonEmptySourceIds(input.freetextSourceIds ?? []);
+  const mentionQuizSourceIds = uniqueNonEmptySourceIds(input.mentionQuizSourceIds ?? []);
   const cards: ModerationCompassRuleCard[] = [];
 
   if (topicSourceIds.length > 0) {
@@ -827,9 +935,15 @@ export function planModerationCompass(
   const clarificationSourceIds = [
     ...quizResultSourceIds.slice(0, quizTake),
     ...pendingQuestionSourceIds.slice(0, MODERATION_COMPASS_STORED_SOURCE_COUNT - quizTake),
-  ];
+    ...freetextSourceIds,
+    ...mentionQuizSourceIds,
+  ].slice(0, MODERATION_COMPASS_STORED_SOURCE_COUNT);
   if (clarificationSourceIds.length > 0) {
     cards.push({ kind: 'clarification', tone: 'caution', sourceIds: clarificationSourceIds });
+  }
+
+  if (surveySourceIds.length > 0) {
+    cards.push({ kind: 'survey', tone: 'neutral', sourceIds: surveySourceIds });
   }
 
   if (frictionQuestionSourceIds.length > 0) {
@@ -850,10 +964,14 @@ export function planModerationCompass(
   const reason = nextStepReason({
     pendingCount: pendingQuestionSourceIds.length,
     hasQuizConfusion: quizResultSourceIds.length > 0,
+    hasSurvey: surveySourceIds.length > 0,
+    hasFreetext: freetextSourceIds.length > 0,
+    hasMention: mentionQuizSourceIds.length > 0,
     quizInsightKind: input.quizInsightKind,
     hasFriction: frictionQuestionSourceIds.length > 0,
     feedbackTone: feedback?.tone ?? null,
     feedbackVariant: feedback?.variant,
+    tempoStatus: feedback?.tempoStatus,
     hasTopics: topicSourceIds.length > 0,
   });
   let recommendation: ModerationCompassRecommendation | null = null;

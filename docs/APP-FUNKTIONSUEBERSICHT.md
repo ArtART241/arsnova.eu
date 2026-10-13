@@ -356,13 +356,14 @@ Der Host sieht zusätzlich:
   heben zugehörige Forum-Beiträge hervor (Badge **Aus dem Kompass · …** mit
   Kategorie, Karte oder Begriff, bzw. **Aus der Wortwolke**, in der aktiven
   Q&A-Sortierung; Markierung lösbar) oder öffnen
-  die Wortwolke zum Begriff in der Sortierung und Ansicht, aus der der Hinweis
-  stammt. Schwache Hilfsverben wie „helfen“ erscheinen nicht als Themenchip.
+  die Wortwolke zum Begriff in der Host-Ansicht, ohne die Präsentation
+  mitzuschalten. Ein Sprung auf ein anderes Quiz-Ergebnis wird bestätigt.
+  Schwache Hilfsverben wie „helfen“ erscheinen nicht als Themenchip.
   **Zurück** stellt den vorherigen Kanal wieder her und öffnet den Dialog erneut.
   Present/Vote und beendete Sessions zeigen den Kompass nicht. Keine
   automatischen Pin-/Archiv-/Phasenaktionen und kein neuer globaler Poller.
-  Ruhige Zustände für fehlende Signale, regelbasierte Basis und deaktivierte
-  Analyse. Story **8.9a** ist umgesetzt. Story **8.9b** ist umgesetzt (optionaler
+  Ruhige Zustände für fehlende Signale. Ohne Q&A-Klassifikation erscheint kein
+  Hinweis, dass eine Sortierung aus ist. Story **8.9a** ist umgesetzt. Story **8.9b** ist umgesetzt (optionaler
   asynchroner Q&A-NLP-Vertrag, Kill-Switch default aus, Queue, Host-only
   Kategorien in der Karte **Häufige Themen**, Gatekeeper, Seed-Kalibrierung,
   k-NN-Fallback, lokaler Hörsaallast). **8.9c** hat Summary V2,

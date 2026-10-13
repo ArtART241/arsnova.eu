@@ -6,6 +6,7 @@ import {
   MODERATION_COMPASS_RULE_THRESHOLDS,
   collectModerationFeedbackDecision,
   collectModerationQuizFacts,
+  moderationQuizFactEvidenceRole,
   isModerationCompassTopicSupported,
   planModerationCompass,
   resolveModerationCompassAnalysisMode,
@@ -142,6 +143,88 @@ describe('moderation compass shared rules', () => {
         numericHistogram: [{ from: 0, to: 2, count: 10, inBand: false }],
       }).some(({ type }) => type === 'histogram-peak-out'),
     ).toBe(false);
+  });
+
+  it('keeps weak quiz facts visible without promoting them over moderation', () => {
+    expect(
+      moderationQuizFactEvidenceRole(
+        { type: 'wrong-option', option: '5' },
+        { totalVotes: 30, correctVoterCount: 29, incorrectVoterCount: 1 },
+      ),
+    ).toBe('mention');
+    expect(
+      moderationQuizFactEvidenceRole(
+        { type: 'survey-top', option: 'A', share: 40 },
+        { type: 'SURVEY', totalVotes: 10 },
+      ),
+    ).toBe('survey');
+    expect(
+      moderationQuizFactEvidenceRole(
+        { type: 'freetext-repeat', text: 'langsamer', count: 2 },
+        { type: 'FREETEXT' },
+      ),
+    ).toBe('freetext');
+    expect(
+      moderationQuizFactEvidenceRole(
+        { type: 'wrong-majority', incorrect: 22, total: 30 },
+        { totalVotes: 30 },
+      ),
+    ).toBe('clarification');
+    expect(
+      moderationQuizFactEvidenceRole(
+        { type: 'matching-confusion', left: 'IaaS', wrong: 'SaaS' },
+        {
+          matchingStats: {
+            totalVotes: 20,
+            fullyCorrectCount: 2,
+            commonConfusions: [{ left: 'IaaS', wrongRight: 'SaaS', count: 1 }],
+          },
+        },
+      ),
+    ).toBe('mention');
+    expect(
+      moderationQuizFactEvidenceRole(
+        { type: 'matching-confusion', left: 'IaaS', wrong: 'SaaS' },
+        {
+          matchingStats: {
+            totalVotes: 20,
+            fullyCorrectCount: 2,
+            commonConfusions: [{ left: 'IaaS', wrongRight: 'SaaS', count: 8 }],
+          },
+        },
+      ),
+    ).toBe('clarification');
+
+    const plan = planModerationCompass({
+      topicSourceIds: ['topic'],
+      pendingQuestionSourceIds: ['pending'],
+      frictionQuestionSourceIds: ['friction'],
+      quizResultSourceIds: [],
+      surveySourceIds: ['survey'],
+      freetextSourceIds: ['freetext'],
+      mentionQuizSourceIds: ['mention'],
+      feedback: { sourceId: 'tempo', tone: 'caution', variant: 'tempo', tempoStatus: 'TOO_SLOW' },
+    });
+    expect(plan.recommendation?.reason).toBe('tempo-slow');
+    expect(plan.cards.map(({ kind }) => kind)).toEqual([
+      'tempo',
+      'friction',
+      'clarification',
+      'survey',
+      'topics',
+    ]);
+
+    const quiet = planModerationCompass({
+      topicSourceIds: [],
+      pendingQuestionSourceIds: ['pending'],
+      frictionQuestionSourceIds: ['friction'],
+      quizResultSourceIds: [],
+      surveySourceIds: ['survey'],
+      freetextSourceIds: ['freetext'],
+      mentionQuizSourceIds: ['mention'],
+    });
+    expect(quiet.recommendation?.reason).toBe('pending-qa');
+    expect(quiet.cards.find((card) => card.kind === 'survey')?.sourceIds).toEqual(['survey']);
   });
 
   it('separates survey, rating and repeated-text rules', () => {

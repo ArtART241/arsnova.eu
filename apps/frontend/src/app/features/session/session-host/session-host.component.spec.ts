@@ -22518,9 +22518,16 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       0,
     );
     expect(buttonTexts).toEqual(['Session beenden', 'Weitere Aktionen']);
+    // Die Stopp-Aktion hängt an quickFeedbackResult; unter Coverage kann der Host-Abruf
+    // nach dem Kanalwechsel etwas länger brauchen als ein festes flush.
+    await vi.waitFor(() => {
+      expect(fixture.componentInstance.quickFeedbackResult()).not.toBeNull();
+    });
+    fixture.detectChanges();
     const roundControl = fixture.nativeElement.querySelector(
       '[data-testid="feedback-primary-round-control"]',
     ) as HTMLButtonElement;
+    expect(roundControl).not.toBeNull();
     expect(roundControl.textContent).toContain('Stopp');
     expect(roundControl.closest('app-feedback-host')).not.toBeNull();
     roundControl.click();
@@ -23154,6 +23161,32 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
     expect(shells).toHaveLength(2);
     expect(shells[0]?.style.getPropertyValue('--foyer-delay-ms')).toBe('0ms');
     expect(shells[1]?.style.getPropertyValue('--foyer-delay-ms')).toBe('1880ms');
+    fixture.destroy();
+  });
+
+  it('lädt die Rangliste nach Session-Ende nur einmal', async () => {
+    getInfoQueryMock.mockResolvedValue({
+      ...defaultSession,
+      status: 'FINISHED',
+    });
+    onStatusChangedSubscribeMock.mockImplementation(
+      (_input: unknown, opts: { onData: (d: unknown) => void }) => {
+        opts.onData({ status: 'FINISHED', currentQuestion: null });
+        return { unsubscribe: unsubscribeMock };
+      },
+    );
+    getLeaderboardQueryMock.mockResolvedValue([]);
+    getTeamLeaderboardQueryMock.mockResolvedValue([]);
+
+    const fixture = setup();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await flushComponentAfterStable(fixture, 50);
+    const afterStart = getLeaderboardQueryMock.mock.calls.length;
+    expect(afterStart).toBeGreaterThan(0);
+    expect(afterStart).toBeLessThan(5);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(getLeaderboardQueryMock.mock.calls.length).toBe(afterStart);
     fixture.destroy();
   });
 
@@ -26748,7 +26781,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
         },
       };
 
-      await expect(component.followModerationCompassSource(source)).resolves.toBeUndefined();
+      await expect(component.followModerationCompassSource(source)).resolves.toBe(false);
 
       expect(component.hostSteeringCallout()?.retry).toEqual(expect.any(Function));
       expect(component.skipCurrentResultQuestionOnNext()).toBe(false);
@@ -27137,6 +27170,127 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       fixture.destroy();
     });
 
+    it('lässt eine aktive Presenter-Fläche beim Wortwolken-Sprung unverändert', async () => {
+      getInfoQueryMock.mockResolvedValue({
+        ...defaultSession,
+        status: 'ACTIVE',
+        presenterSurface: 'freetextWordCloud',
+        preferredChannel: 'quiz',
+        channels: {
+          quiz: { enabled: true },
+          qa: { enabled: true, open: true, title: 'Fragen', moderationMode: true },
+          quickFeedback: { enabled: false, open: false },
+        },
+      });
+      const closed$ = new Subject<unknown>();
+      dialogOpenMock.mockReturnValue({
+        afterClosed: () => closed$.asObservable(),
+        beforeClosed: () => of(undefined),
+        close: (result?: unknown) => closed$.next(result),
+      });
+
+      const fixture = setup();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await flushComponentAfterStable(fixture, 50);
+      const component = fixture.componentInstance;
+      component.activeChannel.set('quiz');
+      setPreferredLiveChannelMutateMock.mockClear();
+      setPresenterSurfaceMutateMock.mockClear();
+
+      await component.followModerationCompassSource({
+        kind: 'qa-term',
+        label: 'Übung · Grenzen von ChatGPT in der Übung',
+        target: {
+          channel: 'qa',
+          surface: 'word-cloud',
+          termLabel: 'Übung',
+        },
+      });
+
+      expect(component.activeChannel()).toBe('qa');
+      expect(setPreferredLiveChannelMutateMock).not.toHaveBeenCalled();
+      expect(setPresenterSurfaceMutateMock).not.toHaveBeenCalled();
+      expect(component.session()?.presenterSurface).toBe('freetextWordCloud');
+
+      closed$.next(undefined);
+      await fixture.whenStable();
+      expect(setPresenterSurfaceMutateMock).not.toHaveBeenCalled();
+      expect(setPreferredLiveChannelMutateMock).not.toHaveBeenCalled();
+
+      await component.returnToModerationCompass();
+      expect(component.activeChannel()).toBe('quiz');
+      expect(setPreferredLiveChannelMutateMock).not.toHaveBeenCalled();
+      expect(setPresenterSurfaceMutateMock).not.toHaveBeenCalled();
+      expect(component.session()?.presenterSurface).toBe('freetextWordCloud');
+      fixture.destroy();
+    });
+
+    it('nutzt den nachgeladenen Bestand für Themen jenseits der Listenseite', async () => {
+      getInfoQueryMock.mockResolvedValue({
+        ...defaultSession,
+        status: 'ACTIVE',
+        channels: {
+          quiz: { enabled: true },
+          qa: { enabled: true, open: true, title: 'Fragen', moderationMode: true },
+          quickFeedback: { enabled: false, open: false },
+        },
+      });
+      const pageQuestion = {
+        id: '11111111-1111-4111-8111-111111111111',
+        text: 'Unverwandte Einzelfrage',
+        upvoteCount: 1,
+        status: 'ACTIVE' as const,
+        createdAt: '2026-03-13T12:00:00.000Z',
+        myVote: null,
+        isOwn: false,
+        hasUpvoted: false,
+      };
+      const inventoryQuestions = [
+        pageQuestion,
+        {
+          id: '22222222-2222-4222-8222-222222222222',
+          text: 'Wie berechnet man den Median?',
+          upvoteCount: 2,
+          status: 'ACTIVE' as const,
+          createdAt: '2026-03-13T12:01:00.000Z',
+          myVote: null,
+          isOwn: false,
+          hasUpvoted: false,
+        },
+        {
+          id: '33333333-3333-4333-8333-333333333333',
+          text: 'Median noch einmal erklären',
+          upvoteCount: 2,
+          status: 'ACTIVE' as const,
+          createdAt: '2026-03-13T12:02:00.000Z',
+          myVote: null,
+          isOwn: false,
+          hasUpvoted: false,
+        },
+      ];
+      qaListQueryMock.mockResolvedValue(qaHostSnapshot(inventoryQuestions));
+
+      const fixture = setup();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await flushComponentAfterStable(fixture, 50);
+      const component = fixture.componentInstance;
+      component.qaQuestions.set([pageQuestion]);
+      component.qaListTotalCount.set(3);
+      fixture.detectChanges();
+
+      await vi.waitUntil(
+        () =>
+          component
+            .moderationCompassCards()
+            .find((card) => card.kind === 'topics')
+            ?.sources.some((source) => source.label.includes('Median')) === true,
+        { timeout: 5000, interval: 25 },
+      );
+      fixture.destroy();
+    });
+
     it('zeigt Kompass-Beispiele nach dem Schliessen der Q&A-Wortwolke oben in der Liste', async () => {
       getInfoQueryMock.mockResolvedValue({
         ...defaultSession,
@@ -27427,7 +27581,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       fixture.destroy();
     });
 
-    it('nimmt angepinnte Fragen in die Themenkarte und lässt Archiv weg', async () => {
+    it('lässt angepinnte Fragen aus der Themenkarte und Archiv aus der Reibung', async () => {
       const fixture = setup();
       fixture.detectChanges();
       await fixture.whenStable();
@@ -27465,7 +27619,7 @@ describe('SessionHostComponent', { timeout: 60_000 }, () => {
       const topics = component.moderationCompassCards().find((card) => card.kind === 'topics');
       expect(
         topics?.sources.some((source) => source.label.includes('Bitte Kapitel 4 erklären')),
-      ).toBe(true);
+      ).toBeFalsy();
       expect(
         component
           .moderationCompassCards()

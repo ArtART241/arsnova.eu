@@ -393,21 +393,37 @@ describe('buildModerationCompassCards', () => {
     expect(cards.some((card) => card.kind === 'nextStep')).toBe(false);
   });
 
-  it('nutzt für Umfragen keinen Lösungshinweis', () => {
+  it('legt Umfragen auf eine eigene Karte und nicht vor offene Fragen', () => {
     const cards = buildModerationCompassCards({
       ...emptySnapshot,
       quizInsightKind: 'survey',
+      qaQuestions: [
+        {
+          id: '11111111-1111-4111-8111-111111111111',
+          text: 'Kommt Kapitel 4 in der Klausur vor?',
+          status: 'PENDING',
+        },
+      ],
       quizSources: [
         {
           kind: 'quiz-result',
-          label: 'Häufigste Antwort: :neutral_face: Ganz okay',
+          label: 'Häufigste Antwort: Ganz okay',
+          evidenceRole: 'survey',
         },
       ],
     });
 
-    const clarification = cards.find((card) => card.kind === 'clarification');
-    expect(clarification?.nextStepReason).toBe('quiz-survey');
-    expect(clarification?.nextStepReason).not.toBe('quiz-confusion');
+    const survey = cards.find((card) => card.kind === 'survey');
+    expect(survey?.sources.map((source) => source.label)).toEqual(['Häufigste Antwort: Ganz okay']);
+    expect(survey?.nextStepReason).toBeUndefined();
+    expect(cards.find((card) => card.kind === 'clarification')?.nextStepReason).toBe('pending-qa');
+    expect(
+      cards.some(
+        (card) =>
+          card.kind === 'clarification' &&
+          card.sources.some((source) => source.kind === 'quiz-result'),
+      ),
+    ).toBe(false);
   });
 
   it('nutzt für Bewertungen einen eigenen Moderationshinweis', () => {
@@ -799,9 +815,11 @@ describe('buildModerationCompassCards', () => {
       topicWeightLabel: 'Gewichtung: beste Fragen',
     });
 
-    expect(
-      cards.find((card) => card.kind === 'topics')?.sources.map((source) => source.label),
-    ).toEqual(['Median · Wie berechnet man den Median?', 'Gewichtung: beste Fragen']);
+    const topics = cards.find((card) => card.kind === 'topics');
+    expect(topics?.sources.map((source) => source.label)).toEqual([
+      'Median · Wie berechnet man den Median?',
+    ]);
+    expect(topics?.hint).toBe('Gewichtung: beste Fragen');
   });
 
   it('nimmt hervorgehobene Fragen als zusätzliche Themenquellen', () => {
@@ -1226,6 +1244,29 @@ describe('mergeModerationQuizSources', () => {
       'bbbbbbbb-2222-4222-8222-222222222222',
       'aaaaaaaa-1111-4111-8111-111111111111',
     ]);
+  });
+
+  it('schreibt eine geänderte Evidenzrolle in den Quiz-Cache', () => {
+    const questionId = 'aaaaaaaa-1111-4111-8111-111111111111';
+    const cached = rememberModerationQuizSnapshot([], questionId, [
+      {
+        kind: 'quiz-result',
+        label: 'Häufige Verwechslung: IaaS → SaaS',
+        evidenceRole: 'mention',
+        target: { channel: 'quiz', questionId },
+      },
+    ]);
+    const refreshed = rememberModerationQuizSnapshot(cached, questionId, [
+      {
+        kind: 'quiz-result',
+        label: 'Häufige Verwechslung: IaaS → SaaS',
+        evidenceRole: 'clarification',
+        target: { channel: 'quiz', questionId },
+      },
+    ]);
+
+    expect(refreshed).not.toBe(cached);
+    expect(refreshed[0]?.sources[0]?.evidenceRole).toBe('clarification');
   });
 });
 

@@ -48,6 +48,15 @@ function normalizeSummaryNotice(text: string): string {
   return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase('de-DE');
 }
 
+function isPromise(value: unknown): value is Promise<void | boolean> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'then' in value &&
+    typeof value.then === 'function'
+  );
+}
+
 type CompatibleQaSummaryResult = QaSummaryResult | QaSummaryResultV2;
 type CompatibleQaSummarySource = QaSummarySource | QaSummaryPresentationSourceV2;
 type SummaryPreviewState =
@@ -65,7 +74,10 @@ type SummaryPreviewSectionRow = Readonly<{
 export type ModerationCompassDialogData = {
   cards: () => readonly ModerationCompassCard[];
   analysisMode?: ModerationCompassAnalysisMode;
-  onSourceActivate?: (source: ModerationCompassSource, cardKind: ModerationCompassCardKind) => void;
+  onSourceActivate?: (
+    source: ModerationCompassSource,
+    cardKind: ModerationCompassCardKind,
+  ) => void | boolean | Promise<void | boolean>;
   summaryEnabled?: () => boolean;
   summaryVisibleQuestionCount?: () => number;
   summary?: () => QaSummaryRuntimeCompatibleDTO | null;
@@ -105,7 +117,10 @@ export class ModerationCompassDialogComponent {
   readonly cards = computed(() => this.data.cards());
   readonly hasCards = computed(() => this.cards().length > 0);
   readonly analysisMode = computed(() => this.data.analysisMode ?? 'rule-based');
-  readonly showAnalysisStatus = computed(() => this.analysisMode() !== 'rule-based');
+  readonly showAnalysisStatus = computed(() => {
+    const mode = this.analysisMode();
+    return mode !== 'rule-based' && mode !== 'disabled';
+  });
   readonly leadCard = computed(
     () => this.cards().find((card) => card.nextStepReason !== undefined) ?? null,
   );
@@ -258,7 +273,18 @@ export class ModerationCompassDialogComponent {
     if (!source.target) {
       return;
     }
-    this.data.onSourceActivate?.(source, card.kind);
+    const outcome = this.data.onSourceActivate?.(source, card.kind);
+    if (isPromise(outcome)) {
+      void outcome.then((shouldClose) => {
+        if (shouldClose !== false) {
+          this.dialogRef.close();
+        }
+      });
+      return;
+    }
+    if (outcome === false) {
+      return;
+    }
     this.dialogRef.close();
   }
 
@@ -458,11 +484,21 @@ export class ModerationCompassDialogComponent {
       case 'topics':
         return $localize`:@@sessionHost.moderationCardTopics:Häufige Themen`;
       case 'clarification':
+        if (card.nextStepReason === 'quiz-freetext') {
+          return $localize`:@@sessionHost.moderationCardFreetext:Ähnliche Antworten`;
+        }
+        if (card.nextStepReason === 'quiz-mention') {
+          return $localize`:@@sessionHost.moderationCardMention:Andere Antworten`;
+        }
         return $localize`:@@sessionHost.moderationCardClarification:Noch klären`;
+      case 'survey':
+        return $localize`:@@sessionHost.moderationCardSurvey:Antwortverteilung`;
       case 'friction':
         return $localize`:@@sessionHost.moderationCardFriction:Umstrittene Fragen`;
       case 'tempo':
-        return card.tone === 'alert' || card.tone === 'caution'
+        return card.tempoStatus === 'TOO_FAST' ||
+          card.tempoStatus === 'LOST' ||
+          (card.tone === 'alert' && !card.tempoStatus)
           ? $localize`:@@sessionHost.moderationCardTempoBehind:Kommen nicht mit`
           : $localize`:@@sessionHost.moderationCardTempo:Feedback zum Vortragstempo`;
       case 'nextStep':
@@ -480,6 +516,8 @@ export class ModerationCompassDialogComponent {
         return 'label';
       case 'clarification':
         return 'help_outline';
+      case 'survey':
+        return 'bar_chart';
       case 'friction':
         return 'compare_arrows';
       case 'tempo':
@@ -499,10 +537,18 @@ export class ModerationCompassDialogComponent {
         return $localize`:@@sessionHost.moderationNextQuizSurvey:Fass kurz die Antwortverteilung zusammen.`;
       case 'quiz-rating':
         return $localize`:@@sessionHost.moderationNextQuizRating:Sprich die Bewertungen kurz an.`;
+      case 'quiz-freetext':
+        return $localize`:@@sessionHost.moderationNextFreetext:Lies die wiederkehrenden Freitextantworten kurz vor.`;
+      case 'quiz-mention':
+        return $localize`:@@sessionHost.moderationNextMention:Einzelne andere Antworten sind sichtbar. Du musst sie nicht zum Thema machen.`;
       case 'controversy':
         return $localize`:@@sessionHost.moderationNextFriction:Greif die umstrittenen Fragen kurz auf.`;
       case 'tempo':
         return $localize`:@@sessionHost.moderationNextTempo:Geh langsamer oder frag, wer nicht mehr folgt.`;
+      case 'tempo-slow':
+        return $localize`:@@sessionHost.moderationNextTempoSlow:Die Gruppe kann schneller. Du kannst das Tempo anziehen.`;
+      case 'tempo-mixed':
+        return $localize`:@@sessionHost.moderationNextTempoMixed:Die Rückmeldungen sind gemischt. Frag kurz nach, woran es liegt.`;
       case 'feedback':
         return $localize`:@@sessionHost.moderationNextFeedback:Sieh dir das Blitzlicht kurz an.`;
       case 'steady':

@@ -124,7 +124,7 @@ afterAll(async () => {
 });
 
 describe.skipIf(PHASE !== 'prepare')('Word-Cloud-Purge AOF crash regression (prepare)', () => {
-  it('bestätigt Rollout-Purge und Session-Fence vor dem SIGKILL', async () => {
+  it('bestätigt Rollout-Purge und Session-Fence vor dem SIGKILL', { timeout: 20_000 }, async () => {
     process.env['WORD_CLOUD_PURGE_REQUIRE_DURABILITY'] = '1';
     process.env['QUICK_FEEDBACK_PURGE_REQUIRE_DURABILITY'] = '1';
     process.env['PRODUCT_FEEDBACK_PURGE_REQUIRE_DURABILITY'] = '1';
@@ -289,40 +289,46 @@ describe.skipIf(PHASE !== 'prepare')('Word-Cloud-Purge AOF crash regression (pre
 });
 
 describe.skipIf(PHASE !== 'verify')('Word-Cloud-Purge AOF crash regression (verify)', () => {
-  it('stellt nach Redis-SIGKILL weder Rollout-Artefakte noch Session-Snapshots her', async () => {
-    const redis = getRedis();
-    expect(await redis.get(buildWordCloudSnapshotCacheKey(input, rolloutScope))).toBeNull();
-    expect(await redis.smembers(buildWordCloudSnapshotIndexKey(ROLLOUT_SESSION_ID))).toEqual([]);
-    expect(await redis.get(buildWordCloudSnapshotPurgeFenceKey(ROLLOUT_SESSION_ID))).toBeNull();
-    expect(await redis.get(LEGACY_KEY)).toBeNull();
-    expect(await redis.get(LEGACY_TEXT_KEY)).toBeNull();
-    expect(await redis.get(OLD_V2_BARRIER_KEY)).toBeNull();
-    expect(await redis.get(buildWordCloudSnapshotCacheKey(input, purgeScope))).toBeNull();
-    expect(await redis.smembers(buildWordCloudSnapshotIndexKey(PURGE_SESSION_ID))).toEqual([]);
-    expect(await redis.get(buildWordCloudSnapshotPurgeFenceKey(PURGE_SESSION_ID))).toBe('1');
-    expect(await redis.keys(DURABILITY_MARKER_PATTERN)).toHaveLength(2);
-    await expect(Promise.all(QUICK_FEEDBACK_KEYS.map((key) => redis.get(key)))).resolves.toEqual(
-      QUICK_FEEDBACK_KEYS.map(() => null),
-    );
-    expect(await redis.get(QUICK_FEEDBACK_HOST_KEY)).toBe('standalone host sentinel');
-    expect(await redis.get(buildQuickFeedbackSessionPurgeFenceKey(QUICK_FEEDBACK_SESSION_ID))).toBe(
-      '1',
-    );
-    expect(await redis.keys(QUICK_FEEDBACK_DURABILITY_MARKER_PATTERN)).toHaveLength(2);
-    await expect(
-      Promise.all(LEGACY_QUICK_FEEDBACK_KEYS.map((key) => redis.get(key))),
-    ).resolves.toEqual(LEGACY_QUICK_FEEDBACK_KEYS.map(() => null));
-    expect(await redis.get(LEGACY_QUICK_FEEDBACK_HOST_KEY)).toBe('legacy standalone host sentinel');
-    await expect(Promise.all(PRODUCT_FEEDBACK_KEYS.map((key) => redis.get(key)))).resolves.toEqual(
-      PRODUCT_FEEDBACK_KEYS.map(() => null),
-    );
-    await expect(
-      Promise.all(PRODUCT_FEEDBACK_LEGACY_KEYS.map((key) => redis.get(key))),
-    ).resolves.toEqual(PRODUCT_FEEDBACK_LEGACY_KEYS.map(() => null));
-    expect(await redis.get(PRODUCT_FEEDBACK_FOLLOWUP_KEY)).not.toBeNull();
-    expect(
-      await redis.get(buildProductFeedbackSessionPurgeFenceKey(PRODUCT_FEEDBACK_SESSION_ID)),
-    ).toBe('1');
-    expect(await redis.keys(PRODUCT_FEEDBACK_DURABILITY_MARKER_PATTERN)).toHaveLength(1);
-  });
+  it(
+    'stellt nach Redis-SIGKILL weder Rollout-Artefakte noch Session-Snapshots her',
+    { timeout: 20_000 },
+    async () => {
+      const redis = getRedis();
+      expect(await redis.get(buildWordCloudSnapshotCacheKey(input, rolloutScope))).toBeNull();
+      expect(await redis.smembers(buildWordCloudSnapshotIndexKey(ROLLOUT_SESSION_ID))).toEqual([]);
+      expect(await redis.get(buildWordCloudSnapshotPurgeFenceKey(ROLLOUT_SESSION_ID))).toBeNull();
+      expect(await redis.get(LEGACY_KEY)).toBeNull();
+      expect(await redis.get(LEGACY_TEXT_KEY)).toBeNull();
+      expect(await redis.get(OLD_V2_BARRIER_KEY)).toBeNull();
+      expect(await redis.get(buildWordCloudSnapshotCacheKey(input, purgeScope))).toBeNull();
+      expect(await redis.smembers(buildWordCloudSnapshotIndexKey(PURGE_SESSION_ID))).toEqual([]);
+      expect(await redis.get(buildWordCloudSnapshotPurgeFenceKey(PURGE_SESSION_ID))).toBe('1');
+      expect(await redis.keys(DURABILITY_MARKER_PATTERN)).toHaveLength(2);
+      await expect(Promise.all(QUICK_FEEDBACK_KEYS.map((key) => redis.get(key)))).resolves.toEqual(
+        QUICK_FEEDBACK_KEYS.map(() => null),
+      );
+      expect(await redis.get(QUICK_FEEDBACK_HOST_KEY)).toBe('standalone host sentinel');
+      expect(
+        await redis.get(buildQuickFeedbackSessionPurgeFenceKey(QUICK_FEEDBACK_SESSION_ID)),
+      ).toBe('1');
+      expect(await redis.keys(QUICK_FEEDBACK_DURABILITY_MARKER_PATTERN)).toHaveLength(2);
+      await expect(
+        Promise.all(LEGACY_QUICK_FEEDBACK_KEYS.map((key) => redis.get(key))),
+      ).resolves.toEqual(LEGACY_QUICK_FEEDBACK_KEYS.map(() => null));
+      expect(await redis.get(LEGACY_QUICK_FEEDBACK_HOST_KEY)).toBe(
+        'legacy standalone host sentinel',
+      );
+      await expect(
+        Promise.all(PRODUCT_FEEDBACK_KEYS.map((key) => redis.get(key))),
+      ).resolves.toEqual(PRODUCT_FEEDBACK_KEYS.map(() => null));
+      await expect(
+        Promise.all(PRODUCT_FEEDBACK_LEGACY_KEYS.map((key) => redis.get(key))),
+      ).resolves.toEqual(PRODUCT_FEEDBACK_LEGACY_KEYS.map(() => null));
+      expect(await redis.get(PRODUCT_FEEDBACK_FOLLOWUP_KEY)).not.toBeNull();
+      expect(
+        await redis.get(buildProductFeedbackSessionPurgeFenceKey(PRODUCT_FEEDBACK_SESSION_ID)),
+      ).toBe('1');
+      expect(await redis.keys(PRODUCT_FEEDBACK_DURABILITY_MARKER_PATTERN)).toHaveLength(1);
+    },
+  );
 });

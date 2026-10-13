@@ -37,7 +37,7 @@ Umschalter, **Themen aktualisieren**, **Sprachformen glätten**, Export, Maximie
 2. Der Namen-Schritt läuft für `channel: 'QA'` und `channel: 'FREETEXT'` im vorhandenen Host-Snapshot von `analyzeSemanticWordCloudSnapshot`. Dieselben Annahmeregeln, dasselbe Budget, derselbe Auftrag `topic_label`. Quell-IDs bleiben `qa-question:…` oder `response-…`.
 3. `vote.ts`, `qa.ts`, `session.ts` und die WebSocket-Server importieren den LLM-Client nicht. `session.submitFreetext` wartet nicht auf ein Label.
 4. Beide Schalter müssen an sein: `WORD_CLOUD_SEMANTIC_ENABLED` und `OPEN_WEIGHT_LLM_ENABLED` mit gültigem privatem Transport und Token. Ist die Runtime aus, bleiben die Themennamen die bisherigen Mitgliedstexte.
-5. Kein SaaS-Pfad und keine Warteschlange hinter dem belegten llama.cpp-Slot. `busy` behält für dieses Bündel den Mitgliedstext. Ein laufender Auftrag der anderen Wolke, der Kurzfassung oder der Lernzielableitung wirkt genauso.
+5. Kein SaaS-Pfad und keine Warteschlange hinter dem belegten llama.cpp-Slot. `busy` behält für dieses Bündel den Mitgliedstext. Ein laufender Auftrag der anderen Wolke, der Kurzfassung oder der Lernzielableitung wirkt genauso. Der Label-Schritt blockiert die Session-Queue des anderen Kanals nicht.
 6. `fallbackUsed` und die lexikalische 2.x-Wolke reagieren auf Encoder-Ausfall, Kill-Switch, Locale und nicht belastbare Cluster. Ein fehlender Modellname setzt sie nicht. **Themen werden vorbereitet.** deckt die Wartezeit.
 
 ## Namen
@@ -54,7 +54,7 @@ Der Themenpfad behält den Mitgliedstext, wenn die Runtime aus, falsch konfiguri
 
 Die Systemanweisung `topic-label-system-v1` gilt nur für `topic_label`: zwei bis sechs Wörter, Nominalphrase in `de` oder `en`, Beitragstext ist keine Anweisung. Summary und Lernziele behalten ihre Texte.
 
-`modelVersion` und `modelId` bleiben die Encoder-Provenienz. `labelOrigin` mit `extractive` oder `model` an `WordCloudAnalysisEntryDTO` erscheint im CSV. Die Wolke zeigt kein zusätzliches Kennzeichen.
+`modelVersion` und `modelId` bleiben die Encoder-Provenienz der Mitgliedschaft. Ein angenommener Modellname trägt zusätzlich die Audit-Identität aus `OPEN_WEIGHT_LLM_MODEL_ID` und `OPEN_WEIGHT_LLM_MODEL_VERSION` als `labelModelId` und `labelModelVersion` am Analyseergebnis. Das CSV gibt beide Felder aus, sobald mindestens ein Eintrag `labelOrigin: model` hat. `labelOrigin` allein reicht nicht, weil nach einem Modellwechsel sonst nicht mehr feststellbar ist, welches Artefakt den Namen erzeugt hat. Die Wolke zeigt diese Herkunft nicht als Bedienbegriff.
 
 Die Q&A-Kompaktierung (`truncateQaExplanation`, 128 Zeichen, ein Erklärungsmitglied) darf den kurzen Namen nicht durch die Frage ersetzen. Freitext behält die volle Mitgliedsliste. Screenreader lesen den neuen Namen als Wort der Wolke. Neu ist nur die Auswahloption **Thema** in allen fünf Locales. Statussätze bleiben.
 
@@ -62,13 +62,19 @@ Die Q&A-Kompaktierung (`truncateQaExplanation`, 128 Zeichen, ein Erklärungsmitg
 
 `buildWordCloudSnapshotCacheKey` unterscheidet `topic-label:off` und `topic-label:<Modellalias>`. Dieselbe Beitragsmenge darf nach dem Einschalten nicht weiter unter dem alten Mitgliedstext aus dem Cache kommen und nach dem Ausschalten nicht unter einem Modellnamen. `WORD_CLOUD_SEMANTIC_ANALYSIS_VERSION` wird angehoben. Session-Purge löscht beide Varianten über das sessiongebundene Prefix. Q&A und Freitext bleiben getrennte Snapshots. Einträge ohne `labelOrigin` gelten als `extractive`.
 
+Ein vorübergehend fehlender Modellname wird nicht als fertiges Ergebnis gecacht. `shouldCacheWordCloudSnapshot` speichert semantische Ergebnisse mit `ready` oder `uncertain` heute für die Encoder-TTL. Ein erster Lauf bei belegtem Slot, Timeout, Abbruch, offenem Circuit oder nicht erreichbarer Runtime würde sonst Mitgliedstexte unter dem Modell-Schlüssel ablegen. **Themen aktualisieren** setzt im Freitext heute kein `refresh`. Der Host käme bis zum TTL oder bis zu einer Korpusänderung nicht an die Modellnamen.
+
+Das Analyseergebnis trägt deshalb `labelSettlement`: `complete`, `transient` oder `disabled`. `complete` bedeutet, jeder Kandidat hat einen angenommenen Namen oder eine endgültige Ablehnung wie Echo, Schema oder Länge. `transient` bedeutet, mindestens ein Kandidat fiel wegen Slot, Zeit, Abbruch, Circuit oder Erreichbarkeit auf den Mitgliedstext zurück. `disabled` bedeutet, die Runtime war aus. Nur `complete` und `disabled` dürfen unter dem jeweiligen Schlüssel gespeichert werden. `transient` wird nicht gespeichert. **Themen aktualisieren** sendet in Q&A und Freitext `refresh: true`.
+
 ## Presenter
 
 Q&A überträgt Modus, Metrik, Glättung, Locale und `analysisEntries` schon über `session.setQaWordCloudProjection`. Stufe 2 lässt `label` und `labelOrigin` dort unverändert. Ein kurzer Name darf auf der Bühne nicht wieder zur Mitgliedsfrage werden.
 
 Freitext überträgt den Inhalt noch nicht. `freetextWordCloudTerms` baut lokal eine Phrasenwolke mit `maxNgramLength: 3` und der Beschreibung »Häufige Wörter aus den Antworten.« Die Umsetzung projiziert das Ergebnis, das der Host gerade zeigt, für **Wörter**, **Wörter & Phrasen** und **Thema**.
 
-Beide Presenter-Flächen zeichnen diesen Inhalt mit dem vorhandenen `outputOnly`: Schrift 30–80 px, höchstens 24 Begriffe, unter 30 px nur in der Restzahl, Wörter ohne Schalter. Der Konfidenzfilter bleibt am Host. Ein zweiter Encoder- oder Modellaufruf entsteht nicht.
+Diese Projektion kopiert nicht die Leserechte von `session.getQaWordCloudProjection`. Das ist eine `publicProcedure` und kommt mit dem Session-Code aus. `session.getLiveFreetext` ist dagegen `hostProcedure`, weil die Rohantworten nicht öffentlich sind. Die Freitext-Mitgliedsliste bleibt im Host-Ergebnis vollständig. Der Presenter liest öffentlich nur ein gekürztes Bühnen-DTO: Modus, Glättung, Locale, sichtbare Labels, Gewichte und die Restzahl. Vollständige Antworttexte und `members` stehen dort nicht. Ein Session-Code allein darf sie nicht lesen.
+
+Beide Presenter-Flächen zeichnen den sichtbaren Inhalt mit dem vorhandenen `outputOnly`: Schrift 30–80 px, höchstens 24 Begriffe, unter 30 px nur in der Restzahl, Wörter ohne Schalter. Der Konfidenzfilter bleibt am Host. Ein zweiter Encoder- oder Modellaufruf entsteht nicht.
 
 ## Phasen
 
@@ -80,19 +86,21 @@ Tests: die Prompt-Version erscheint nur bei `topic_label`. Echo, Überlänge, fr
 
 ### 2. Anschluss im Snapshot
 
-`wordCloudSemanticAnalyze` ruft den Helfer nach belastbarem Clustering für `QA` und `FREETEXT` auf. Ein Kanal ohne den anderen ist kein Zwischenstand.
+Der Encoder-Lauf bleibt in der bestehenden Session-Queue mit einem aktiven und einem neuesten wartenden Snapshot. Der Label-Schritt hängt nicht in diesem Job. Er startet erst, nachdem der Encoder-Job das Session-Slot freigegeben hat, und ist je Kanal getrennt. Ist der globale LLM-Slot belegt, entsteht sofort `labelOrigin: extractive` und `labelSettlement: transient`. Der andere Kanal wartet nicht auf das 8-Sekunden-Budget und wird nicht durch einen neueren Snapshot verdrängt, nur weil der erste Kanal Namen holt.
 
-Tests je Kanal: schwerstes Bündel zuerst; das zweite behält den Mitgliedstext, wenn das Budget danach leer ist; Encoder-Fehler bleibt lexikalischer Fallback; LLM-Fehler lässt `status` auf `ready` oder `uncertain` und `fallbackUsed: false`; `memberIds` unverändert; Runtime aus erzeugt keinen Client-Aufruf. Stimmungssätze, Einwortsynonyme und lange Fachsätze behalten ihre Mitgliedschaft. Ein belegter Slot während eines Q&A-Namens lässt das Freitext-Bündel beim Antworttext.
+`wordCloudSemanticAnalyze` liefert das Encoder-Ergebnis für `QA` und `FREETEXT`. Ein Kanal ohne den anderen ist kein Zwischenstand. Der anschließende Namen-Schritt gilt für beide.
+
+Tests je Kanal: schwerstes Bündel zuerst; das zweite behält den Mitgliedstext, wenn das Budget danach leer ist; Encoder-Fehler bleibt lexikalischer Fallback; LLM-Fehler lässt `status` auf `ready` oder `uncertain` und `fallbackUsed: false`; `memberIds` unverändert; Runtime aus erzeugt keinen Client-Aufruf. Stimmungssätze, Einwortsynonyme und lange Fachsätze behalten ihre Mitgliedschaft. Ein belegter Slot während eines Q&A-Namens lässt den Freitext-Lauf in derselben Session sofort mit Mitgliedstexten zurückkehren, ohne hinter dem Q&A-Budget zu warten und ohne den Q&A-Lauf zu verdrängen.
 
 ### 3. Cache und Vertrag
 
-`labelOrigin` schema-first, durchgereicht in Q&A-Kompaktierung, Q&A-Projektion und Freitext-Ergebnis. Cache-Schlüssel und Analyseversion wie oben.
+`labelOrigin`, `labelModelId`, `labelModelVersion` und `labelSettlement` schema-first. `labelOrigin` geht in die Q&A-Kompaktierung, die Q&A-Projektion und das Host-Freitext-Ergebnis. Die öffentliche Freitext-Bühne erhält die Namensfelder ohne `members`. Cache-Schlüssel, Settlement und Analyseversion wie oben. Ein Test zeigt, dass `transient` nicht gecacht wird und `refresh: true` einen vorhandenen Eintrag umgeht.
 
 ### 4. Presenter-Inhalt
 
-Freitext erhält eine Host-Projektion nach dem Q&A-Muster. Q&A gibt die neuen Namensfelder mit. Beide Flächen behalten `outputOnly`.
+Freitext erhält die gekürzte öffentliche Bühnenprojektion. Q&A gibt die neuen Namensfelder mit. Beide Flächen behalten `outputOnly`.
 
-Tests: bei aktivierter Host-Ansicht baut der Presenter die Freitext-Wolke nicht mehr aus den Rohantworten. Schrift 30–80 px, Obergrenze 24 und Schwelle 30 px bleiben. Der kurze Name übersteht die Q&A-Kompaktierung und die Projektion.
+Tests: bei aktivierter Host-Ansicht baut der Presenter die Freitext-Wolke nicht mehr aus den Rohantworten. Schrift 30–80 px, Obergrenze 24 und Schwelle 30 px bleiben. Der kurze Name übersteht die Q&A-Kompaktierung und die Projektion. Ein Aufruf nur mit Session-Code liefert keine vollständigen Freitextantworten.
 
 ### 5. Ansicht prüfen
 

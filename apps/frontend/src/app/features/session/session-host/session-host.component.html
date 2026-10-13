@@ -3773,7 +3773,7 @@
                           value="SEMANTIC"
                           (click)="setFreetextWordCloudMode('SEMANTIC')"
                           i18n="@@sessionHost.wordCloudAnalysisSemantic"
-                          >Themen</mat-button-toggle
+                          >Thema</mat-button-toggle
                         >
                       </mat-button-toggle-group>
                       <button
@@ -3892,6 +3892,15 @@
                       [maximizeActionHandler]="maximizeFreetextWordCloud"
                       [showReleaseNote]="false"
                       [focusedTermLabel]="moderationCompassFocusedTerm()"
+                      [analysisModelVersion]="
+                        freetextWordCloudSemanticAnalysisResult()?.modelVersion ?? null
+                      "
+                      [labelModelId]="
+                        freetextWordCloudSemanticAnalysisResult()?.labelModelId ?? null
+                      "
+                      [labelModelVersion]="
+                        freetextWordCloudSemanticAnalysisResult()?.labelModelVersion ?? null
+                      "
                     />
                   </div>
                 </details>
@@ -4427,9 +4436,25 @@
                           aria-label="Q&A-Sortierung"
                           i18n-aria-label="@@sessionQa.sortAria"
                         >
-                          <mat-button-toggle value="TOP" i18n="@@sessionQa.sortTop"
-                            >Meist unterstützt</mat-button-toggle
-                          >
+                          <mat-button-toggle value="CONTROVERSIAL">
+                            <span class="session-qa-sort-toggle__label">
+                              <span i18n="@@sessionQa.sortControversial">Kontroverse</span>
+                              <span
+                                class="session-qa-sort-help"
+                                role="button"
+                                tabindex="0"
+                                data-testid="qa-sort-help-controversial"
+                                i18n-aria-label="@@sessionQa.sortHelpControversialAria"
+                                aria-label="Hilfe zu »Kontroverse«"
+                                (click)="openQaSortHelp($event, 'CONTROVERSIAL')"
+                                (keydown.enter)="openQaSortHelp($event, 'CONTROVERSIAL')"
+                                (keydown.space)="openQaSortHelp($event, 'CONTROVERSIAL')"
+                                (mousedown)="$event.stopPropagation()"
+                              >
+                                <mat-icon aria-hidden="true">help_outline</mat-icon>
+                              </span>
+                            </span>
+                          </mat-button-toggle>
                           <mat-button-toggle value="BEST">
                             <span class="session-qa-sort-toggle__label">
                               <span i18n="@@sessionQa.sortBest">Beste Fragen</span>
@@ -4449,25 +4474,9 @@
                               </span>
                             </span>
                           </mat-button-toggle>
-                          <mat-button-toggle value="CONTROVERSIAL">
-                            <span class="session-qa-sort-toggle__label">
-                              <span i18n="@@sessionQa.sortControversial">Umstritten</span>
-                              <span
-                                class="session-qa-sort-help"
-                                role="button"
-                                tabindex="0"
-                                data-testid="qa-sort-help-controversial"
-                                i18n-aria-label="@@sessionQa.sortHelpControversialAria"
-                                aria-label="Hilfe zu »Umstritten«"
-                                (click)="openQaSortHelp($event, 'CONTROVERSIAL')"
-                                (keydown.enter)="openQaSortHelp($event, 'CONTROVERSIAL')"
-                                (keydown.space)="openQaSortHelp($event, 'CONTROVERSIAL')"
-                                (mousedown)="$event.stopPropagation()"
-                              >
-                                <mat-icon aria-hidden="true">help_outline</mat-icon>
-                              </span>
-                            </span>
-                          </mat-button-toggle>
+                          <mat-button-toggle value="TOP" i18n="@@sessionQa.sortTop"
+                            >Stimmensaldo</mat-button-toggle
+                          >
                           <mat-button-toggle value="TIME" i18n="@@sessionQa.sortTime"
                             >Zeit</mat-button-toggle
                           >
@@ -4553,27 +4562,14 @@
                             mat-menu-item
                             type="button"
                             role="menuitemradio"
-                            data-testid="qa-mobile-sort-top"
-                            [attr.aria-checked]="qaSortMode() === 'TOP'"
-                            (click)="setQaSortMode('TOP')"
+                            data-testid="qa-mobile-sort-controversial"
+                            [attr.aria-checked]="qaSortMode() === 'CONTROVERSIAL'"
+                            (click)="setQaSortMode('CONTROVERSIAL')"
                           >
                             <mat-icon aria-hidden="true">{{
-                              qaSortMode() === 'TOP' ? 'check' : 'thumb_up'
+                              qaSortMode() === 'CONTROVERSIAL' ? 'check' : 'compare_arrows'
                             }}</mat-icon>
-                            <span i18n="@@sessionQa.sortTop">Meist unterstützt</span>
-                          </button>
-                          <button
-                            mat-menu-item
-                            type="button"
-                            role="menuitemradio"
-                            data-testid="qa-mobile-sort-time"
-                            [attr.aria-checked]="qaSortMode() === 'TIME'"
-                            (click)="setQaSortMode('TIME')"
-                          >
-                            <mat-icon aria-hidden="true">{{
-                              qaSortMode() === 'TIME' ? 'check' : 'schedule'
-                            }}</mat-icon>
-                            <span i18n="@@sessionQa.sortTime">Zeit</span>
+                            <span i18n="@@sessionQa.sortControversial">Kontroverse</span>
                           </button>
                           <button
                             mat-menu-item
@@ -4592,14 +4588,27 @@
                             mat-menu-item
                             type="button"
                             role="menuitemradio"
-                            data-testid="qa-mobile-sort-controversial"
-                            [attr.aria-checked]="qaSortMode() === 'CONTROVERSIAL'"
-                            (click)="setQaSortMode('CONTROVERSIAL')"
+                            data-testid="qa-mobile-sort-top"
+                            [attr.aria-checked]="qaSortMode() === 'TOP'"
+                            (click)="setQaSortMode('TOP')"
                           >
                             <mat-icon aria-hidden="true">{{
-                              qaSortMode() === 'CONTROVERSIAL' ? 'check' : 'compare_arrows'
+                              qaSortMode() === 'TOP' ? 'check' : 'thumb_up'
                             }}</mat-icon>
-                            <span i18n="@@sessionQa.sortControversial">Umstritten</span>
+                            <span i18n="@@sessionQa.sortTop">Stimmensaldo</span>
+                          </button>
+                          <button
+                            mat-menu-item
+                            type="button"
+                            role="menuitemradio"
+                            data-testid="qa-mobile-sort-time"
+                            [attr.aria-checked]="qaSortMode() === 'TIME'"
+                            (click)="setQaSortMode('TIME')"
+                          >
+                            <mat-icon aria-hidden="true">{{
+                              qaSortMode() === 'TIME' ? 'check' : 'schedule'
+                            }}</mat-icon>
+                            <span i18n="@@sessionQa.sortTime">Zeit</span>
                           </button>
                           <button
                             mat-menu-item
@@ -4618,7 +4627,7 @@
                           >
                             <mat-icon aria-hidden="true">help_outline</mat-icon>
                             <span i18n="@@sessionQa.sortHelpControversialMenu"
-                              >Hilfe: Umstritten</span
+                              >Hilfe: Kontroverse</span
                             >
                           </button>
                           <button

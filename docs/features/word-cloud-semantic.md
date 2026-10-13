@@ -4,7 +4,7 @@
 
 **Zielgruppe:** Product Owner, Entwickler, Betrieb, Lehre
 **Stand:** 2026-10-13
-**Status:** Q&A- und Freitext-Encoderpfad im Repo (Clustering, extraktive Labels); zusätzlich minimierter interner Latest-Q&A-Themenbeleg für #456 Slice 2; Kill-Switch produktiv default aus; Modellnamen noch nicht angeschlossen. Produktentscheidung 2026-10-13: Stufe 2 benennt Host-Q&A und Host-Freitext mit demselben Auftrag
+**Status:** Q&A- und Freitext-Encoderpfad im Repo; kurze Themennamen und die gekürzte Freitext-Bühnenprojektion sind angeschlossen. Kill-Switches produktiv default aus. Produktentscheidung 2026-10-13: Stufe 2 benennt Host-Q&A und Host-Freitext mit demselben Auftrag
 **Backlog:** Story 1.14c (Q&A-Themen), Story 1.14d (Freitext-Themen, implementiert; keine Produktivfreigabe)
 **Glättung bleibt getrennt:** Story 1.14b / [word-cloud-spacy.md](word-cloud-spacy.md)
 **Zielbild:** [WORD-CLOUD-3.0-STORY-VORSCHLAG.md](../implementation/WORD-CLOUD-3.0-STORY-VORSCHLAG.md)
@@ -14,7 +14,7 @@
 
 ## Zweck
 
-Der Host sieht in der Q&A- und Freitext-Wortwolke orthogonal zur Gewichtung (`Stimmen` / `Beste Fragen` / `Kontroverse` / `Häufigkeit`) den dritten Analysemodus **Themen**. Sinngleiche Fragen, Antworten und Paraphrasen werden ein erklärbares Thema mit Mitgliedsliste, Konfidenz und Modellversion.
+Der Host sieht in der Q&A- und Freitext-Wortwolke orthogonal zur Gewichtung (`Kontroverse` / `Beste Fragen` / `Stimmensaldo` / `Vorkommen in Fragen`) den dritten Analysemodus **Themen**. Sinngleiche Fragen, Antworten und Paraphrasen werden ein erklärbares Thema mit Mitgliedsliste, Konfidenz und Modellversion.
 
 Mitgliedschaft entsteht durch Embeddings plus deterministisches Clustering. Stufe 1 verbalisiert Cluster **ohne LLM** (zentraler Mitgliedstext). Eine Variante ohne Encoder bleibt Fallback und Ausfallbaseline: die lexikalische Wolke 2.x.
 
@@ -22,7 +22,7 @@ Kein Encoder-Code im Browser. Teilnehmer-DTOs enthalten keine Cluster-Felder. Li
 
 ## UI-Begriffe
 
-Das Host-Label der Auswahl ist heute **Themen**. Die Stufe 2 benennt diese Option in **Thema** um, in Q&A, Freitext und auf der Presenter-Pille; Statussätze wie **Themen werden vorbereitet.** bleiben in der Mehrzahl. Intern heißt die Variante `SEMANTIC`. Nicht in der Host-UI: `Semantische Themen`, `Encoder`, `e5`, `Embedding`, `Clustering`.
+Die Auswahloption heißt **Thema** in Q&A, Freitext und auf der Presenter-Pille. Statussätze wie **Themen werden vorbereitet.** bleiben in der Mehrzahl. Intern heißt die Variante `SEMANTIC`. Nicht in der Host-UI: `Semantische Themen`, `Encoder`, `e5`, `Embedding`, `Clustering`.
 
 | Zustand         | Host-Text                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -33,7 +33,7 @@ Das Host-Label der Auswahl ist heute **Themen**. Die Stufe 2 benennt diese Optio
 | Nicht belastbar | **Themen sind gerade nicht belastbar. Es gelten Wörter und Phrasen.**                                          |
 | Nicht verfügbar | **Themen sind noch nicht verfügbar. Es gelten Wörter und Phrasen.**                                            |
 
-`THEME` bleibt **Wörter & Phrasen** (lexikalisch 2.x) und wird nicht auf `SEMANTIC` umgebogen. Der Presenter analysiert nicht selbst. Für Q&A projiziert er den aktuellen Host-Snapshot (`session.setQaWordCloudProjection` / `session.getQaWordCloudProjection`) und zeigt Variante, Metrik und Glättung als Pills. Story **1.14d** führt Host-Freitext bei `de`/`en` durch denselben Encoderpfad wie Q&A; `fr`/`es` antworten kontrolliert mit 2.x (`status: fallback`). Bei italienischer UI bleibt die bestehende lokale 2.x-Wolke aktiv, bis der Host eine unterstützte Analysesprache wählt; es wird kein Encoderauftrag gesendet. Seit der Produktentscheidung vom 2026-10-13 zeigt der Presenter für Q&A und Freitext denselben Inhalt wie die vom Host aktivierte Ansicht. Die Bühnenoptimierung bleibt: `outputOnly`, Schrift 30–80 px, höchstens 24 Begriffe, Schwelle 30 px. Heute baut der Presenter die Freitext-Fläche noch lokal als Phrasenwolke. Der Anschluss steht im [Stufe-2-Plan](../implementation/WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md).
+`THEME` bleibt **Wörter & Phrasen** (lexikalisch 2.x) und wird nicht auf `SEMANTIC` umgebogen. Der Presenter analysiert nicht selbst. Für Q&A projiziert er den aktuellen Host-Snapshot (`session.setQaWordCloudProjection` / `session.getQaWordCloudProjection`) und zeigt Variante, Metrik und Glättung als Pills. Story **1.14d** führt Host-Freitext bei `de`/`en` durch denselben Encoderpfad wie Q&A; `fr`/`es` antworten kontrolliert mit 2.x (`status: fallback`). Bei italienischer UI bleibt die bestehende lokale 2.x-Wolke aktiv, bis der Host eine unterstützte Analysesprache wählt; es wird kein Encoderauftrag gesendet. Seit der Produktentscheidung vom 2026-10-13 zeigt der Presenter für Q&A und Freitext denselben Inhalt wie die vom Host aktivierte Ansicht. Die Bühnenoptimierung bleibt: `outputOnly`, Schrift 30–80 px, höchstens 24 Begriffe, Schwelle 30 px. Die Freitext-Bühne liest dafür ein gekürztes öffentliches DTO ohne Rohantworten. Fehlt die Projektion, bleibt die bisherige lokale Phrasenwolke. Details: [Stufe-2-Plan](../implementation/WORD-CLOUD-THEMENLABEL-1.14C-STUFE-2-PLAN.md).
 
 Texte sind in `de`, `en`, `fr`, `es` und `it` gepflegt.
 
@@ -41,11 +41,11 @@ Texte sind in `de`, `en`, `fr`, `es` und `it` gepflegt.
 
 Nur der Host löst `wordCloud.analyze` aus (`hostProcedure`). Es gibt keine automatische Runde bei jeder neuen Frage, Abstimmung oder Tastendruck.
 
-| Kanal     | Encoder-Clustering                                                                                                                                                             | Ohne Kill-Switch / tot / Timeout                            |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| Q&A       | `PINNED`/`ACTIVE`, Locale `de`/`en`, Kanal `QA`                                                                                                                                | 2.x-Phrasen, keine leere Karte                              |
-| Freitext  | sichtbare Antworten der aktuellen Host-Frage, Locale `de`/`en`, Kanal `FREETEXT`; Mindestclustergröße 2                                                                        | 2.x wie Stufe 0                                             |
-| Presenter | keine eigene Analyse; Q&A- und Freitext-Inhalt aus der aktivierten Host-Ansicht, gezeichnet mit der bestehenden `outputOnly`-Bühnenoptimierung; Freitext-Projektion in Stufe 2 | Host-Inhalt in Bühnengröße, sonst die bisherige Darstellung |
+| Kanal     | Encoder-Clustering                                                                                                                   | Ohne Kill-Switch / tot / Timeout                                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Q&A       | `PINNED`/`ACTIVE`, Locale `de`/`en`, Kanal `QA`                                                                                      | 2.x-Phrasen, keine leere Karte                                      |
+| Freitext  | sichtbare Antworten der aktuellen Host-Frage, Locale `de`/`en`, Kanal `FREETEXT`; Mindestclustergröße 2                              | 2.x wie Stufe 0                                                     |
+| Presenter | keine eigene Analyse; Q&A über die Host-Projektion, Freitext über ein gekürztes öffentliches Bühnen-DTO, gezeichnet mit `outputOnly` | Host-Inhalt in Bühnengröße, sonst die bisherige lokale Phrasenwolke |
 
 - **Neue Fragen oder Antworten:** vorhandenes Ergebnis bleibt sichtbar, Status **veraltet**, Button **Neu analysieren**. Keine Dauerschleife. Schlägt die Neuanalyse fehl, bleiben veraltete Cluster und der Retry-Hinweis stehen. Nach einem `ready`-Lauf bleibt **Neu analysieren** bedienbar und umgeht den Snapshot-Cache (`refresh`), damit derselbe Locale-Snapshot ohne Sprachwechsel neu gerechnet wird.
 - **Sort- oder Locale-Wechsel** im Themenmodus ist eine Host-Aktion und startet eine neue Analyse desselben Kanal-Snapshots. Locale steckt im Snapshot-Hash: `de` und `en` sind getrennte Caches. Deutsche Q&A bleibt auf **DE**; EN startet keine bessere Analyse, nur einen zweiten Lauf.

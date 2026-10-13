@@ -22,6 +22,7 @@ import {
   type AnalyzeWordCloudOutput,
 } from '@arsnova/shared-types';
 import { randomUUID } from 'node:crypto';
+import { isOpenWeightLlmEnabled, OPEN_WEIGHT_LLM_MODEL_ALIAS } from './openWeightLlmConfig';
 import type Redis from 'ioredis';
 import { getRedis } from '../redis';
 import { logger } from './logger';
@@ -118,6 +119,13 @@ export function buildWordCloudTextCacheKey(locale: string, textHash: string): st
   return `${TEXT_KEY_PREFIX}:${locale}:${WORD_CLOUD_NORMALIZATION_ANALYSIS_VERSION}:${textHash}`;
 }
 
+export function topicLabelCacheSegment(env: NodeJS.ProcessEnv = process.env): string {
+  if (!isOpenWeightLlmEnabled(env['OPEN_WEIGHT_LLM_ENABLED'])) {
+    return 'topic-label:off';
+  }
+  return `topic-label:${OPEN_WEIGHT_LLM_MODEL_ALIAS}`;
+}
+
 function snapshotCacheKeyParts(input: AnalyzeWordCloudInput): readonly string[] {
   const snapshotHash = buildWordCloudSnapshotHash(input);
   return [
@@ -130,6 +138,7 @@ function snapshotCacheKeyParts(input: AnalyzeWordCloudInput): readonly string[] 
     String(input.maxEntries ?? 'default'),
     String(input.maxNgramLength ?? 1),
     snapshotHash,
+    topicLabelCacheSegment(),
   ];
 }
 
@@ -415,6 +424,9 @@ export function shouldCacheWordCloudSnapshot(output: AnalyzeWordCloudOutput): bo
     return false;
   }
   if (output.mode === 'SEMANTIC') {
+    if (output.labelSettlement === 'transient') {
+      return false;
+    }
     return output.status === 'ready' || output.status === 'uncertain';
   }
   return true;

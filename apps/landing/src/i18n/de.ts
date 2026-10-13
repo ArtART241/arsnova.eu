@@ -163,9 +163,9 @@ const de: Messages = {
     hostView: 'Host-Ansicht Q&A',
     demoTitle: 'Fragen zur Veranstaltung',
     moderationActive: 'Vorab-Moderation aktiv',
-    sortMostSupported: 'Meist unterstützt',
+    sortMostSupported: 'Stimmensaldo',
     sortBest: 'Beste Fragen',
-    sortControversial: 'Umstritten',
+    sortControversial: 'Kontroverse',
     questions: [
       {
         score: '+18',

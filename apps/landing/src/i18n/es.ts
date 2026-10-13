@@ -165,9 +165,9 @@ const es: Messages = {
     hostView: 'Vista Q&A del anfitrión',
     demoTitle: 'Preguntas sobre el evento',
     moderationActive: 'Premoderación activa',
-    sortMostSupported: 'Más apoyadas',
+    sortMostSupported: 'Saldo de votos',
     sortBest: 'Mejores preguntas',
-    sortControversial: 'Controvertidas',
+    sortControversial: 'Controversia',
     questions: [
       {
         score: '+18',

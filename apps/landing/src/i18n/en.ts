@@ -163,9 +163,9 @@ const en: Messages = {
     hostView: 'Facilitator’s Q&A view',
     demoTitle: 'Questions about the event',
     moderationActive: 'Pre-moderation on',
-    sortMostSupported: 'Most supported',
+    sortMostSupported: 'Net votes',
     sortBest: 'Best questions',
-    sortControversial: 'Controversial',
+    sortControversial: 'Controversy',
     questions: [
       {
         score: '+18',

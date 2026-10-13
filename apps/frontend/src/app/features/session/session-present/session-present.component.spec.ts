@@ -23,6 +23,7 @@ const {
   getHostVoteProgressQueryMock,
   getReactionsQueryMock,
   getQaWordCloudProjectionQueryMock,
+  getFreetextWordCloudProjectionQueryMock,
   subscribeMock,
 } = vi.hoisted(() => ({
   liveQueryMock: vi.fn(),
@@ -39,6 +40,7 @@ const {
   getHostVoteProgressQueryMock: vi.fn(),
   getReactionsQueryMock: vi.fn(),
   getQaWordCloudProjectionQueryMock: vi.fn(),
+  getFreetextWordCloudProjectionQueryMock: vi.fn(),
   subscribeMock: vi.fn(() => ({ unsubscribe: vi.fn() })),
 }));
 
@@ -81,6 +83,9 @@ vi.mock('../../../core/trpc.client', () => ({
       },
       getQaWordCloudProjection: {
         query: getQaWordCloudProjectionQueryMock,
+      },
+      getFreetextWordCloudProjection: {
+        query: getFreetextWordCloudProjectionQueryMock,
       },
       onCurrentQuestionForHostChanged: {
         subscribe: subscribeMock,
@@ -165,6 +170,7 @@ describe('SessionPresentComponent', () => {
     getHostVoteProgressQueryMock.mockResolvedValue(null);
     getReactionsQueryMock.mockResolvedValue({ reactions: {}, total: 0 });
     getQaWordCloudProjectionQueryMock.mockResolvedValue({ projection: null });
+    getFreetextWordCloudProjectionQueryMock.mockResolvedValue({ projection: null });
     subscribeMock.mockClear();
     subscribeMock.mockReturnValue({ unsubscribe: vi.fn() });
 
@@ -540,6 +546,30 @@ describe('SessionPresentComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Live-Freitext');
     expect(fixture.nativeElement.querySelector('[data-testid="presenter-quiz-stage"]')).toBeNull();
+
+    const questionId = '7ed3cc25-3179-4a91-9dc3-acc00971fb46';
+    fixture.componentInstance.freetextQuestionId.set(questionId);
+    fixture.componentInstance.freetextWordCloudProjection.set({
+      mode: 'SEMANTIC',
+      locale: 'de',
+      questionId,
+      smoothingActive: false,
+      entries: [{ key: 'erschoepfung', label: 'Erschöpfung', count: 2, labelOrigin: 'model' }],
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Erschöpfung');
+    expect(fixture.componentInstance.freetextWordCloudTerms()).toBeNull();
+
+    fixture.componentInstance.freetextWordCloudProjection.set({
+      mode: 'SEMANTIC',
+      locale: 'de',
+      questionId: '11111111-1111-4111-8111-111111111111',
+      smoothingActive: false,
+      entries: [{ key: 'alt', label: 'AlteFrage', count: 1 }],
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('AlteFrage');
+    expect(fixture.componentInstance.freetextStageAnalysisEntries()).toBeNull();
     fixture.destroy();
   });
 
@@ -2214,7 +2244,7 @@ describe('SessionPresentComponent', () => {
     expect(text).toContain('Kapitel 4');
     expect(text).toContain('Ähnliche Fragen sind gruppiert.');
     expect(fixture.componentInstance.qaWordCloudContextPills()).toEqual([
-      'Themen',
+      'Thema',
       'Beste Fragen',
       'ohne Glättung',
     ]);
@@ -2295,7 +2325,7 @@ describe('SessionPresentComponent', () => {
       (el.textContent ?? '').replace(/\s+/g, ' ').trim(),
     );
     expect(pills).toContain('120 Fragen');
-    expect(pills).toContain('Häufigkeit');
+    expect(pills).toContain('Vorkommen in Fragen');
     expect(
       pills.some((pill) => pill === '1 Frage' || pill === '12 Fragen' || pill === 'Zeit'),
     ).toBe(false);

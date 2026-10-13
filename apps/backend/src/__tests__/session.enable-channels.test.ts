@@ -1292,3 +1292,122 @@ trpcDodIt(
     });
   },
 );
+
+const FREETEXT_WORD_CLOUD_PROJECTION = {
+  mode: 'SEMANTIC' as const,
+  locale: 'de' as const,
+  questionId: '7ed3cc25-3179-4a91-9dc3-acc00971fb46',
+  smoothingActive: false,
+  entries: [{ key: 'erschoepfung', label: 'Erschöpfung', count: 2, labelOrigin: 'model' as const }],
+};
+
+function freetextSession(status: 'ACTIVE' | 'RESULTS' = 'ACTIVE') {
+  return {
+    ...ACTIVE_SESSION,
+    status,
+    preferredChannel: 'quiz',
+    type: 'QUIZ',
+    quizId: '11111111-1111-4111-8111-111111111111',
+    qaEnabled: false,
+    qaOpen: false,
+    qaTitle: null,
+    qaModerationMode: false,
+    title: null,
+    moderationMode: false,
+    quickFeedbackEnabled: false,
+    quickFeedbackOpen: false,
+  };
+}
+
+trpcDodIt(
+  {
+    procedure: 'session.setFreetextWordCloudProjection',
+    case: 'happy',
+    mode: 'direct',
+    title: 'speichert die gekürzte Freitext-Wortwolke für die Bühne',
+  },
+  async () => {
+    resetSessionReadCachesForTests();
+    hostAuthMocks.extractHostTokenMock.mockReturnValue('host-token-123');
+    hostAuthMocks.isHostSessionTokenValidMock.mockResolvedValue(true);
+    prismaMock.session.findUnique.mockResolvedValue(freetextSession());
+    await expect(
+      caller.setFreetextWordCloudProjection({
+        code: 'ABC123',
+        projection: FREETEXT_WORD_CLOUD_PROJECTION,
+      }),
+    ).resolves.toEqual({ projection: FREETEXT_WORD_CLOUD_PROJECTION });
+  },
+);
+
+trpcDodIt(
+  {
+    procedure: 'session.setFreetextWordCloudProjection',
+    case: 'error',
+    mode: 'direct',
+    contract: 'UNAUTHORIZED',
+    title: 'session.setFreetextWordCloudProjection weist ungültige Host-Token ab',
+  },
+  async () => {
+    hostAuthMocks.isHostSessionTokenValidMock.mockResolvedValue(false);
+    await expect(
+      caller.setFreetextWordCloudProjection({
+        code: 'ABC123',
+        projection: FREETEXT_WORD_CLOUD_PROJECTION,
+      }),
+    ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+  },
+);
+
+trpcDodIt(
+  {
+    procedure: 'session.getFreetextWordCloudProjection',
+    case: 'happy',
+    mode: 'direct',
+    title: 'gibt die Freitext-Wolke nur auf der Bühne oder nach der Freigabe heraus',
+  },
+  async () => {
+    resetSessionReadCachesForTests();
+    hostAuthMocks.extractHostTokenMock.mockReturnValue('host-token-123');
+    hostAuthMocks.isHostSessionTokenValidMock.mockResolvedValue(true);
+    prismaMock.session.findUnique.mockResolvedValue(freetextSession('ACTIVE'));
+    await caller.setFreetextWordCloudProjection({
+      code: 'ABC123',
+      projection: FREETEXT_WORD_CLOUD_PROJECTION,
+    });
+    await expect(caller.getFreetextWordCloudProjection({ code: 'ABC123' })).resolves.toEqual({
+      projection: null,
+    });
+
+    await caller.setPresenterSurface({ code: 'ABC123', surface: 'freetextWordCloud' });
+    await expect(caller.getFreetextWordCloudProjection({ code: 'ABC123' })).resolves.toEqual({
+      projection: FREETEXT_WORD_CLOUD_PROJECTION,
+    });
+
+    await caller.setPresenterSurface({ code: 'ABC123', surface: 'default' });
+    prismaMock.session.findUnique.mockResolvedValue(freetextSession('RESULTS'));
+    await caller.setFreetextWordCloudProjection({
+      code: 'ABC123',
+      projection: FREETEXT_WORD_CLOUD_PROJECTION,
+    });
+    await expect(caller.getFreetextWordCloudProjection({ code: 'ABC123' })).resolves.toEqual({
+      projection: FREETEXT_WORD_CLOUD_PROJECTION,
+    });
+  },
+);
+
+trpcDodIt(
+  {
+    procedure: 'session.getFreetextWordCloudProjection',
+    case: 'error',
+    mode: 'direct',
+    contract: 'NOT_FOUND',
+    title: 'session.getFreetextWordCloudProjection weist unbekannte Sessions zurück',
+  },
+  async () => {
+    prismaMock.session.findUnique.mockResolvedValue(null);
+    await expect(caller.getFreetextWordCloudProjection({ code: 'ZZZ999' })).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+  },
+);

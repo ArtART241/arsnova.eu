@@ -8014,10 +8014,34 @@ const sessionCoreRouter = router({
       const code = input.code.toUpperCase();
       const session = await prisma.session.findUnique({
         where: { code },
-        select: { id: true },
+        select: {
+          id: true,
+          status: true,
+          type: true,
+          quizId: true,
+          qaEnabled: true,
+          qaOpen: true,
+          qaTitle: true,
+          qaModerationMode: true,
+          title: true,
+          moderationMode: true,
+          quickFeedbackEnabled: true,
+          quickFeedbackOpen: true,
+          preferredChannel: true,
+        },
       });
       if (!session) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Session nicht gefunden.' });
+      }
+      const channels = buildSessionChannels(session);
+      const preferredChannel = resolvePreferredLiveChannel(session.preferredChannel, channels);
+      const surface = resolvePresenterSurface(session.id, preferredChannel);
+      const revealed =
+        surface === 'freetextWordCloud' ||
+        session.status === 'RESULTS' ||
+        session.status === 'FINISHED';
+      if (!revealed) {
+        return { projection: null };
       }
       return { projection: freetextWordCloudProjectionBySessionId.get(session.id) ?? null };
     }),

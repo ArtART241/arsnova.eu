@@ -546,7 +546,11 @@ export class SessionPresentComponent implements OnInit, OnDestroy {
   );
   readonly freetextStageAnalysisEntries = computed(() => {
     const projection = this.freetextWordCloudProjection();
-    if (!projection || projection.entries.length === 0) {
+    if (
+      !projection ||
+      projection.entries.length === 0 ||
+      projection.questionId !== this.freetextQuestionId()
+    ) {
       return null;
     }
     return projection.entries.map((entry) => ({

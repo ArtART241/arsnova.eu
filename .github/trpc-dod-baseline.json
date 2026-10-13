@@ -602,6 +602,11 @@
       "fingerprint": "sha256:88843759d26ef346ce7943a1cc28f48067816c2b7e658d87ec2f7db3388fdd59",
       "missing": []
     },
+    "session.getFreetextWordCloudProjection": {
+      "kind": "query",
+      "fingerprint": "sha256:25a737734daa9d0b3d1b253f5197e4c4c5854cfb9c9ecb658b23936a1a571327",
+      "missing": []
+    },
     "session.getHasSubmittedFeedback": {
       "kind": "query",
       "fingerprint": "sha256:2250f735a85033457c308c2b248ee5bed3453e193e9df9649e7a7ed9c43e9979",
@@ -872,9 +877,14 @@
       "fingerprint": "sha256:653ec75cd4856c7b241464bbfebfae24ba3730fd5fb07b84210bd3988d77d4c2",
       "missing": []
     },
+    "session.setFreetextWordCloudProjection": {
+      "kind": "mutation",
+      "fingerprint": "sha256:e6d2a516abff3b7480585bb3f433878474caa6d548b70bec186b6eaf8dae22d4",
+      "missing": []
+    },
     "session.setPreferredLiveChannel": {
       "kind": "mutation",
-      "fingerprint": "sha256:c13ea35cf06c16d4f256ab5828ebaed56eafb6f66f7df84846b16d4870fa09a7",
+      "fingerprint": "sha256:1f4eb96cfc3087769c2937dbae2d62b17a9a5282657a64a022b7695512d16c9c",
       "missing": []
     },
     "session.setPresenterSurface": {

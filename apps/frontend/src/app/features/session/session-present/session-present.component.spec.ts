@@ -546,6 +546,30 @@ describe('SessionPresentComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Live-Freitext');
     expect(fixture.nativeElement.querySelector('[data-testid="presenter-quiz-stage"]')).toBeNull();
+
+    const questionId = '7ed3cc25-3179-4a91-9dc3-acc00971fb46';
+    fixture.componentInstance.freetextQuestionId.set(questionId);
+    fixture.componentInstance.freetextWordCloudProjection.set({
+      mode: 'SEMANTIC',
+      locale: 'de',
+      questionId,
+      smoothingActive: false,
+      entries: [{ key: 'erschoepfung', label: 'Erschöpfung', count: 2, labelOrigin: 'model' }],
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Erschöpfung');
+    expect(fixture.componentInstance.freetextWordCloudTerms()).toBeNull();
+
+    fixture.componentInstance.freetextWordCloudProjection.set({
+      mode: 'SEMANTIC',
+      locale: 'de',
+      questionId: '11111111-1111-4111-8111-111111111111',
+      smoothingActive: false,
+      entries: [{ key: 'alt', label: 'AlteFrage', count: 1 }],
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('AlteFrage');
+    expect(fixture.componentInstance.freetextStageAnalysisEntries()).toBeNull();
     fixture.destroy();
   });
 

@@ -1143,6 +1143,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
   private freetextWordCloudLemmaAnalysisRunId = 0;
   private freetextWordCloudSemanticAnalysisRunId = 0;
   private lastFreetextWordCloudProjectionKey: string | null = null;
+  private freetextProjectionScope: string | null = null;
   private presenterProjectionSyncQueue: Promise<void> = Promise.resolve();
   private lastQaWordCloudProjectionKey: string | null = null;
   private lastQaPresenterStageViewKey: string | null = null;
@@ -4014,8 +4015,23 @@ export class SessionHostComponent implements OnInit, OnDestroy {
       if (!this.code) {
         return;
       }
+      const scope = [
+        this.session()?.id ?? '',
+        this.session()?.preferredChannel ?? '',
+        this.session()?.presenterSurface ?? '',
+        this.displayedCurrentQuestionForHost()?.questionId ?? '',
+        String(Math.floor(Date.parse(this.session()?.serverTime ?? '') / 60_000)),
+      ].join('|');
       const projection = this.buildFreetextWordCloudPresenterProjection();
-      untracked(() => this.publishFreetextWordCloudProjection(projection));
+      untracked(() => {
+        if (scope !== this.freetextProjectionScope) {
+          this.freetextProjectionScope = scope;
+          this.lastFreetextWordCloudProjectionKey = null;
+        }
+        if (projection) {
+          this.publishFreetextWordCloudProjection(projection);
+        }
+      });
     });
     effect(() => {
       const request = this.freetextWordCloudSemanticAnalysisRequest();
@@ -11843,7 +11859,11 @@ export class SessionHostComponent implements OnInit, OnDestroy {
     return sanitized;
   }
 
-  private buildFreetextWordCloudPresenterProjection(): FreetextWordCloudPresenterProjectionDTO {
+  private buildFreetextWordCloudPresenterProjection(): FreetextWordCloudPresenterProjectionDTO | null {
+    const questionId = this.displayedCurrentQuestionForHost()?.questionId;
+    if (!questionId) {
+      return null;
+    }
     const analysis = this.displayedFreetextAnalysisEntries();
     const entries =
       analysis && analysis.length > 0
@@ -11866,6 +11886,7 @@ export class SessionHostComponent implements OnInit, OnDestroy {
             ? 'SEMANTIC'
             : 'THEME',
       locale: this.qaWordCloudAnalysisLocale(),
+      questionId,
       smoothingActive: this.freetextWordCloudLemmaSnapshotVisible(),
       entries: entries.slice(0, 80),
     };

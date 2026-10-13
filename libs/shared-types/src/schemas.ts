@@ -4591,6 +4591,7 @@ export const FreetextWordCloudPresenterProjectionDTOSchema = z
   .object({
     mode: WordCloudAnalysisVariantEnum,
     locale: WordCloudAnalysisLocaleEnum.nullable(),
+    questionId: z.uuid(),
     smoothingActive: z.boolean(),
     entries: z.array(FreetextWordCloudStageEntrySchema).max(80),
   })

@@ -362,6 +362,96 @@ describe('getOpenWeightLlmRuntimeProbe', () => {
     expect(wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement({ env: enabledEnv })).toBe(false);
   });
 
+  it('koppelt beforeLiveMeasurement atomar an den Single-Flight-Start', async () => {
+    let releaseGate: (() => void) | undefined;
+    const gate = new Promise<void>((resolve) => {
+      releaseGate = resolve;
+    });
+    const beforeLive = vi.fn(async () => {
+      await gate;
+    });
+    const topicLabel = vi.fn(async () => ({
+      status: 'completed' as const,
+      output: {
+        schemaVersion: 1 as const,
+        taskType: 'topic_label' as const,
+        label: 'Probe',
+        sourceIds: ['probe-s1'],
+      },
+      telemetry: {
+        taskType: 'topic_label' as const,
+        elapsedMs: 1,
+        model: null,
+        promptTokens: null,
+        completionTokens: null,
+      },
+    }));
+    const summaryV2 = vi.fn(async () => ({
+      status: 'completed' as const,
+      output: {
+        schemaVersion: QA_SUMMARY_V2_SCHEMA_VERSION,
+        taskType: 'qa_summary' as const,
+        outputContract: QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+        output: {
+          status: 'ready' as const,
+          statements: [],
+          suggestedNextSteps: [],
+          limitations: [],
+        },
+      },
+      telemetry: {
+        taskType: 'qa_summary' as const,
+        elapsedMs: 1,
+        model: null,
+        promptTokens: null,
+        completionTokens: null,
+      },
+    }));
+    const learning = vi.fn(async () => ({
+      status: 'completed' as const,
+      output: {
+        schemaVersion: 1 as const,
+        taskType: 'learning_objectives' as const,
+        objectives: [
+          {
+            text: 'Lineare Funktionen interpretieren',
+            questionIds: ['11111111-1111-4111-8111-111111111111'],
+          },
+        ],
+        limitations: [],
+      },
+      telemetry: {
+        taskType: 'learning_objectives' as const,
+        elapsedMs: 1,
+        model: null,
+        promptTokens: null,
+        completionTokens: null,
+      },
+    }));
+
+    const pending = Array.from({ length: 80 }, () =>
+      getOpenWeightLlmRuntimeProbe({
+        env: enabledEnv,
+        beforeLiveMeasurement: beforeLive,
+        topicLabel: topicLabel as never,
+        summaryV2: summaryV2 as never,
+        learning: learning as never,
+      }),
+    );
+    // Alle 80 Requests sind eingetroffen, bevor das Rate-Limit-Gate freigegeben wird.
+    await Promise.resolve();
+    expect(beforeLive).toHaveBeenCalledTimes(1);
+    expect(wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement({ env: enabledEnv })).toBe(false);
+    releaseGate?.();
+    const results = await Promise.all(pending);
+    expect(beforeLive).toHaveBeenCalledTimes(1);
+    expect(topicLabel).toHaveBeenCalledTimes(1);
+    expect(summaryV2).toHaveBeenCalledTimes(1);
+    expect(learning).toHaveBeenCalledTimes(1);
+    expect(results).toHaveLength(80);
+    expect(new Set(results.map((result) => result.checkedAt)).size).toBe(1);
+  });
+
   it('ordnet busy und Teilausfälle dem Gesamtstatus zu', async () => {
     const result = await getOpenWeightLlmRuntimeProbe({
       env: enabledEnv,

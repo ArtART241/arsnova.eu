@@ -15,10 +15,7 @@ import {
   UsagePeriodInputSchema,
   isQaChannelJoinable,
 } from '@arsnova/shared-types';
-import {
-  getOpenWeightLlmRuntimeProbe,
-  wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement,
-} from '../lib/openWeightLlmRuntimeProbe';
+import { getOpenWeightLlmRuntimeProbe } from '../lib/openWeightLlmRuntimeProbe';
 import { pingRedis, getRedis } from '../redis';
 import { prisma } from '../db';
 import { logger } from '../lib/logger';
@@ -1130,23 +1127,27 @@ export const healthRouter = router({
    * Minimale Stichprobe der privaten LLM-Runtime (topic_label, Summary V2, learning_objectives).
    * Nicht Teil von footerBundle/serviceStatus — nur für den Betriebsstatus-Dialog.
    * `refresh` umgeht den 5‑Minuten-Cache nicht (Schutz des einzigen Inferenz-Slots).
-   * IP-Rate-Limit nur vor neuen Live-Messungen — Cache-/Coalesce-Treffer belasten Shared-NAT nicht.
+   * IP-Rate-Limit atomar mit dem Single-Flight-Live-Start — Cache-/Coalesce-Treffer
+   * und parallele Shared-NAT-Bursts belasten das Budget nicht mehrfach.
    */
   openWeightLlmProbe: publicProcedure
     .input(OpenWeightLlmRuntimeProbeInputSchema)
     .output(OpenWeightLlmRuntimeProbeSchema)
     .query(async ({ ctx, input }) => {
-      if (wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement()) {
-        const limit = await checkHealthUsageRate(resolveClientIp(ctx.req).ip);
-        if (!limit.allowed) {
-          throw new TRPCError({
-            code: 'TOO_MANY_REQUESTS',
-            message: 'Zu viele Anfragen an die Runtime-Stichprobe. Bitte später erneut versuchen.',
-            cause: { retryAfterSeconds: limit.retryAfterSeconds },
-          });
-        }
-      }
-      return getOpenWeightLlmRuntimeProbe({ refresh: input?.refresh === true });
+      return getOpenWeightLlmRuntimeProbe({
+        refresh: input?.refresh === true,
+        beforeLiveMeasurement: async () => {
+          const limit = await checkHealthUsageRate(resolveClientIp(ctx.req).ip);
+          if (!limit.allowed) {
+            throw new TRPCError({
+              code: 'TOO_MANY_REQUESTS',
+              message:
+                'Zu viele Anfragen an die Runtime-Stichprobe. Bitte später erneut versuchen.',
+              cause: { retryAfterSeconds: limit.retryAfterSeconds },
+            });
+          }
+        },
+      });
     }),
 
   /**

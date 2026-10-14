@@ -119,6 +119,12 @@ type ProbeHooks = {
   readonly learning?: typeof runOpenWeightLlmLearningObjectives;
   readonly env?: NodeJS.ProcessEnv;
   readonly taskTimeoutMs?: number;
+  /**
+   * Nur für den Single-Flight-Leader vor der Live-Messung (z. B. IP-Rate-Limit).
+   * Läuft synchron nach dem Claim von `probeInFlight`, damit parallele Shared-NAT-
+   * Bursts coalescen und dieses Gate nicht mehrfach auslösen.
+   */
+  readonly beforeLiveMeasurement?: () => Promise<void>;
 };
 
 let cachedProbe: { value: OpenWeightLlmRuntimeProbeDTO; expiresAt: number } | null = null;
@@ -310,9 +316,9 @@ export function getOpenWeightLlmSummaryV2ProbeRequestForTests(): OpenWeightLlmSu
 }
 
 /**
- * true nur, wenn dieser Aufruf eine neue Live-Messung starten würde.
- * Cache-Treffer, In-Flight-Coalesce und disabled brauchen kein IP-Rate-Limit
- * (Shared-NAT mit vielen Clients hinter einer Adresse).
+ * true nur, wenn dieser Aufruf *jetzt* eine neue Live-Messung starten würde.
+ * Peek-Hilfe für Tests; das autoritative Shared-NAT-Gate ist
+ * `beforeLiveMeasurement` innerhalb von `getOpenWeightLlmRuntimeProbe`.
  */
 export function wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement(
   options: { readonly now?: () => number; readonly env?: NodeJS.ProcessEnv } = {},
@@ -355,14 +361,19 @@ export async function getOpenWeightLlmRuntimeProbe(
     return probeInFlight;
   }
 
-  probeInFlight = measureProbe(options)
-    .then((value) => {
-      cachedProbe = { value, expiresAt: now() + OPEN_WEIGHT_LLM_PROBE_CACHE_TTL_MS };
-      return value;
-    })
-    .finally(() => {
-      probeInFlight = null;
-    });
+  // Claim vor jedem await: parallele Burst-Requests coalescen auf dasselbe Promise;
+  // beforeLiveMeasurement (Rate-Limit) läuft nur beim Leader.
+  const beforeLive = options.beforeLiveMeasurement;
+  probeInFlight = (async () => {
+    if (beforeLive) {
+      await beforeLive();
+    }
+    const value = await measureProbe(options);
+    cachedProbe = { value, expiresAt: now() + OPEN_WEIGHT_LLM_PROBE_CACHE_TTL_MS };
+    return value;
+  })().finally(() => {
+    probeInFlight = null;
+  });
 
   return probeInFlight;
 }

@@ -343,6 +343,7 @@ describe('health.openWeightLlmProbe', () => {
       title: 'wirft TOO_MANY_REQUESTS wenn die Stichproben-Rate greift',
     },
     async () => {
+      vi.stubEnv('OPEN_WEIGHT_LLM_ENABLED', 'true');
       vi.mocked(checkHealthUsageRate).mockResolvedValue({
         allowed: false,
         remaining: 0,
@@ -351,8 +352,19 @@ describe('health.openWeightLlmProbe', () => {
       await expect(caller.openWeightLlmProbe(undefined)).rejects.toMatchObject({
         code: 'TOO_MANY_REQUESTS',
       });
+      expect(checkHealthUsageRate).toHaveBeenCalled();
+      vi.unstubAllEnvs();
     },
   );
+
+  it('belastet das IP-Rate-Limit nicht bei Cache-Treffern', async () => {
+    vi.stubEnv('OPEN_WEIGHT_LLM_ENABLED', 'false');
+    await caller.openWeightLlmProbe(undefined);
+    vi.mocked(checkHealthUsageRate).mockClear();
+    await caller.openWeightLlmProbe({ refresh: true });
+    expect(checkHealthUsageRate).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
 });
 
 describe('health.footerBundle', () => {

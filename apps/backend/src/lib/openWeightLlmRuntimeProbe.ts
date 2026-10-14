@@ -249,9 +249,15 @@ async function measureProbe(hooks: ProbeHooks): Promise<OpenWeightLlmRuntimeProb
     const result = await summaryV2(SUMMARY_V2_REQUEST, {
       signal: AbortSignal.timeout(timeoutMs),
     });
-    return result.status === 'completed'
-      ? { status: 'completed', model: result.telemetry.model }
-      : { status: result.status, reason: result.status };
+    // Gleiche Erfolgssemantik wie runPreparedQaSummary: schema-valides
+    // `{ output: { status: 'failed' } }` gilt produktiv als Fallback, nicht als ok.
+    if (result.status === 'completed' && result.output.output.status !== 'failed') {
+      return { status: 'completed', model: result.telemetry.model };
+    }
+    return {
+      status: result.status === 'completed' ? 'invalid_response' : result.status,
+      reason: result.status === 'completed' ? 'invalid_response' : result.status,
+    };
   }, now);
 
   const learningObjectives = await runOneTask(async () => {
@@ -301,6 +307,28 @@ export function resetOpenWeightLlmRuntimeProbeForTests(): void {
 /** Exported for contract tests — same V2 request the live probe sends. */
 export function getOpenWeightLlmSummaryV2ProbeRequestForTests(): OpenWeightLlmSummaryRequestV2 {
   return SUMMARY_V2_REQUEST;
+}
+
+/**
+ * true nur, wenn dieser Aufruf eine neue Live-Messung starten würde.
+ * Cache-Treffer, In-Flight-Coalesce und disabled brauchen kein IP-Rate-Limit
+ * (Shared-NAT mit vielen Clients hinter einer Adresse).
+ */
+export function wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement(
+  options: { readonly now?: () => number; readonly env?: NodeJS.ProcessEnv } = {},
+): boolean {
+  const now = options.now ?? Date.now;
+  const env = options.env ?? process.env;
+  if (!isOpenWeightLlmEnabled(env['OPEN_WEIGHT_LLM_ENABLED'])) {
+    return false;
+  }
+  if (cachedProbe && cachedProbe.expiresAt > now()) {
+    return false;
+  }
+  if (probeInFlight) {
+    return false;
+  }
+  return true;
 }
 
 export async function getOpenWeightLlmRuntimeProbe(

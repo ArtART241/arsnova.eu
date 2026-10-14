@@ -8,6 +8,7 @@ import {
   getOpenWeightLlmRuntimeProbe,
   getOpenWeightLlmSummaryV2ProbeRequestForTests,
   resetOpenWeightLlmRuntimeProbeForTests,
+  wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement,
 } from './openWeightLlmRuntimeProbe';
 
 const enabledEnv = {
@@ -218,6 +219,147 @@ describe('getOpenWeightLlmRuntimeProbe', () => {
     expect(request.promptContext.budget.definitionTokens).toBe(
       new TextEncoder().encode(request.definitionText).byteLength,
     );
+  });
+
+  it('wertet schema-valides Summary-V2 mit status failed nicht als ok', async () => {
+    const result = await getOpenWeightLlmRuntimeProbe({
+      env: enabledEnv,
+      topicLabel: (async () => ({
+        status: 'completed' as const,
+        output: {
+          schemaVersion: 1 as const,
+          taskType: 'topic_label' as const,
+          label: 'Probe',
+          sourceIds: ['probe-s1'],
+        },
+        telemetry: {
+          taskType: 'topic_label' as const,
+          elapsedMs: 1,
+          model: null,
+          promptTokens: null,
+          completionTokens: null,
+        },
+      })) as never,
+      summaryV2: (async () => ({
+        status: 'completed' as const,
+        output: {
+          schemaVersion: QA_SUMMARY_V2_SCHEMA_VERSION,
+          taskType: 'qa_summary' as const,
+          outputContract: QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+          output: {
+            status: 'failed' as const,
+            statements: [],
+            suggestedNextSteps: [],
+            limitations: [{ code: 'model-failed', detail: 'fixture' }],
+          },
+        },
+        telemetry: {
+          taskType: 'qa_summary' as const,
+          elapsedMs: 1,
+          model: 'qwen3-4b-instruct-2507-q4_k_m',
+          promptTokens: null,
+          completionTokens: null,
+        },
+      })) as never,
+      learning: (async () => ({
+        status: 'completed' as const,
+        output: {
+          schemaVersion: 1 as const,
+          taskType: 'learning_objectives' as const,
+          objectives: [
+            {
+              text: 'Lineare Funktionen interpretieren',
+              questionIds: ['11111111-1111-4111-8111-111111111111'],
+            },
+          ],
+          limitations: [],
+        },
+        telemetry: {
+          taskType: 'learning_objectives' as const,
+          elapsedMs: 1,
+          model: null,
+          promptTokens: null,
+          completionTokens: null,
+        },
+      })) as never,
+    });
+    expect(result.tasks.qa_summary.status).toBe('degraded');
+    expect(result.tasks.qa_summary.reason).toBe('invalid_response');
+    expect(result.overall).toBe('degraded');
+  });
+
+  it('fordert Live-Messung nur ohne gültigen Cache', async () => {
+    expect(
+      wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement({
+        env: { OPEN_WEIGHT_LLM_ENABLED: 'false' },
+      }),
+    ).toBe(false);
+
+    expect(wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement({ env: enabledEnv })).toBe(true);
+
+    await getOpenWeightLlmRuntimeProbe({
+      env: enabledEnv,
+      topicLabel: (async () => ({
+        status: 'completed' as const,
+        output: {
+          schemaVersion: 1 as const,
+          taskType: 'topic_label' as const,
+          label: 'Probe',
+          sourceIds: ['probe-s1'],
+        },
+        telemetry: {
+          taskType: 'topic_label' as const,
+          elapsedMs: 1,
+          model: null,
+          promptTokens: null,
+          completionTokens: null,
+        },
+      })) as never,
+      summaryV2: (async () => ({
+        status: 'completed' as const,
+        output: {
+          schemaVersion: QA_SUMMARY_V2_SCHEMA_VERSION,
+          taskType: 'qa_summary' as const,
+          outputContract: QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+          output: {
+            status: 'ready' as const,
+            statements: [],
+            suggestedNextSteps: [],
+            limitations: [],
+          },
+        },
+        telemetry: {
+          taskType: 'qa_summary' as const,
+          elapsedMs: 1,
+          model: null,
+          promptTokens: null,
+          completionTokens: null,
+        },
+      })) as never,
+      learning: (async () => ({
+        status: 'completed' as const,
+        output: {
+          schemaVersion: 1 as const,
+          taskType: 'learning_objectives' as const,
+          objectives: [
+            {
+              text: 'Lineare Funktionen interpretieren',
+              questionIds: ['11111111-1111-4111-8111-111111111111'],
+            },
+          ],
+          limitations: [],
+        },
+        telemetry: {
+          taskType: 'learning_objectives' as const,
+          elapsedMs: 1,
+          model: null,
+          promptTokens: null,
+          completionTokens: null,
+        },
+      })) as never,
+    });
+
+    expect(wouldOpenWeightLlmRuntimeProbeRequireLiveMeasurement({ env: enabledEnv })).toBe(false);
   });
 
   it('ordnet busy und Teilausfälle dem Gesamtstatus zu', async () => {

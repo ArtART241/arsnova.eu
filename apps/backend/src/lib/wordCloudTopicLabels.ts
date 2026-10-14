@@ -23,7 +23,15 @@ import { runOpenWeightLlmTopicLabel, type OpenWeightLlmLiveResult } from './open
 import { analyzeSemanticWordCloudSnapshot } from './wordCloudSemanticAnalyze';
 import type { WordCloudNormalizationMeta } from './wordCloudNormalization';
 
+/**
+ * Untergrenze für den Namensschritt. Produktion mit CPU-llama.cpp braucht
+ * darüber hinaus das konfigurierte `OPEN_WEIGHT_LLM_LABEL_TIMEOUT_MS` pro
+ * Kandidat — sonst endet der Schritt nach dem Encoder-Lauf bei Mitgliedstexten.
+ */
 export const WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_MS = 8_000;
+/** Harte Obergrenze, damit die Host-Wartezeit im Hörsaal nicht ungebunden wächst. */
+export const WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_CAP_MS = 120_000;
+const TOPIC_LABEL_MAX_CANDIDATES = 12;
 const TOPIC_LABEL_LOCALES = new Set(['de', 'en']);
 const TRANSIENT_REASONS = new Set([
   'busy',
@@ -134,6 +142,19 @@ function labelTimeoutMs(env: NodeJS.ProcessEnv): number {
   }
 }
 
+/** Wanduhr für alle Kandidaten: mind. ein voller Label-Timeout, höchstens Cap. */
+export function resolveTopicLabelPhaseBudgetMs(
+  env: NodeJS.ProcessEnv,
+  candidateCount: number,
+): number {
+  const perCall = labelTimeoutMs(env);
+  const n = Math.max(1, Math.min(Math.floor(candidateCount), TOPIC_LABEL_MAX_CANDIDATES));
+  return Math.min(
+    Math.max(WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_MS, perCall * n),
+    WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_CAP_MS,
+  );
+}
+
 export async function applyWordCloudTopicLabels(
   input: AnalyzeWordCloudInput,
   output: AnalyzeWordCloudOutput,
@@ -164,6 +185,8 @@ export async function applyWordCloudTopicLabels(
   const label = options.label ?? runOpenWeightLlmTopicLabel;
   const startedAt = now();
   const perCallCap = labelTimeoutMs(env);
+  const candidateCount = output.entries.filter((entry) => entry.members.length >= 2).length;
+  const phaseBudgetMs = resolveTopicLabelPhaseBudgetMs(env, candidateCount);
   let transient = false;
   let acceptedModelLabel = false;
   const entries: WordCloudAnalysisEntryDTO[] = [];
@@ -173,7 +196,7 @@ export async function applyWordCloudTopicLabels(
       entries.push(withOrigin(entry, 'extractive'));
       continue;
     }
-    const remaining = WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_MS - (now() - startedAt);
+    const remaining = phaseBudgetMs - (now() - startedAt);
     if (remaining < 50) {
       transient = true;
       entries.push(withOrigin(entry, 'extractive'));

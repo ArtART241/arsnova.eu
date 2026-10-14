@@ -18,6 +18,10 @@ export interface WordCloudAnalyzeTelemetryEvent {
   readonly textCacheMisses: number;
   readonly sidecarCalled: boolean;
   readonly encoderCalled?: boolean;
+  /** Stufe-2-Namensabschluss: complete | transient | disabled */
+  readonly labelSettlement?: string | null;
+  /** true, sobald mindestens ein Modellname übernommen wurde */
+  readonly labelModelAccepted?: boolean;
 }
 
 export interface WordCloudNlpTelemetrySnapshot {
@@ -93,6 +97,8 @@ export function recordWordCloudAnalyzeTelemetry(event: WordCloudAnalyzeTelemetry
     textCacheMisses: event.textCacheMisses,
     sidecarCalled: event.sidecarCalled,
     encoderCalled: event.encoderCalled === true,
+    labelSettlement: event.labelSettlement ?? null,
+    labelModelAccepted: event.labelModelAccepted === true,
   });
 }
 

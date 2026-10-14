@@ -10,6 +10,9 @@ import { resolveWordCloudNormalizationMeta } from './wordCloudNormalization';
 import {
   applyWordCloudTopicLabels,
   labelSemanticWordCloudSnapshot,
+  resolveTopicLabelPhaseBudgetMs,
+  WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_CAP_MS,
+  WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_MS,
   type TopicLabelCaller,
 } from './wordCloudTopicLabels';
 
@@ -69,6 +72,22 @@ const input = {
 function labeler(impl: TopicLabelCaller): TopicLabelCaller {
   return impl;
 }
+
+describe('resolveTopicLabelPhaseBudgetMs', () => {
+  it('gibt jedem Kandidaten mindestens den konfigurierten Label-Timeout', () => {
+    expect(resolveTopicLabelPhaseBudgetMs(enabledEnv, 1)).toBe(30_000);
+    expect(resolveTopicLabelPhaseBudgetMs(enabledEnv, 3)).toBe(90_000);
+    expect(resolveTopicLabelPhaseBudgetMs(enabledEnv, 20)).toBe(
+      WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_CAP_MS,
+    );
+    expect(
+      resolveTopicLabelPhaseBudgetMs(
+        { ...enabledEnv, OPEN_WEIGHT_LLM_LABEL_TIMEOUT_MS: '2000' },
+        1,
+      ),
+    ).toBe(WORD_CLOUD_TOPIC_LABEL_PHASE_BUDGET_MS);
+  });
+});
 
 describe('applyWordCloudTopicLabels', () => {
   afterEach(() => {
@@ -275,6 +294,58 @@ describe('applyWordCloudTopicLabels', () => {
     expect(freeResult.entries.length).toBeGreaterThan(0);
     releaseLabel?.();
     await qaPromise;
+  });
+
+  it('nutzt das erweiterte Phasenbudget für langsame Modellnamen', async () => {
+    let calls = 0;
+    const label = labeler(async (request) => {
+      calls += 1;
+      return {
+        status: 'completed',
+        output: {
+          schemaVersion: 1,
+          taskType: 'topic_label',
+          label: calls === 1 ? 'lineare Funktionen' : 'Ableitung',
+          sourceIds: [request.sources[0]!.id],
+        },
+        telemetry: {
+          taskType: 'topic_label',
+          elapsedMs: 12_000,
+          model: null,
+          promptTokens: null,
+          completionTokens: null,
+        },
+      };
+    });
+    let clock = 0;
+    const result = await applyWordCloudTopicLabels(
+      input,
+      output([
+        entry('Was ist die Steigung einer Geraden?', [
+          'Was ist die Steigung einer Geraden?',
+          'Wie bestimmt man die Steigung?',
+        ]),
+        entry('Was ist eine Ableitung?', [
+          'Was ist eine Ableitung?',
+          'Nenne die Ableitung von x^2',
+        ]),
+      ]),
+      {
+        env: enabledEnv,
+        label,
+        now: () => {
+          const current = clock;
+          // Zwei langsame Aufrufe: unter dem alten 8s-Budget wäre der zweite extractive.
+          clock += 12_000;
+          return current;
+        },
+      },
+    );
+    expect(calls).toBe(2);
+    expect(result.entries[0]?.label).toBe('lineare Funktionen');
+    expect(result.entries[1]?.label).toBe('Ableitung');
+    expect(result.entries.every((entry) => entry.labelOrigin === 'model')).toBe(true);
+    expect(result.labelSettlement).toBe('complete');
   });
 
   it('verwirft einen überlangen Namen', async () => {

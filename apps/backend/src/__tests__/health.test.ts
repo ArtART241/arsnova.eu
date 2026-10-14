@@ -306,6 +306,55 @@ describe('health.check', () => {
   );
 });
 
+describe('health.openWeightLlmProbe', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const { resetOpenWeightLlmRuntimeProbeForTests } =
+      await import('../lib/openWeightLlmRuntimeProbe');
+    resetOpenWeightLlmRuntimeProbeForTests();
+    vi.mocked(checkHealthUsageRate).mockResolvedValue({ allowed: true, remaining: 100 });
+  });
+
+  trpcDodIt(
+    {
+      procedure: 'health.openWeightLlmProbe',
+      case: 'happy',
+      mode: 'direct',
+      title: 'meldet disabled wenn die private Runtime ausgeschaltet ist',
+    },
+    async () => {
+      vi.stubEnv('OPEN_WEIGHT_LLM_ENABLED', 'false');
+      const result = await caller.openWeightLlmProbe(undefined);
+      expect(result.enabled).toBe(false);
+      expect(result.overall).toBe('disabled');
+      expect(result.tasks.topic_label.status).toBe('disabled');
+      expect(result.tasks.qa_summary.status).toBe('disabled');
+      expect(result.tasks.learning_objectives.status).toBe('disabled');
+      vi.unstubAllEnvs();
+    },
+  );
+
+  trpcDodIt(
+    {
+      procedure: 'health.openWeightLlmProbe',
+      case: 'error',
+      mode: 'direct',
+      contract: 'TOO_MANY_REQUESTS',
+      title: 'wirft TOO_MANY_REQUESTS wenn die Stichproben-Rate greift',
+    },
+    async () => {
+      vi.mocked(checkHealthUsageRate).mockResolvedValue({
+        allowed: false,
+        remaining: 0,
+        retryAfterSeconds: 30,
+      });
+      await expect(caller.openWeightLlmProbe(undefined)).rejects.toMatchObject({
+        code: 'TOO_MANY_REQUESTS',
+      });
+    },
+  );
+});
+
 describe('health.footerBundle', () => {
   beforeEach(() => {
     vi.clearAllMocks();

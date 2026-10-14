@@ -227,6 +227,13 @@ mat-dialog-actions {
   margin-top: 0.15rem;
 }
 
+.status-help-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
 .status-help-dialog__metric-group--dynamic {
   padding: 0.85rem;
   border-radius: var(--mat-sys-corner-large);

@@ -699,7 +699,7 @@ test('real mode accepts the Slice-2D full-coverage flag on a complete baseline',
     cwd: repoRoot,
   });
   assert.equal(run.status, 0, run.stderr || run.stdout);
-  assert.match(run.stdout, /Complete: 183/);
+  assert.match(run.stdout, /Complete: 184/);
   assert.match(run.stdout, /Incomplete: 0/);
   assert.match(run.stdout, /Untested: 0/);
 });
@@ -745,11 +745,12 @@ export const appRouter = router({
 test('real router tree inventory follows mounted and nested routers exactly', async () => {
   const { inventariseRouterTree } = await loadAudit();
   const procedures = inventariseRouterTree(join(repoRoot, 'apps/backend/src/routers/index.ts'));
-  assert.equal(procedures.length, 191);
-  assert.equal(procedures.filter((procedure) => procedure.kind === 'query').length, 74);
+  assert.equal(procedures.length, 192);
+  assert.equal(procedures.filter((procedure) => procedure.kind === 'query').length, 75);
   assert.equal(procedures.filter((procedure) => procedure.kind === 'mutation').length, 109);
   assert.equal(procedures.filter((procedure) => procedure.kind === 'subscription').length, 8);
   assert.ok(procedures.some((procedure) => procedure.id === 'health.usage'));
+  assert.ok(procedures.some((procedure) => procedure.id === 'health.openWeightLlmProbe'));
   assert.ok(procedures.some((procedure) => procedure.id === 'admin.motd.motdCreate'));
   assert.ok(procedures.some((procedure) => procedure.id === 'qa.summaryRuntime'));
   assert.ok(procedures.some((procedure) => procedure.id === 'qa.summaryContextPreview'));

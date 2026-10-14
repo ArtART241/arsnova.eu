@@ -4893,6 +4893,62 @@ export const PublicDependenciesStatusSchema = z.object({
 });
 export type PublicDependenciesStatus = z.infer<typeof PublicDependenciesStatusSchema>;
 
+/**
+ * Öffentliche Stichprobe der privaten Open-Weight-LLM-Runtime.
+ * `disabled` = Schalter aus; `busy` = Slot belegt; beeinflusst nicht den Kern-Betriebsstatus.
+ */
+export const OpenWeightLlmProbeTaskStatusSchema = z.enum([
+  'ok',
+  'busy',
+  'degraded',
+  'unavailable',
+  'disabled',
+  'unknown',
+]);
+export type OpenWeightLlmProbeTaskStatus = z.infer<typeof OpenWeightLlmProbeTaskStatusSchema>;
+
+export const OpenWeightLlmProbeTaskResultSchema = z.object({
+  status: OpenWeightLlmProbeTaskStatusSchema,
+  /** Laufzeit der Stichprobe; null wenn nicht ausgeführt. */
+  elapsedMs: z.number().int().min(0).nullable(),
+  /** Kurzer Maschinengrund ohne Secrets (z. B. timeout, misconfigured). */
+  reason: z.string().trim().min(1).max(64).nullable(),
+});
+export type OpenWeightLlmProbeTaskResult = z.infer<typeof OpenWeightLlmProbeTaskResultSchema>;
+
+export const OpenWeightLlmRuntimeProbeSchema = z.object({
+  enabled: z.boolean(),
+  overall: OpenWeightLlmProbeTaskStatusSchema,
+  checkedAt: z.string().datetime().nullable(),
+  /** fresh = aus Cache; live = gerade gemessen; skipped = Runtime aus. */
+  cache: z.enum(['fresh', 'live', 'skipped']),
+  /**
+   * Konfigurierter Modellalias der App (z. B. qwen3-4b-…); null wenn Runtime aus.
+   * Öffentlich, ohne Digest/Token.
+   */
+  modelAlias: z.string().trim().min(1).max(120).nullable(),
+  /**
+   * Von der Runtime in einer erfolgreichen Completion gemeldetes `model`;
+   * null wenn noch kein erfolgreicher Aufruf.
+   */
+  modelReported: z.string().trim().min(1).max(256).nullable(),
+  tasks: z.object({
+    topic_label: OpenWeightLlmProbeTaskResultSchema,
+    qa_summary: OpenWeightLlmProbeTaskResultSchema,
+    learning_objectives: OpenWeightLlmProbeTaskResultSchema,
+  }),
+});
+export type OpenWeightLlmRuntimeProbeDTO = z.infer<typeof OpenWeightLlmRuntimeProbeSchema>;
+
+export const OpenWeightLlmRuntimeProbeInputSchema = z
+  .object({
+    /** Cache umgehen und die drei Minimalaufträge erneut ausführen. */
+    refresh: z.boolean().optional(),
+  })
+  .strict()
+  .optional();
+export type OpenWeightLlmRuntimeProbeInput = z.infer<typeof OpenWeightLlmRuntimeProbeInputSchema>;
+
 /** Qualitätsstichprobe einer Kernaktion (öffentlich, aggregiert, ohne Rohdaten). */
 export const CoreActionQualitySchema = z.object({
   samples: z.number().int().min(0),

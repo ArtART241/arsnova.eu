@@ -207,6 +207,11 @@
       "fingerprint": "sha256:713f65fbe5c5b0b8062e5bc7ab80586897c3f7e6705fb3cf11a4a776dddc5016",
       "missing": []
     },
+    "health.openWeightLlmProbe": {
+      "kind": "query",
+      "fingerprint": "sha256:31ba29372225fc8ad25738574633c10a0e6adbcbc0415f42c0c590a5f6f672dc",
+      "missing": []
+    },
     "health.ping": {
       "kind": "subscription",
       "fingerprint": "sha256:ca8e03077315cef534518def8957a8c758082efca1a5805abb3b4b2804055898",

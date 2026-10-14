@@ -209,7 +209,7 @@
     },
     "health.openWeightLlmProbe": {
       "kind": "query",
-      "fingerprint": "sha256:31ba29372225fc8ad25738574633c10a0e6adbcbc0415f42c0c590a5f6f672dc",
+      "fingerprint": "sha256:5134282ea09db4d81516a8840c650db16a9dc90c7ef0c2d8bbfe1a861210dcd5",
       "missing": []
     },
     "health.ping": {

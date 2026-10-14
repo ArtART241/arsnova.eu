@@ -1454,8 +1454,8 @@ test('real gate report is deterministic and complete coverage has no legacy debt
     }
     assert.equal(readFileSync(outputs[0], 'utf8'), readFileSync(outputs[1], 'utf8'));
     const report = JSON.parse(readFileSync(outputs[0], 'utf8'));
-    assert.equal(report.summary.queriesMutations, 183);
-    assert.equal(report.summary.complete, 183);
+    assert.equal(report.summary.queriesMutations, 184);
+    assert.equal(report.summary.complete, 184);
     assert.equal(report.summary.untested, 0);
     assert.equal(report.summary.legacyProcedures, 0);
     assert.equal(report.summary.legacyMissingDimensions, 0);
@@ -1467,7 +1467,7 @@ test('real gate report is deterministic and complete coverage has no legacy debt
     const queriesMutations = report.procedures.filter(
       (procedure) => procedure.kind !== 'subscription',
     );
-    assert.equal(queriesMutations.length, 183);
+    assert.equal(queriesMutations.length, 184);
     assert.ok(
       queriesMutations.every(
         (procedure) =>

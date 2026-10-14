@@ -1,26 +1,36 @@
 /**
  * Minimale Betriebsstichprobe der drei privaten LLM-Aufträge.
- * Läuft nicht im Footer-Poll; Cache und kurzes Task-Timeout schützen den Inferenz-Slot.
+ * Läuft nicht im Footer-Poll; globales Intervall schützt den Inferenz-Slot auch bei refresh.
  */
 import {
+  MODERATION_PROMPT_CONTEXT_MINIMAL_FIXTURE_V1,
+  MODERATION_PROMPT_DEFINITION_SET_VERSION,
   OPEN_WEIGHT_LLM_SCHEMA_VERSION,
   OpenWeightLlmRuntimeProbeSchema,
+  QA_SUMMARY_CONTEXT_V2_CONTRACT_VERSION,
+  QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+  QA_SUMMARY_TECHNICAL_INSTRUCTION_VERSION,
+  QA_SUMMARY_V2_SCHEMA_VERSION,
   type OpenWeightLlmLearningObjectivesRequest,
   type OpenWeightLlmRuntimeProbeDTO,
   type OpenWeightLlmProbeTaskResult,
   type OpenWeightLlmProbeTaskStatus,
-  type OpenWeightLlmSummaryRequest,
+  type OpenWeightLlmSummaryRequestV2,
   type OpenWeightLlmTopicLabelOutput,
   type OpenWeightLlmTopicLabelRequest,
-  type OpenWeightLlmSummaryOutput,
 } from '@arsnova/shared-types';
 import { isOpenWeightLlmEnabled, OPEN_WEIGHT_LLM_MODEL_ALIAS } from './openWeightLlmConfig';
 import {
   runOpenWeightLlmLearningObjectives,
-  runOpenWeightLlmSummary,
+  runOpenWeightLlmSummaryV2,
   runOpenWeightLlmTopicLabel,
 } from './openWeightLlmClient';
+import {
+  QA_SUMMARY_TECHNICAL_DEFINITION_TEXT,
+  QA_SUMMARY_TECHNICAL_INSTRUCTION_TEXT,
+} from './moderationSummaryContext';
 
+/** Ergebnis-Cache und Mindestabstand zwischen Live-Messungen (auch bei refresh). */
 export const OPEN_WEIGHT_LLM_PROBE_CACHE_TTL_MS = 5 * 60_000;
 /** Pro Aufgabe bewusst kürzer als die Produktions-Timeouts — nur Erreichbarkeit/Schema. */
 export const OPEN_WEIGHT_LLM_PROBE_TASK_TIMEOUT_MS = 20_000;
@@ -28,7 +38,6 @@ export const OPEN_WEIGHT_LLM_PROBE_TASK_TIMEOUT_MS = 20_000;
 const PROBE_SOURCE_ID = 'probe-s1';
 const PROBE_QUESTION_ID = '11111111-1111-4111-8111-111111111111';
 const PROBE_REQUEST_ID = '22222222-2222-4222-8222-222222222222';
-const PROBE_SNAPSHOT_HASH = 'b'.repeat(64);
 
 const TOPIC_LABEL_REQUEST = {
   schemaVersion: OPEN_WEIGHT_LLM_SCHEMA_VERSION,
@@ -51,32 +60,6 @@ const TOPIC_LABEL_FALLBACK = {
   sourceIds: [PROBE_SOURCE_ID],
 } satisfies OpenWeightLlmTopicLabelOutput;
 
-const SUMMARY_REQUEST = {
-  schemaVersion: OPEN_WEIGHT_LLM_SCHEMA_VERSION,
-  taskType: 'qa_summary',
-  locale: 'de',
-  snapshotHash: PROBE_SNAPSHOT_HASH,
-  sources: [
-    {
-      id: PROBE_SOURCE_ID,
-      kind: 'qa-question',
-      text: 'Ist Kapitel 4 klausurrelevant?',
-    },
-  ],
-} satisfies OpenWeightLlmSummaryRequest;
-
-const SUMMARY_FALLBACK = {
-  schemaVersion: OPEN_WEIGHT_LLM_SCHEMA_VERSION,
-  taskType: 'qa_summary',
-  result: {
-    status: 'ready',
-    statements: [{ text: 'Probe', sourceIds: [PROBE_SOURCE_ID] }],
-    suggestedNextSteps: [],
-    limitations: [],
-    modelVersion: 'ops-probe',
-  },
-} satisfies OpenWeightLlmSummaryOutput;
-
 const LEARNING_REQUEST = {
   schemaVersion: OPEN_WEIGHT_LLM_SCHEMA_VERSION,
   taskType: 'learning_objectives',
@@ -94,10 +77,45 @@ const LEARNING_REQUEST = {
   ],
 } satisfies OpenWeightLlmLearningObjectivesRequest;
 
+function buildSummaryV2ProbeRequest(): OpenWeightLlmSummaryRequestV2 {
+  const instructionText = QA_SUMMARY_TECHNICAL_INSTRUCTION_TEXT;
+  const definitionText = QA_SUMMARY_TECHNICAL_DEFINITION_TEXT;
+  const instructionTokens = new TextEncoder().encode(instructionText).byteLength;
+  const definitionTokens = new TextEncoder().encode(definitionText).byteLength;
+  const promptContext = structuredClone(MODERATION_PROMPT_CONTEXT_MINIMAL_FIXTURE_V1);
+  const dataTokens = promptContext.budget.dataTokens;
+  const packedInputTokens = instructionTokens + definitionTokens + dataTokens;
+  const reserved =
+    promptContext.budget.reservedOutputTokens + promptContext.budget.safetyMarginTokens;
+  promptContext.budget = {
+    ...promptContext.budget,
+    instructionTokens,
+    definitionTokens,
+    packedInputTokens,
+    contextWindowTokens: Math.max(
+      promptContext.budget.contextWindowTokens,
+      packedInputTokens + reserved,
+    ),
+  };
+  return {
+    schemaVersion: QA_SUMMARY_V2_SCHEMA_VERSION,
+    taskType: 'qa_summary',
+    requestContract: QA_SUMMARY_CONTEXT_V2_CONTRACT_VERSION,
+    outputContract: QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+    instructionVersion: QA_SUMMARY_TECHNICAL_INSTRUCTION_VERSION,
+    instructionText,
+    definitionVersion: MODERATION_PROMPT_DEFINITION_SET_VERSION,
+    definitionText,
+    promptContext,
+  };
+}
+
+const SUMMARY_V2_REQUEST = buildSummaryV2ProbeRequest();
+
 type ProbeHooks = {
   readonly now?: () => number;
   readonly topicLabel?: typeof runOpenWeightLlmTopicLabel;
-  readonly summary?: typeof runOpenWeightLlmSummary;
+  readonly summaryV2?: typeof runOpenWeightLlmSummaryV2;
   readonly learning?: typeof runOpenWeightLlmLearningObjectives;
   readonly env?: NodeJS.ProcessEnv;
   readonly taskTimeoutMs?: number;
@@ -215,7 +233,7 @@ async function measureProbe(hooks: ProbeHooks): Promise<OpenWeightLlmRuntimeProb
 
   const timeoutMs = hooks.taskTimeoutMs ?? OPEN_WEIGHT_LLM_PROBE_TASK_TIMEOUT_MS;
   const topicLabel = hooks.topicLabel ?? runOpenWeightLlmTopicLabel;
-  const summary = hooks.summary ?? runOpenWeightLlmSummary;
+  const summaryV2 = hooks.summaryV2 ?? runOpenWeightLlmSummaryV2;
   const learning = hooks.learning ?? runOpenWeightLlmLearningObjectives;
 
   const topic = await runOneTask(async () => {
@@ -228,12 +246,12 @@ async function measureProbe(hooks: ProbeHooks): Promise<OpenWeightLlmRuntimeProb
   }, now);
 
   const qaSummary = await runOneTask(async () => {
-    const result = await summary(SUMMARY_REQUEST, SUMMARY_FALLBACK, {
+    const result = await summaryV2(SUMMARY_V2_REQUEST, {
       signal: AbortSignal.timeout(timeoutMs),
     });
     return result.status === 'completed'
       ? { status: 'completed', model: result.telemetry.model }
-      : { status: 'fallback', reason: result.reason };
+      : { status: result.status, reason: result.status };
   }, now);
 
   const learningObjectives = await runOneTask(async () => {
@@ -280,6 +298,11 @@ export function resetOpenWeightLlmRuntimeProbeForTests(): void {
   probeInFlight = null;
 }
 
+/** Exported for contract tests — same V2 request the live probe sends. */
+export function getOpenWeightLlmSummaryV2ProbeRequestForTests(): OpenWeightLlmSummaryRequestV2 {
+  return SUMMARY_V2_REQUEST;
+}
+
 export async function getOpenWeightLlmRuntimeProbe(
   options: ProbeHooks & { readonly refresh?: boolean } = {},
 ): Promise<OpenWeightLlmRuntimeProbeDTO> {
@@ -291,7 +314,9 @@ export async function getOpenWeightLlmRuntimeProbe(
     return value;
   }
 
-  if (!options.refresh && cachedProbe && cachedProbe.expiresAt > now()) {
+  // refresh darf den Cache/Cooldownkühlzeit nicht umgehen — sonst belegt jeder anonyme
+  // Aufruf den einzigen Inferenz-Slot erneut (Shared-NAT-tauglich, kein IP-Budget-Senken).
+  if (cachedProbe && cachedProbe.expiresAt > now()) {
     return OpenWeightLlmRuntimeProbeSchema.parse({
       ...cachedProbe.value,
       cache: 'fresh',

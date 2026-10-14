@@ -1124,8 +1124,9 @@ export const healthRouter = router({
   stats: publicProcedure.output(ServerStatsDTOSchema).query(() => fetchServerStats()),
 
   /**
-   * Minimale Stichprobe der privaten LLM-Runtime (topic_label, qa_summary, learning_objectives).
+   * Minimale Stichprobe der privaten LLM-Runtime (topic_label, Summary V2, learning_objectives).
    * Nicht Teil von footerBundle/serviceStatus — nur für den Betriebsstatus-Dialog.
+   * `refresh` umgeht den 5‑Minuten-Cache nicht (Schutz des einzigen Inferenz-Slots).
    */
   openWeightLlmProbe: publicProcedure
     .input(OpenWeightLlmRuntimeProbeInputSchema)

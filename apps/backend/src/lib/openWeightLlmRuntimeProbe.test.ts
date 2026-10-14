@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  QA_SUMMARY_CONTEXT_V2_CONTRACT_VERSION,
+  QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+  QA_SUMMARY_V2_SCHEMA_VERSION,
+} from '@arsnova/shared-types';
+import {
   getOpenWeightLlmRuntimeProbe,
+  getOpenWeightLlmSummaryV2ProbeRequestForTests,
   resetOpenWeightLlmRuntimeProbeForTests,
 } from './openWeightLlmRuntimeProbe';
 
@@ -30,7 +36,7 @@ describe('getOpenWeightLlmRuntimeProbe', () => {
     expect(topicLabel).not.toHaveBeenCalled();
   });
 
-  it('prüft die drei Aufgaben und cached das Ergebnis', async () => {
+  it('prüft die drei Aufgaben über den produktiven Summary-V2-Vertrag und cached', async () => {
     const topicLabel = vi.fn(async () => ({
       status: 'completed' as const,
       output: {
@@ -47,27 +53,38 @@ describe('getOpenWeightLlmRuntimeProbe', () => {
         completionTokens: null,
       },
     }));
-    const summary = vi.fn(async () => ({
-      status: 'completed' as const,
-      output: {
-        schemaVersion: 1 as const,
-        taskType: 'qa_summary' as const,
-        result: {
-          status: 'ready' as const,
-          statements: [{ text: 'Kapitel 4', sourceIds: ['probe-s1'] }],
-          suggestedNextSteps: [],
-          limitations: [],
-          modelVersion: 'probe',
+    const summaryV2 = vi.fn(async (request) => {
+      expect(request.schemaVersion).toBe(QA_SUMMARY_V2_SCHEMA_VERSION);
+      expect(request.requestContract).toBe(QA_SUMMARY_CONTEXT_V2_CONTRACT_VERSION);
+      expect(request.outputContract).toBe(QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION);
+      expect(request.promptContext).toBeDefined();
+      return {
+        status: 'completed' as const,
+        output: {
+          schemaVersion: QA_SUMMARY_V2_SCHEMA_VERSION,
+          taskType: 'qa_summary' as const,
+          outputContract: QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+          output: {
+            status: 'ready' as const,
+            statements: [
+              {
+                text: 'Kapitel 4',
+                sourceIds: [request.promptContext.context.sources[0]!.id],
+              },
+            ],
+            suggestedNextSteps: [],
+            limitations: [],
+          },
         },
-      },
-      telemetry: {
-        taskType: 'qa_summary' as const,
-        elapsedMs: 20,
-        model: 'qwen3-4b-instruct-2507-q4_k_m',
-        promptTokens: null,
-        completionTokens: null,
-      },
-    }));
+        telemetry: {
+          taskType: 'qa_summary' as const,
+          elapsedMs: 20,
+          model: 'qwen3-4b-instruct-2507-q4_k_m',
+          promptTokens: null,
+          completionTokens: null,
+        },
+      };
+    });
     const learning = vi.fn(async () => ({
       status: 'completed' as const,
       output: {
@@ -93,7 +110,7 @@ describe('getOpenWeightLlmRuntimeProbe', () => {
     const first = await getOpenWeightLlmRuntimeProbe({
       env: enabledEnv,
       topicLabel: topicLabel as never,
-      summary: summary as never,
+      summaryV2: summaryV2 as never,
       learning: learning as never,
     });
     expect(first.overall).toBe('ok');
@@ -104,15 +121,103 @@ describe('getOpenWeightLlmRuntimeProbe', () => {
     expect(first.tasks.qa_summary.status).toBe('ok');
     expect(first.tasks.learning_objectives.status).toBe('ok');
     expect(topicLabel).toHaveBeenCalledTimes(1);
+    expect(summaryV2).toHaveBeenCalledTimes(1);
 
     const second = await getOpenWeightLlmRuntimeProbe({
       env: enabledEnv,
       topicLabel: topicLabel as never,
-      summary: summary as never,
+      summaryV2: summaryV2 as never,
       learning: learning as never,
     });
     expect(second.cache).toBe('fresh');
     expect(topicLabel).toHaveBeenCalledTimes(1);
+  });
+
+  it('lässt refresh den Cache nicht umgehen', async () => {
+    const topicLabel = vi.fn(async () => ({
+      status: 'completed' as const,
+      output: {
+        schemaVersion: 1 as const,
+        taskType: 'topic_label' as const,
+        label: 'Probe',
+        sourceIds: ['probe-s1'],
+      },
+      telemetry: {
+        taskType: 'topic_label' as const,
+        elapsedMs: 1,
+        model: 'qwen3-4b-instruct-2507-q4_k_m',
+        promptTokens: null,
+        completionTokens: null,
+      },
+    }));
+    const summaryV2 = vi.fn(async () => ({
+      status: 'completed' as const,
+      output: {
+        schemaVersion: QA_SUMMARY_V2_SCHEMA_VERSION,
+        taskType: 'qa_summary' as const,
+        outputContract: QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+        output: {
+          status: 'ready' as const,
+          statements: [],
+          suggestedNextSteps: [],
+          limitations: [],
+        },
+      },
+      telemetry: {
+        taskType: 'qa_summary' as const,
+        elapsedMs: 1,
+        model: null,
+        promptTokens: null,
+        completionTokens: null,
+      },
+    }));
+    const learning = vi.fn(async () => ({
+      status: 'completed' as const,
+      output: {
+        schemaVersion: 1 as const,
+        taskType: 'learning_objectives' as const,
+        objectives: [],
+        limitations: [],
+      },
+      telemetry: {
+        taskType: 'learning_objectives' as const,
+        elapsedMs: 1,
+        model: null,
+        promptTokens: null,
+        completionTokens: null,
+      },
+    }));
+
+    await getOpenWeightLlmRuntimeProbe({
+      env: enabledEnv,
+      topicLabel: topicLabel as never,
+      summaryV2: summaryV2 as never,
+      learning: learning as never,
+    });
+    const refreshed = await getOpenWeightLlmRuntimeProbe({
+      env: enabledEnv,
+      refresh: true,
+      topicLabel: topicLabel as never,
+      summaryV2: summaryV2 as never,
+      learning: learning as never,
+    });
+    expect(refreshed.cache).toBe('fresh');
+    expect(topicLabel).toHaveBeenCalledTimes(1);
+    expect(summaryV2).toHaveBeenCalledTimes(1);
+    expect(learning).toHaveBeenCalledTimes(1);
+  });
+
+  it('baut einen gültigen Summary-V2-Probe-Request', () => {
+    const request = getOpenWeightLlmSummaryV2ProbeRequestForTests();
+    expect(request.schemaVersion).toBe(2);
+    expect(request.requestContract).toBe(QA_SUMMARY_CONTEXT_V2_CONTRACT_VERSION);
+    expect(request.outputContract).toBe(QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION);
+    expect(request.promptContext.budget.instructionTokens).toBe(
+      new TextEncoder().encode(request.instructionText).byteLength,
+    );
+    expect(request.promptContext.budget.definitionTokens).toBe(
+      new TextEncoder().encode(request.definitionText).byteLength,
+    );
   });
 
   it('ordnet busy und Teilausfälle dem Gesamtstatus zu', async () => {
@@ -128,17 +233,17 @@ describe('getOpenWeightLlmRuntimeProbe', () => {
           sourceIds: ['probe-s1'],
         },
       })) as never,
-      summary: (async () => ({
+      summaryV2: (async () => ({
         status: 'completed' as const,
         output: {
-          schemaVersion: 1 as const,
+          schemaVersion: QA_SUMMARY_V2_SCHEMA_VERSION,
           taskType: 'qa_summary' as const,
-          result: {
+          outputContract: QA_SUMMARY_MODEL_OUTPUT_V2_CONTRACT_VERSION,
+          output: {
             status: 'ready' as const,
-            statements: [{ text: 'Kapitel 4', sourceIds: ['probe-s1'] }],
+            statements: [],
             suggestedNextSteps: [],
             limitations: [],
-            modelVersion: 'probe',
           },
         },
         telemetry: {

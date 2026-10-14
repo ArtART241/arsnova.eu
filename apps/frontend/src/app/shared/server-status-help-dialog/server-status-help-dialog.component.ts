@@ -257,102 +257,122 @@ export interface ServerStatusHelpDialogData {
                       {{ modelLabel }}
                     </p>
                   }
-                  @if (llmProbeLoading()) {
-                    <p
-                      class="status-help-dialog__copy status-help-dialog__copy--compact"
-                      i18n="@@app.footer.statusOpenWeightLlmLoading"
-                    >
-                      Prüfung läuft …
-                    </p>
-                  } @else if (llmProbeError()) {
-                    <p
-                      class="status-help-dialog__copy status-help-dialog__copy--compact"
-                      i18n="@@app.footer.statusOpenWeightLlmError"
-                    >
-                      Prüfung derzeit nicht möglich.
-                    </p>
-                  } @else if (llmProbe(); as llm) {
-                    <div class="status-help-dialog__metrics status-help-dialog__metrics--overview">
-                      <article class="status-help-dialog__metric">
-                        <div class="status-help-dialog__metric-head">
-                          <mat-icon aria-hidden="true">verified</mat-icon>
-                          <span i18n="@@app.footer.statusMetricOpenWeightLlmOverall">Gesamt</span>
-                        </div>
-                        <strong class="status-help-dialog__metric-value--prose">{{
-                          formatLlmProbeStatus(llm.overall)
-                        }}</strong>
-                        <p
-                          class="status-help-dialog__metric-hint"
-                          i18n="@@app.footer.statusMetricOpenWeightLlmOverallHint"
-                        >
-                          Gemeinsames Ergebnis der drei Hilfen.
-                        </p>
-                      </article>
-                      <article class="status-help-dialog__metric">
-                        <div class="status-help-dialog__metric-head">
-                          <mat-icon aria-hidden="true">label</mat-icon>
-                          <span i18n="@@app.footer.statusMetricOpenWeightLlmTopicLabel"
-                            >Themennamen</span
-                          >
-                        </div>
-                        <strong class="status-help-dialog__metric-value--prose">{{
-                          formatLlmProbeStatus(llm.tasks.topic_label.status)
-                        }}</strong>
-                        <p
-                          class="status-help-dialog__metric-hint"
-                          i18n="@@app.footer.statusMetricOpenWeightLlmTopicLabelHint"
-                        >
-                          Kurze Namen für ähnliche Fragen oder Freitextantworten in der Wortwolke
-                          »Thema«.
-                        </p>
-                      </article>
-                      <article class="status-help-dialog__metric">
-                        <div class="status-help-dialog__metric-head">
-                          <mat-icon aria-hidden="true">summarize</mat-icon>
-                          <span i18n="@@app.footer.statusMetricOpenWeightLlmQaSummary"
-                            >Q&amp;A-Kurzfassung</span
-                          >
-                        </div>
-                        <strong class="status-help-dialog__metric-value--prose">{{
-                          formatLlmProbeStatus(llm.tasks.qa_summary.status)
-                        }}</strong>
-                        <p
-                          class="status-help-dialog__metric-hint"
-                          i18n="@@app.footer.statusMetricOpenWeightLlmQaSummaryHint"
-                        >
-                          Fasst wiederkehrende Fragen und Hinweise für die Moderation zusammen.
-                        </p>
-                      </article>
-                      <article class="status-help-dialog__metric">
-                        <div class="status-help-dialog__metric-head">
-                          <mat-icon aria-hidden="true">school</mat-icon>
-                          <span i18n="@@app.footer.statusMetricOpenWeightLlmLearning"
-                            >Lernziele</span
-                          >
-                        </div>
-                        <strong class="status-help-dialog__metric-value--prose">{{
-                          formatLlmProbeStatus(llm.tasks.learning_objectives.status)
-                        }}</strong>
-                        <p
-                          class="status-help-dialog__metric-hint"
-                          i18n="@@app.footer.statusMetricOpenWeightLlmLearningHint"
-                        >
-                          Schlägt aus Quizfragen prüfbare Lernziele als Entwurf vor.
-                        </p>
-                      </article>
-                    </div>
-                    <div class="status-help-dialog__actions">
-                      <button
-                        mat-button
-                        type="button"
-                        (click)="refreshLlmProbe()"
-                        [disabled]="llmProbeLoading()"
-                        i18n="@@app.footer.statusOpenWeightLlmRefresh"
+                  <div
+                    class="status-help-dialog__llm-live"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
+                    @if (llmProbeLoading()) {
+                      <p
+                        class="status-help-dialog__copy status-help-dialog__copy--compact"
+                        i18n="@@app.footer.statusOpenWeightLlmLoading"
                       >
-                        Erneut prüfen
-                      </button>
-                    </div>
-                  }
+                        Prüfung läuft …
+                      </p>
+                    } @else if (llmProbeError()) {
+                      <p
+                        class="status-help-dialog__copy status-help-dialog__copy--compact"
+                        i18n="@@app.footer.statusOpenWeightLlmError"
+                      >
+                        Prüfung derzeit nicht möglich.
+                      </p>
+                      <div class="status-help-dialog__actions">
+                        <button
+                          mat-button
+                          type="button"
+                          (click)="refreshLlmProbe()"
+                          [disabled]="llmProbeLoading()"
+                          i18n="@@app.footer.statusOpenWeightLlmRefresh"
+                        >
+                          Erneut prüfen
+                        </button>
+                      </div>
+                    } @else if (llmProbe(); as llm) {
+                      <div
+                        class="status-help-dialog__metrics status-help-dialog__metrics--overview"
+                      >
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">verified</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmOverall">Gesamt</span>
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.overall)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmOverallHint"
+                          >
+                            Gemeinsames Ergebnis der drei Hilfen.
+                          </p>
+                        </article>
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">label</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmTopicLabel"
+                              >Themennamen</span
+                            >
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.tasks.topic_label.status)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmTopicLabelHint"
+                          >
+                            Kurze Namen für ähnliche Fragen oder Freitextantworten in der Wortwolke
+                            »Thema«.
+                          </p>
+                        </article>
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">summarize</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmQaSummary"
+                              >Q&amp;A-Kurzfassung</span
+                            >
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.tasks.qa_summary.status)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmQaSummaryHint"
+                          >
+                            Fasst wiederkehrende Fragen und Hinweise für die Moderation zusammen.
+                          </p>
+                        </article>
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">school</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmLearning"
+                              >Lernziele</span
+                            >
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.tasks.learning_objectives.status)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmLearningHint"
+                          >
+                            Schlägt aus Quizfragen prüfbare Lernziele als Entwurf vor.
+                          </p>
+                        </article>
+                      </div>
+                      <div class="status-help-dialog__actions">
+                        <button
+                          mat-button
+                          type="button"
+                          (click)="refreshLlmProbe()"
+                          [disabled]="llmProbeLoading()"
+                          i18n="@@app.footer.statusOpenWeightLlmRefresh"
+                        >
+                          Erneut prüfen
+                        </button>
+                      </div>
+                    }
+                  </div>
                 </section>
 
                 <section

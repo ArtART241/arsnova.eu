@@ -148,6 +148,8 @@ export async function analyzeWordCloudSnapshot(
       textCacheMisses: 0,
       sidecarCalled: false,
       encoderCalled: false,
+      labelSettlement: cached.labelSettlement ?? null,
+      labelModelAccepted: Boolean(cached.labelModelId),
     });
     return options.compactOutput?.(cached) ?? cached;
   }
@@ -190,6 +192,8 @@ export async function analyzeWordCloudSnapshot(
     textCacheMisses: normalized.cache.textMisses,
     sidecarCalled: normalized.cache.sidecarCalled,
     encoderCalled: effectiveInput.mode === 'SEMANTIC' && Boolean(output.modelVersion),
+    labelSettlement: output.labelSettlement ?? null,
+    labelModelAccepted: Boolean(output.labelModelId),
   });
   return output;
 }

@@ -86,6 +86,62 @@ vi.mock('../lib/rateLimit', async (importOriginal) => {
   };
 });
 
+vi.mock('../lib/openWeightLlmClient', () => ({
+  runOpenWeightLlmTopicLabel: vi.fn(async (_request, fallback) => ({
+    status: 'completed',
+    output: fallback,
+    telemetry: {
+      taskType: 'topic_label',
+      elapsedMs: 1,
+      model: 'mock-model',
+      promptTokens: null,
+      completionTokens: null,
+    },
+  })),
+  runOpenWeightLlmSummaryV2: vi.fn(async () => ({
+    status: 'completed',
+    output: {
+      schemaVersion: 2,
+      taskType: 'qa_summary',
+      outputContract: 'qa-summary-model-output-v2',
+      output: {
+        status: 'ready',
+        statements: [{ text: 'Probe', sourceIds: ['probe-s1'] }],
+        suggestedNextSteps: [],
+        limitations: [],
+      },
+    },
+    telemetry: {
+      taskType: 'qa_summary',
+      elapsedMs: 1,
+      model: 'mock-model',
+      promptTokens: null,
+      completionTokens: null,
+    },
+  })),
+  runOpenWeightLlmLearningObjectives: vi.fn(async () => ({
+    status: 'completed',
+    output: {
+      schemaVersion: 1,
+      taskType: 'learning_objectives',
+      objectives: [
+        {
+          text: 'Probe',
+          questionIds: ['11111111-1111-4111-8111-111111111111'],
+        },
+      ],
+      limitations: [],
+    },
+    telemetry: {
+      taskType: 'learning_objectives',
+      elapsedMs: 1,
+      model: 'mock-model',
+      promptTokens: null,
+      completionTokens: null,
+    },
+  })),
+}));
+
 vi.mock('../lib/usageStatistic', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/usageStatistic')>();
   return {
@@ -304,6 +360,86 @@ describe('health.check', () => {
       expect(result.redis).toBe('unavailable');
     },
   );
+});
+
+describe('health.openWeightLlmProbe', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const { resetOpenWeightLlmRuntimeProbeForTests } =
+      await import('../lib/openWeightLlmRuntimeProbe');
+    resetOpenWeightLlmRuntimeProbeForTests();
+    vi.mocked(checkHealthUsageRate).mockResolvedValue({ allowed: true, remaining: 100 });
+  });
+
+  trpcDodIt(
+    {
+      procedure: 'health.openWeightLlmProbe',
+      case: 'happy',
+      mode: 'direct',
+      title: 'meldet disabled wenn die private Runtime ausgeschaltet ist',
+    },
+    async () => {
+      vi.stubEnv('OPEN_WEIGHT_LLM_ENABLED', 'false');
+      const result = await caller.openWeightLlmProbe(undefined);
+      expect(result.enabled).toBe(false);
+      expect(result.overall).toBe('disabled');
+      expect(result.tasks.topic_label.status).toBe('disabled');
+      expect(result.tasks.qa_summary.status).toBe('disabled');
+      expect(result.tasks.learning_objectives.status).toBe('disabled');
+      vi.unstubAllEnvs();
+    },
+  );
+
+  trpcDodIt(
+    {
+      procedure: 'health.openWeightLlmProbe',
+      case: 'error',
+      mode: 'direct',
+      contract: 'TOO_MANY_REQUESTS',
+      title: 'wirft TOO_MANY_REQUESTS wenn die Stichproben-Rate greift',
+    },
+    async () => {
+      vi.stubEnv('OPEN_WEIGHT_LLM_ENABLED', 'true');
+      vi.mocked(checkHealthUsageRate).mockResolvedValue({
+        allowed: false,
+        remaining: 0,
+        retryAfterSeconds: 30,
+      });
+      await expect(caller.openWeightLlmProbe(undefined)).rejects.toMatchObject({
+        code: 'TOO_MANY_REQUESTS',
+      });
+      expect(checkHealthUsageRate).toHaveBeenCalled();
+      vi.unstubAllEnvs();
+    },
+  );
+
+  it('belastet das IP-Rate-Limit nicht bei Cache-Treffern', async () => {
+    vi.stubEnv('OPEN_WEIGHT_LLM_ENABLED', 'true');
+    await caller.openWeightLlmProbe(undefined);
+    expect(checkHealthUsageRate).toHaveBeenCalledTimes(1);
+    vi.mocked(checkHealthUsageRate).mockClear();
+    await caller.openWeightLlmProbe({ refresh: true });
+    expect(checkHealthUsageRate).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
+
+  it('Shared-NAT-Burst: genau ein Rate-Limit und ein Live-Start bei Parallelität', async () => {
+    vi.stubEnv('OPEN_WEIGHT_LLM_ENABLED', 'true');
+    vi.mocked(checkHealthUsageRate).mockImplementation(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      return { allowed: true, remaining: 100 };
+    });
+
+    const results = await Promise.all(
+      Array.from({ length: 120 }, () => caller.openWeightLlmProbe(undefined)),
+    );
+
+    expect(checkHealthUsageRate).toHaveBeenCalledTimes(1);
+    expect(results).toHaveLength(120);
+    expect(new Set(results.map((result) => result.checkedAt)).size).toBe(1);
+    expect(results.every((result) => result.enabled)).toBe(true);
+    vi.unstubAllEnvs();
+  });
 });
 
 describe('health.footerBundle', () => {

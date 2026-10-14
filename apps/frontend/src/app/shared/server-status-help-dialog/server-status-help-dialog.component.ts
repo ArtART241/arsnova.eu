@@ -22,6 +22,7 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs';
 import type {
+  OpenWeightLlmRuntimeProbeDTO,
   PublicLiveConnections,
   PublicTrafficErrorClasses,
   PublicTrafficQuality,
@@ -228,6 +229,149 @@ export interface ServerStatusHelpDialogData {
                         formatDependency(s.dependencies.live)
                       }}</strong>
                     </article>
+                  </div>
+                </section>
+
+                <section
+                  class="status-help-dialog__metric-group status-help-dialog__metric-group--block"
+                  aria-labelledby="server-status-llm-heading"
+                >
+                  <h4
+                    id="server-status-llm-heading"
+                    class="status-help-dialog__metric-group-title status-help-dialog__metric-group-title--with-icon"
+                  >
+                    <mat-icon aria-hidden="true">psychology</mat-icon>
+                    <span i18n="@@app.footer.statusMetricGroupOpenWeightLlm">Lokale Text-KI</span>
+                  </h4>
+                  <p
+                    class="status-help-dialog__copy status-help-dialog__copy--compact"
+                    i18n="@@app.footer.statusOpenWeightLlmHint"
+                  >
+                    Diese Prüfung betrifft nur die Text-KI auf diesem Server: ein lokal betriebenes
+                    Open-Weight-Modell, kein Cloud-Anbieter. Geprüft werden die drei Hilfen unten.
+                    Das Ergebnis ändert den allgemeinen Betriebsstatus nicht.
+                  </p>
+                  @if (llmModelLabel(); as modelLabel) {
+                    <p class="status-help-dialog__copy status-help-dialog__copy--compact">
+                      <span i18n="@@app.footer.statusOpenWeightLlmModel">Modell:</span>
+                      {{ modelLabel }}
+                    </p>
+                  }
+                  <div
+                    class="status-help-dialog__llm-live"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
+                    @if (llmProbeLoading()) {
+                      <p
+                        class="status-help-dialog__copy status-help-dialog__copy--compact"
+                        i18n="@@app.footer.statusOpenWeightLlmLoading"
+                      >
+                        Prüfung läuft …
+                      </p>
+                    } @else if (llmProbeError()) {
+                      <p
+                        class="status-help-dialog__copy status-help-dialog__copy--compact"
+                        i18n="@@app.footer.statusOpenWeightLlmError"
+                      >
+                        Prüfung derzeit nicht möglich.
+                      </p>
+                      <div class="status-help-dialog__actions">
+                        <button
+                          mat-button
+                          type="button"
+                          (click)="refreshLlmProbe()"
+                          [disabled]="llmProbeLoading()"
+                          i18n="@@app.footer.statusOpenWeightLlmRefresh"
+                        >
+                          Erneut prüfen
+                        </button>
+                      </div>
+                    } @else if (llmProbe(); as llm) {
+                      <div
+                        class="status-help-dialog__metrics status-help-dialog__metrics--overview"
+                      >
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">verified</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmOverall">Gesamt</span>
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.overall)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmOverallHint"
+                          >
+                            Gemeinsames Ergebnis der drei Hilfen.
+                          </p>
+                        </article>
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">label</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmTopicLabel"
+                              >Themennamen</span
+                            >
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.tasks.topic_label.status)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmTopicLabelHint"
+                          >
+                            Kurze Namen für ähnliche Fragen oder Freitextantworten in der Wortwolke
+                            »Thema«.
+                          </p>
+                        </article>
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">summarize</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmQaSummary"
+                              >Q&amp;A-Kurzfassung</span
+                            >
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.tasks.qa_summary.status)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmQaSummaryHint"
+                          >
+                            Fasst wiederkehrende Fragen und Hinweise für die Moderation zusammen.
+                          </p>
+                        </article>
+                        <article class="status-help-dialog__metric">
+                          <div class="status-help-dialog__metric-head">
+                            <mat-icon aria-hidden="true">school</mat-icon>
+                            <span i18n="@@app.footer.statusMetricOpenWeightLlmLearning"
+                              >Lernziele</span
+                            >
+                          </div>
+                          <strong class="status-help-dialog__metric-value--prose">{{
+                            formatLlmProbeStatus(llm.tasks.learning_objectives.status)
+                          }}</strong>
+                          <p
+                            class="status-help-dialog__metric-hint"
+                            i18n="@@app.footer.statusMetricOpenWeightLlmLearningHint"
+                          >
+                            Schlägt aus Quizfragen prüfbare Lernziele als Entwurf vor.
+                          </p>
+                        </article>
+                      </div>
+                      <div class="status-help-dialog__actions">
+                        <button
+                          mat-button
+                          type="button"
+                          (click)="refreshLlmProbe()"
+                          [disabled]="llmProbeLoading()"
+                          i18n="@@app.footer.statusOpenWeightLlmRefresh"
+                        >
+                          Erneut prüfen
+                        </button>
+                      </div>
+                    }
                   </div>
                 </section>
 
@@ -1605,6 +1749,14 @@ export class ServerStatusHelpDialogComponent {
   readonly showCustomRange = signal(false);
   /** Join-Legacy inkl. Chart erst bei Bedarf laden/zeichnen. */
   readonly joinLegacyExpanded = signal(false);
+  readonly llmProbe = signal<OpenWeightLlmRuntimeProbeDTO | null>(null);
+  readonly llmProbeLoading = signal(false);
+  readonly llmProbeError = signal(false);
+  readonly llmModelLabel = computed(() => {
+    const probe = this.llmProbe();
+    if (!probe) return null;
+    return this.formatLlmModelLabel(probe.modelReported ?? probe.modelAlias);
+  });
 
   readonly usageStats = computed<PublicUsageStats | null>(() => {
     return this.usageOverride() ?? this.effectiveStats()?.usage ?? null;
@@ -1723,6 +1875,7 @@ export class ServerStatusHelpDialogComponent {
 
   constructor() {
     this.destroyRef.onDestroy(() => this.destroyChart());
+    void this.loadLlmProbe();
 
     if (typeof globalThis.addEventListener === 'function') {
       globalThis.addEventListener(THEME_PRESET_DOM_EVENT, this.refreshChartForThemeChange);
@@ -1842,6 +1995,53 @@ export class ServerStatusHelpDialogComponent {
         return $localize`:@@app.footer.dependencyUnavailable:nicht erreichbar`;
       default:
         return $localize`:@@app.footer.dependencyUnknown:unbekannt`;
+    }
+  }
+
+  protected formatLlmProbeStatus(status: OpenWeightLlmRuntimeProbeDTO['overall']): string {
+    switch (status) {
+      case 'ok':
+        return $localize`:@@app.footer.dependencyOk:ok`;
+      case 'busy':
+        return $localize`:@@app.footer.openWeightLlmBusy:beschäftigt`;
+      case 'degraded':
+        return $localize`:@@app.footer.dependencyDegraded:eingeschränkt`;
+      case 'unavailable':
+        return $localize`:@@app.footer.dependencyUnavailable:nicht erreichbar`;
+      case 'disabled':
+        return $localize`:@@app.footer.openWeightLlmDisabled:ausgeschaltet`;
+      default:
+        return $localize`:@@app.footer.dependencyUnknown:unbekannt`;
+    }
+  }
+
+  private formatLlmModelLabel(raw: string | null | undefined): string | null {
+    if (!raw?.trim()) return null;
+    const value = raw.trim();
+    if (/qwen3-4b-instruct-2507-q4_k_m/i.test(value)) {
+      return 'Qwen3-4B Instruct (Q4_K_M)';
+    }
+    return value;
+  }
+
+  protected refreshLlmProbe(): void {
+    void this.loadLlmProbe(true);
+  }
+
+  private async loadLlmProbe(refresh = false): Promise<void> {
+    if (this.llmProbeLoading()) return;
+    this.llmProbeLoading.set(true);
+    this.llmProbeError.set(false);
+    try {
+      const probe = await trpc.health.openWeightLlmProbe.query(
+        refresh ? { refresh: true } : undefined,
+      );
+      this.llmProbe.set(probe);
+    } catch {
+      this.llmProbe.set(null);
+      this.llmProbeError.set(true);
+    } finally {
+      this.llmProbeLoading.set(false);
     }
   }
 

@@ -32797,6 +32797,134 @@
           <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="app.footer.statusMetricGroupOpenWeightLlm" datatype="html">
+        <source>Lokale Text-KI</source>
+        <target state="translated">IA textuelle locale</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusOpenWeightLlmHint" datatype="html">
+        <source>Diese Prüfung betrifft nur die Text-KI auf diesem Server: ein lokal betriebenes Open-Weight-Modell, kein Cloud-Anbieter. Geprüft werden die drei Hilfen unten. Das Ergebnis ändert den allgemeinen Betriebsstatus nicht.</source>
+        <target state="translated">Cette vérification concerne uniquement l’IA textuelle de ce serveur : un modèle open-weight exécuté localement, pas un fournisseur cloud. Elle contrôle les trois aides ci-dessous. Le résultat ne modifie pas l’état de service général.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusOpenWeightLlmModel" datatype="html">
+        <source>Modell:</source>
+        <target state="translated">Modèle :</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmLearningHint" datatype="html">
+        <source>Schlägt aus Quizfragen prüfbare Lernziele als Entwurf vor.</source>
+        <target state="translated">Propose des objectifs d’apprentissage vérifiables à partir des questions du quiz, sous forme de brouillon.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmQaSummaryHint" datatype="html">
+        <source>Fasst wiederkehrende Fragen und Hinweise für die Moderation zusammen.</source>
+        <target state="translated">Résume les questions et indications récurrentes pour la modération.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmTopicLabelHint" datatype="html">
+        <source>Kurze Namen für ähnliche Fragen oder Freitextantworten in der Wortwolke »Thema«.</source>
+        <target state="translated">Noms courts pour des questions ou réponses libres similaires dans le nuage de mots « Thème ».</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmOverallHint" datatype="html">
+        <source>Gemeinsames Ergebnis der drei Hilfen.</source>
+        <target state="translated">Résultat commun des trois aides.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusOpenWeightLlmLoading" datatype="html">
+        <source>Prüfung läuft …</source>
+        <target state="translated">Vérification en cours…</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusOpenWeightLlmError" datatype="html">
+        <source>Prüfung derzeit nicht möglich.</source>
+        <target state="translated">Vérification actuellement impossible.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmOverall" datatype="html">
+        <source>Gesamt</source>
+        <target state="translated">Ensemble</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmTopicLabel" datatype="html">
+        <source>Themennamen</source>
+        <target state="translated">Noms de thèmes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmQaSummary" datatype="html">
+        <source>Q&amp;A-Kurzfassung</source>
+        <target state="translated">Résumé Q&amp;R</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusMetricOpenWeightLlmLearning" datatype="html">
+        <source>Lernziele</source>
+        <target state="translated">Objectifs d’apprentissage</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.statusOpenWeightLlmRefresh" datatype="html">
+        <source>Erneut prüfen</source>
+        <target state="translated">Vérifier à nouveau</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.openWeightLlmBusy" datatype="html">
+        <source>beschäftigt</source>
+        <target state="translated">occupé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app.footer.openWeightLlmDisabled" datatype="html">
+        <source>ausgeschaltet</source>
+        <target state="translated">désactivé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/server-status-help-dialog/server-status-help-dialog.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="app.footer.statusMetricGroupTraffic" datatype="html">
         <source>Serververkehr und Qualität</source>
         <target>Trafic et qualité du serveur</target>

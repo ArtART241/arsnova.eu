@@ -4,6 +4,19 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ServerStatusHelpDialogComponent } from './server-status-help-dialog.component';
 
+const openWeightLlmProbeQuery = vi.fn();
+
+vi.mock('../../core/trpc.client', () => ({
+  trpc: {
+    health: {
+      openWeightLlmProbe: {
+        query: (...args: unknown[]) => openWeightLlmProbeQuery(...args),
+      },
+      usage: { query: vi.fn() },
+    },
+  },
+}));
+
 function buildDailyHighscores() {
   return Array.from({ length: 100 }, (_, index) => ({
     date: `2026-${String(Math.floor(index / 28) + 1).padStart(2, '0')}-${String((index % 28) + 1).padStart(2, '0')}`,
@@ -15,6 +28,20 @@ function buildDailyHighscores() {
 describe('ServerStatusHelpDialogComponent', () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    openWeightLlmProbeQuery.mockReset();
+    openWeightLlmProbeQuery.mockResolvedValue({
+      enabled: false,
+      overall: 'disabled',
+      checkedAt: '2026-10-14T03:00:00.000Z',
+      cache: 'skipped',
+      modelAlias: null,
+      modelReported: null,
+      tasks: {
+        topic_label: { status: 'disabled', elapsedMs: null, reason: 'disabled' },
+        qa_summary: { status: 'disabled', elapsedMs: null, reason: 'disabled' },
+        learning_objectives: { status: 'disabled', elapsedMs: null, reason: 'disabled' },
+      },
+    });
   });
 
   afterEach(() => {
@@ -618,5 +645,183 @@ describe('ServerStatusHelpDialogComponent', () => {
     expect(root.querySelectorAll('#server-status-live-heading').length).toBe(0);
     expect(root.querySelector('.status-help-dialog__meta')).toBeTruthy();
     expect(root.querySelector('.status-help-dialog__snapshot')).toBeTruthy();
+  });
+
+  it('kündigt den LLM-Prüfstatus per aria-live an und bietet Retry nach Fehlern', async () => {
+    openWeightLlmProbeQuery.mockRejectedValueOnce(new Error('offline'));
+    TestBed.configureTestingModule({
+      imports: [ServerStatusHelpDialogComponent],
+      providers: [
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            connectionOk: signal(true),
+            loading: signal(false),
+            stats: signal({
+              openSessions: 0,
+              activeSessions: 0,
+              totalParticipants: 0,
+              votesLastMinute: 0,
+              sessionTransitionsLastMinute: 0,
+              activeCountdownSessions: 0,
+              completedSessions: 0,
+              activeBlitzRounds: 0,
+              maxParticipantsSingleSession: 0,
+              dailyHighscores: buildDailyHighscores(),
+              dailyHighscoresStatistics: {
+                sampleSize: 0,
+                median: null,
+                iqr: null,
+                max: null,
+              },
+              maxParticipantsStatisticUpdatedAt: null,
+              serviceStatus: 'stable',
+              loadStatus: 'healthy',
+              dependencies: { api: 'ok', database: 'ok', redis: 'ok', live: 'ok' },
+              coreActionsQuality: {
+                join: {
+                  samples: 0,
+                  errorRatePercent: null,
+                  p95Ms: null,
+                  p99Ms: null,
+                  coverage: 'UNAVAILABLE',
+                },
+                vote: {
+                  samples: 0,
+                  errorRatePercent: null,
+                  p95Ms: null,
+                  p99Ms: null,
+                  coverage: 'UNAVAILABLE',
+                },
+                qaRead: {
+                  samples: 0,
+                  errorRatePercent: null,
+                  p95Ms: null,
+                  p99Ms: null,
+                  coverage: 'UNAVAILABLE',
+                },
+                qaSubmit: {
+                  samples: 0,
+                  errorRatePercent: null,
+                  p95Ms: null,
+                  p99Ms: null,
+                  coverage: 'UNAVAILABLE',
+                },
+                qaRate: {
+                  samples: 0,
+                  errorRatePercent: null,
+                  p95Ms: null,
+                  p99Ms: null,
+                  coverage: 'UNAVAILABLE',
+                },
+              },
+              trafficQuality: {
+                measurementState: 'UNAVAILABLE' as const,
+                windowSeconds: 60 as const,
+                bucketSeconds: 10 as const,
+                observedWindowSeconds: 0,
+                windowComplete: false,
+                avgRps: null,
+                peakRps: null,
+                sampleSize: null,
+                errorRatePercent: null,
+                errorClasses: { server: 0, rateLimit: 0, client: 0 },
+                p95LatencyMs: null,
+                p99LatencyMs: null,
+                latencyIncludesFailedRequests: true as const,
+                insufficientLatencySample: true,
+                monitoredProcedures: 0,
+                definedProcedures: 14,
+                groups: [],
+                lastSuccessfulReadAt: null,
+              },
+              liveConnections: {
+                measurementState: 'UNAVAILABLE' as const,
+                trpcOpen: null,
+                yjsOpen: null,
+                trpcOpenedLastMinute: null,
+                trpcClosedLastMinute: null,
+                yjsOpenedLastMinute: null,
+                yjsClosedLastMinute: null,
+                rejectsLastMinute: null,
+                rateLimitedMessagesLastMinute: null,
+                reconnectsLastMinute: null,
+                messagesPerSecond: null,
+                lastSuccessfulReadAt: null,
+                deliveryNotMeasured: true as const,
+              },
+              sloSampleSizeLastMinute: null,
+              measurementAvailable: false,
+              usage: {
+                timezone: 'UTC' as const,
+                periodKind: 'LAST_30_DAYS' as const,
+                periodFrom: '2026-04-05',
+                periodTo: '2026-05-04',
+                trackingStartedAt: null,
+                lastAggregatedAt: null,
+                historyComplete: false,
+                sessionsUsed: null,
+                sessionParticipations: null,
+                quizAnswers: null,
+                qaQuestionsAccepted: null,
+                qaRatingActions: null,
+                sessionsByFunction: null,
+                dailySeries: [],
+                monthlySeries: [],
+                sizeDistribution: null,
+                qaQuestionsTotalLifetime: 0,
+                completedSessionsLifetime: 0,
+              },
+              activeQaSessions: null,
+              qaQuestionsLastMinute: null,
+              qaRatingsLastMinute: null,
+              qaQuestionsTotal: 0,
+              maxQaQuestionsSingleSession: 0,
+              qaStatisticsTrackingStartedAt: null,
+              qaStatisticsProjectedAt: null,
+              maxQaQuestionsStatisticUpdatedAt: null,
+              statsGeneratedAt: '2026-10-14T03:00:00.000Z',
+              qaMinuteMetricsStatus: 'UNAVAILABLE',
+              qaPresenceMetricsStatus: 'UNAVAILABLE',
+            }),
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(ServerStatusHelpDialogComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const live = (fixture.nativeElement as HTMLElement).querySelector(
+      '.status-help-dialog__llm-live',
+    );
+    expect(live?.getAttribute('role')).toBe('status');
+    expect(live?.getAttribute('aria-live')).toBe('polite');
+    expect(live?.textContent).toContain('Prüfung derzeit nicht möglich.');
+
+    const retry = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('button'),
+    ).find((button) => button.textContent?.includes('Erneut prüfen'));
+    expect(retry).toBeTruthy();
+
+    openWeightLlmProbeQuery.mockResolvedValueOnce({
+      enabled: true,
+      overall: 'ok',
+      checkedAt: '2026-10-14T03:05:00.000Z',
+      cache: 'live',
+      modelAlias: 'qwen3-4b-instruct-2507-q4_k_m',
+      modelReported: 'qwen3-4b-instruct-2507-q4_k_m',
+      tasks: {
+        topic_label: { status: 'ok', elapsedMs: 10, reason: null },
+        qa_summary: { status: 'ok', elapsedMs: 20, reason: null },
+        learning_objectives: { status: 'ok', elapsedMs: 30, reason: null },
+      },
+    });
+    retry?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(openWeightLlmProbeQuery).toHaveBeenCalledWith({ refresh: true });
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Themennamen');
   });
 });

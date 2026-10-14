@@ -24,6 +24,8 @@ Der reichhaltige Summary-V2-Referenzkontext passt in diesem Profil nicht: Die Ap
 
 `OPEN_WEIGHT_LLM_ENABLED` bleibt standardmäßig `false` und ist unabhängig von `NLP_ENABLED`, `QA_NLP_ENABLED`, `WORD_CLOUD_SEMANTIC_ENABLED` und `QA_SUMMARY_ENABLED`. Es gibt keinen SaaS-Fallback.
 
+Der Betriebsstatus-Dialog (Startseite → Betrieb & Nutzung) zeigt unter **Lokale Text-KI** das Ergebnis von `health.openWeightLlmProbe`: feste Mini-Fixtures für `topic_label` und `learning_objectives` sowie denselben Summary-V2-Vertrag wie der produktive Full-Context-Pfad, mit Kurzbeschreibung für Erstnutzer und dem Hinweis auf das lokal betriebene Open-Weight-Modell (kein Cloud-Anbieter). Die Prüfung ist vom Footer-Poll und vom Kern-`serviceStatus` getrennt, cached fünf Minuten (auch `refresh: true` umgeht diese Abkühlzeit nicht) und bricht pro Aufgabe nach 20 Sekunden ab. Ist die Runtime aus, erscheint der Status »ausgeschaltet« ohne Inferenzaufruf.
+
 ## Gepinnte Artefakte
 
 | Artefakt          | Pin                                                                                       |

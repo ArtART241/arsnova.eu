@@ -1,0 +1,69 @@
+{
+  "mode": "baseline",
+  "status": "fallback:invalid_response",
+  "prepMs": 210,
+  "llmMs": 39563,
+  "budget": {
+    "version": "moderation-prompt-budget-v1",
+    "tokenizer": {
+      "method": "conservative-estimate",
+      "id": "utf8-byte-upper-bound",
+      "version": "1"
+    },
+    "modelProfile": "qwen3-4b-instruct-2507-q4_k_m:ctx-4096:summary-v2",
+    "contextWindowTokens": 4096,
+    "instructionTokens": 314,
+    "definitionTokens": 203,
+    "dataTokens": 2770,
+    "packedInputTokens": 3287,
+    "reservedOutputTokens": 640,
+    "safetyMarginTokens": 128,
+    "truncations": [
+      { "section": "questions", "omittedItems": 6, "reason": "token-budget" },
+      { "section": "compass", "omittedItems": 2, "reason": "token-budget" }
+    ]
+  },
+  "snapshotHash": "ba809254cd42ea2bdf5aaa6b31a9d788ca7321600dad2d6bb8e90eb4ec556255",
+  "packedQuestions": [],
+  "rawOutput": null,
+  "wire": {
+    "completionStatus": 200,
+    "completionContent": "{\n  \"schemaVersion\": 2,\n  \"taskType\": \"qa_summary\",\n  \"outputContract\": \"qa-summary-model-output-v2\",\n  \"output\": {\n    \"status\": \"uncertain\",\n    \"statements\": [\n      {\n        \"text\": \"Quick feedback is disabled for this session.\",\n        \"sourceIds\": [\n          \"feedback:reason\"\n        ]\n      },\n      {\n        \"text\": \"Semantische Q&A-Themen sind serverseitig deaktiviert.\",\n        \"sourceIds\": [\n          \"topics:reason\"\n        ]\n      },\n      {\n        \"text\": \"6 item(s) were omitted by deterministic prompt packing.\",\n        \"sourceIds\": [\n          \"budget-truncated:detail\"\n        ]\n      },\n      {\n        \"text\": \"2 item(s) were omitted by deterministic prompt packing.\",\n        \"sourceIds\": [\n          \"budget-truncated:detail\"\n        ]\n      },\n      {\n        \"text\": \"Released quiz results do not apply to this session.\",\n        \"sourceIds\": [\n          \"releasedResults:reason\"\n        ]\n      }\n    ],\n    \"suggestedNextSteps\": [\n      {\n        \"text\": \"Check session configuration for feedback and topic availability.\",\n        \"sourceIds\": [\n          \"feedback:state\",\n          \"topics:state\"\n        ]\n      },\n      {\n        \"text\": \"Review prompt packing constraints and adjust input size if needed.\",\n        \"sourceIds\": [\n          \"budget-truncated:detail\"\n        ]\n      },\n      {\n        \"text\": \"Verify session phase and active weighting settings.\",\n        \"sourceIds\": [\n          \"scope:sessionPhase\",\n          \"scope:activeWeighting\"\n        ]\n      }\n    ],\n    \"limitations\": [\n      \"Quick feedback is disabled for this session.\",\n      \"Semantische Q&A-Themen sind serverseitig deaktiviert.\",\n      \"6 items were omitted due to prompt packing constraints.\",\n      \"2 items were omitted due to prompt packing constraints.\",\n      \"Released quiz results are not applicable.\"\n    ],\n    \"modelVersion\": \"moderation-prompt-definitions-v1\"\n  }\n}",
+    "finishReason": "stop",
+    "usage": {
+      "completion_tokens": 463,
+      "prompt_tokens": 842,
+      "total_tokens": 1305,
+      "prompt_tokens_details": { "cached_tokens": 371 }
+    }
+  },
+  "sourceKinds": [],
+  "bound": {
+    "schemaVersion": 2,
+    "contractVersion": "qa-summary-result-v2",
+    "status": "uncertain",
+    "statements": [],
+    "suggestedNextSteps": [],
+    "limitations": [
+      "Für eine extraktive Kurzfassung sind noch keine Textbelege ausgewählt.",
+      "Extraktive Kurzfassung ohne generative Interpretation."
+    ],
+    "sources": [],
+    "modelVersion": "extractive-v2",
+    "analyzedAt": "2026-11-16T14:55:24.222Z",
+    "snapshotHash": "ba809254cd42ea2bdf5aaa6b31a9d788ca7321600dad2d6bb8e90eb4ec556255",
+    "locale": "de",
+    "execution": {
+      "attemptedMode": "full-context",
+      "effectiveMode": "extractive",
+      "fallback": {
+        "contractVersion": "qa-summary-fallback-v1",
+        "requestedRequestContract": "qa-summary-context-v2",
+        "requestedOutputContract": "qa-summary-model-output-v2",
+        "mode": "extractive",
+        "reason": "invalid_response",
+        "retry": "manual"
+      }
+    }
+  }
+}

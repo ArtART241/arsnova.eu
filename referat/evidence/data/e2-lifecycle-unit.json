@@ -1,0 +1,134 @@
+{
+  "experiment": "E2",
+  "ref": "v1.3.0",
+  "target": "qa-question:33333333-3333-4333-8333-333333333333",
+  "marker": "Matrikelnummer 4711-GEHEIM",
+  "rows": [
+    {
+      "change": "redaction",
+      "timing": "T1 vor Jobstart",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": "ready",
+      "fallbackReason": null,
+      "deliveryError": null
+    },
+    {
+      "change": "redaction",
+      "timing": "T2 während Inferenz",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": "ready",
+      "fallbackReason": "source_changed",
+      "deliveryError": null
+    },
+    {
+      "change": "redaction",
+      "timing": "T3 nach Abschluss, vor Anzeige",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": "ready",
+      "fallbackReason": "source_changed",
+      "deliveryError": null
+    },
+    {
+      "change": "host-revoked",
+      "timing": "T1 vor Jobstart",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": null,
+      "fallbackReason": null,
+      "deliveryError": "UNAUTHORIZED"
+    },
+    {
+      "change": "host-revoked",
+      "timing": "T2 während Inferenz",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": null,
+      "fallbackReason": null,
+      "deliveryError": "UNAUTHORIZED"
+    },
+    {
+      "change": "host-revoked",
+      "timing": "T3 nach Abschluss, vor Anzeige",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": null,
+      "fallbackReason": null,
+      "deliveryError": "UNAUTHORIZED"
+    },
+    {
+      "change": "redaction",
+      "timing": "T2 während Inferenz",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": "ready",
+      "fallbackReason": "source_changed",
+      "deliveryError": null
+    },
+    {
+      "change": "benign-edit",
+      "timing": "T2 während Inferenz",
+      "variant": "baseline-1.3",
+      "leak": false,
+      "status": "ready",
+      "fallbackReason": "source_changed",
+      "deliveryError": null
+    },
+    {
+      "change": "redaction",
+      "timing": "T1 vor Jobstart",
+      "variant": "variante-nur-startpruefung",
+      "leak": true,
+      "status": "ready",
+      "fallbackReason": null,
+      "deliveryError": null
+    },
+    {
+      "change": "redaction",
+      "timing": "T2 während Inferenz",
+      "variant": "variante-nur-startpruefung",
+      "leak": true,
+      "status": "ready",
+      "fallbackReason": null,
+      "deliveryError": null
+    },
+    {
+      "change": "redaction",
+      "timing": "T3 nach Abschluss, vor Anzeige",
+      "variant": "variante-nur-startpruefung",
+      "leak": true,
+      "status": "ready",
+      "fallbackReason": null,
+      "deliveryError": null
+    },
+    {
+      "change": "host-revoked",
+      "timing": "T1 vor Jobstart",
+      "variant": "variante-nur-startpruefung",
+      "leak": true,
+      "status": "ready",
+      "fallbackReason": null,
+      "deliveryError": null
+    },
+    {
+      "change": "host-revoked",
+      "timing": "T2 während Inferenz",
+      "variant": "variante-nur-startpruefung",
+      "leak": true,
+      "status": "ready",
+      "fallbackReason": null,
+      "deliveryError": null
+    },
+    {
+      "change": "host-revoked",
+      "timing": "T3 nach Abschluss, vor Anzeige",
+      "variant": "variante-nur-startpruefung",
+      "leak": true,
+      "status": "ready",
+      "fallbackReason": null,
+      "deliveryError": null
+    }
+  ]
+}

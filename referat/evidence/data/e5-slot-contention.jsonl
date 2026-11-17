@@ -1,0 +1,9 @@
+{"at":"2026-11-16T15:18:08.233Z","kind":"victim","phase":"kontrolle","index":0,"ms":9217,"status":"ready","effectiveMode":"full-context","fallbackReason":null,"statements":2}
+{"at":"2026-11-16T15:18:17.544Z","kind":"victim","phase":"kontrolle","index":1,"ms":9174,"status":"ready","effectiveMode":"full-context","fallbackReason":null,"statements":2}
+{"at":"2026-11-16T15:18:22.784Z","kind":"victim","phase":"kontrolle","index":2,"ms":5134,"status":"ready","effectiveMode":"full-context","fallbackReason":null,"statements":2}
+{"at":"2026-11-16T15:18:27.121Z","kind":"victim","phase":"angriff","index":0,"ms":1107,"status":"ready","effectiveMode":"extractive","fallbackReason":"busy","statements":3}
+{"at":"2026-11-16T15:18:47.164Z","kind":"victim","phase":"angriff","index":1,"ms":1121,"status":"ready","effectiveMode":"extractive","fallbackReason":"busy","statements":3}
+{"at":"2026-11-16T15:19:07.282Z","kind":"victim","phase":"angriff","index":2,"ms":1153,"status":"ready","effectiveMode":"extractive","fallbackReason":"busy","statements":3}
+{"at":"2026-11-16T15:20:03.356Z","kind":"attacker","n":0,"ms":100565,"http":200,"code":null,"status":"completed"}
+{"at":"2026-11-16T15:21:31.964Z","kind":"attacker","n":1,"ms":88602,"http":200,"code":null,"status":"invalid_response"}
+{"at":"2026-11-16T15:23:11.495Z","kind":"attacker","n":2,"ms":99525,"http":200,"code":null,"status":"completed"}

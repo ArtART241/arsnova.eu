@@ -1,0 +1,50 @@
+# E7 Härtungsmatrix  2026-11-16T14:58:25Z
+## Container-Konfiguration (podman inspect)
+arsnova-v3-app network=bridge readOnly=true capDrop=[CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_FSETID CAP_KILL CAP_NET_BIND_SERVICE CAP_SETFCAP CAP_SETGID CAP_SETPCAP CAP_SETUID CAP_SYS_CHROOT] capAdd=[] secOpt=[no-new-privileges] pids=0 memMiB=0 user=node
+arsnova-v3-pdf-worker network=none readOnly=true capDrop=[CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_FSETID CAP_KILL CAP_NET_BIND_SERVICE CAP_SETFCAP CAP_SETGID CAP_SETPCAP CAP_SETUID CAP_SYS_CHROOT] capAdd=[] secOpt=[no-new-privileges] pids=128 memMiB=1073741824 user=node
+arsnova-v3-spacy network=none readOnly=true capDrop=[CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_FSETID CAP_KILL CAP_NET_BIND_SERVICE CAP_SETFCAP CAP_SETGID CAP_SETPCAP CAP_SETUID CAP_SYS_CHROOT] capAdd=[] secOpt=[no-new-privileges] pids=64 memMiB=1073741824 user=1000:1000
+arsnova-v3-open-weight-llm network=none readOnly=true capDrop=[CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_FSETID CAP_KILL CAP_NET_BIND_SERVICE CAP_SETFCAP CAP_SETGID CAP_SETPCAP CAP_SETUID CAP_SYS_CHROOT] capAdd=[] secOpt=[no-new-privileges] pids=128 memMiB=5368709120 user=65532:65532
+## Effektive Capabilities (CapEff aus /proc/1/status)
+arsnova-v3-app CapEff:	0000000000000000
+arsnova-v3-pdf-worker CapEff:	0000000000000000
+arsnova-v3-spacy CapEff:	0000000000000000
+arsnova-v3-open-weight-llm CapEff:	0000000000000000
+## Schreibversuch ins Root-Dateisystem
+arsnova-v3-app touch: /e7-write-probe: Read-only file system
+arsnova-v3-pdf-worker touch: /e7-write-probe: Read-only file system
+arsnova-v3-spacy touch: cannot touch '/e7-write-probe': Read-only file system
+arsnova-v3-open-weight-llm touch: cannot touch '/e7-write-probe': Read-only file system
+## Ausführung aus /tmp (tmpfs noexec)
+arsnova-v3-app sh: /tmp/e7.sh: Permission denied
+arsnova-v3-pdf-worker sh: /tmp/e7.sh: Permission denied
+arsnova-v3-spacy sh: 1: /tmp/e7.sh: Permission denied
+arsnova-v3-open-weight-llm sh: 1: /tmp/e7.sh: Permission denied
+## Ausgehende Verbindung aus Sidecars (network_mode: none erwartet Fehlschlag)
+arsnova-v3-pdf-worker BLOCKED ENETUNREACH
+arsnova-v3-spacy BLOCKED OSError [Errno 101] Network is unreachable
+arsnova-v3-open-weight-llm BLOCKED OSError [Errno 101] Network is unreachable
+arsnova-v3-app (Vergleich, im Bridge-Netz) CONNECTED
+## Umgebungsvariablen der Sidecars (nur Schlüsselnamen; Secrets erwartet: keine)
+arsnova-v3-pdf-worker APP_VERSION HOME NODE_ENV NODE_VERSION PATH PDF_WORKER_RENDER_TIMEOUT_MS PDF_WORKER_SOCKET_PATH PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD PUBLIC_FRONTEND_URL PWD SHLVL YARN_VERSION container 
+arsnova-v3-spacy GPG_KEY HOME LANG NLP_SOCKET_PATH PATH PWD PYTHONDONTWRITEBYTECODE PYTHONUNBUFFERED PYTHON_SHA256 PYTHON_VERSION container 
+arsnova-v3-open-weight-llm HOME LLAMA_ARG_HOST OPEN_WEIGHT_LLM_SOCKET_PATH OPEN_WEIGHT_LLM_THREADS OPEN_WEIGHT_LLM_TOKEN OPEN_WEIGHT_LLM_TRANSPORT PATH PWD container 
+arsnova-v3-pdf-worker hat DATABASE_URL/ADMIN_SECRET/JWT_SECRET: 0
+## llama-server über Unix-Socket aus dem App-Container (Token-Prüfung)
+GET /health (ohne Token) -> 200
+GET /slots (ohne Token) -> 401
+GET /slots (falsches Token) -> 401
+GET /slots (gültiges Token) -> 200
+POST /v1/chat/completions (ohne Token) -> 401
+POST /v1/chat/completions (falsches Token) -> 401
+GET / (Web-UI ohne Token) -> 404
+GET / (Web-UI mit Token) -> 404
+GET /props (props mit Token) -> 200
+GET /metrics (metrics mit Token) -> 501
+Socket-Mount im App-Container schreibgeschützt: 40755
+## Veröffentlichte Ports
+3000/tcp -> 127.0.0.1:3000
+3001/tcp -> 127.0.0.1:3001
+3002/tcp -> 127.0.0.1:3002
+arsnova-v3-pdf-worker: 
+arsnova-v3-spacy: 
+arsnova-v3-open-weight-llm: 

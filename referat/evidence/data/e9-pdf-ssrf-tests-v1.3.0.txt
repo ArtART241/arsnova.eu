@@ -1,0 +1,58 @@
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 0.0.0.0 1ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 10.0.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 100.64.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 127.0.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 169.254.169.254 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 172.16.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 192.0.2.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 192.168.1.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 198.18.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 198.51.100.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 203.0.113.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 224.0.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 255.255.255.255 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse :: 1ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse ::1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse ::ffff:127.0.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse ::ffff:10.0.0.1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse fe80::1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse fc00::1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse ff02::1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert nicht öffentliche Adresse 2001:db8::1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > erlaubt öffentliche Unicast-Adresse 8.8.8.8 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > erlaubt öffentliche Unicast-Adresse 93.184.216.34 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > erlaubt öffentliche Unicast-Adresse 2606:4700:4700::1111 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > erkennt Bildsignatur 0 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > erkennt Bildsignatur 1 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > erkennt Bildsignatur 2 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > erkennt Bildsignatur 3 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > lehnt einen Host ab, sobald eine von mehreren A/AAAA-Adressen blockiert ist 1ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert alternative Loopback-Schreibweise http://2130706433/image.png 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert alternative Loopback-Schreibweise http://0x7f000001/image.png 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert alternative Loopback-Schreibweise http://0177.0.0.1/image.png 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert alternative Loopback-Schreibweise http://127.1/image.png 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > blockiert alternative Loopback-Schreibweise http://[::ffff:7f00:1]/image.png 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > bindet den Request an die unmittelbar validierte DNS-Adresse 3ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > prüft jedes Redirect-Ziel erneut und blockiert interne Ziele vor dem Request 0m
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > begrenzt Redirect-Ketten 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > sendet keine Auth-, Cookie-, Forwarded- oder Proxy-Header weiter 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > bricht anhand von Content-Length vor dem Puffern ab 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > bricht chunked Bodies bei Cap plus einem Byte ab 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > lehnt MIME-/Magic-Mismatches und HTML unter Bild-MIME ab 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > lehnt externe SVGs einschließlich externer Referenzen ab 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > lehnt kleine Dateien mit übergroßen dekodierten Abmessungen ab 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > lehnt URL-Credentials und nicht-HTTP-Protokolle ab 0ms
+✓ src/lib/safeExternalImageFetch.test.ts > safeExternalImageFetch > begrenzt bereits die DNS-Auflösung zeitlich 7ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > verwendet in Produktion sicher den Worker und lokal den In-Process-Renderer 2ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > begrenzt die Worker-Deadline sicher unterhalb des App-Timeouts 0ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > dimensioniert den Transport für 100 zulässige 400-kB-Bilder 0ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > überträgt einen bildreichen Report oberhalb des früheren 12-MiB-Caps 85ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > überträgt HTML ausschließlich über einen 0600-Unix-Socket 4ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > gibt bei einem fehlenden Socket keine internen Pfaddetails preis 2ms
+✓ src/__tests__/session-results-report-pdf.ssrf.test.ts > buildSessionResultsPdf SSRF > kontaktiert ein abgelehntes Loopback-Bild auch über Chromiu
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > lehnt übergroße Requests client- und serverseitig vor dem Rendern ab 4161ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > löst einen steckengebliebenen Request-Body fail-closed auf 33ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > begrenzt Worker-Antworten und gibt keine internen Fehlerdetails preis 8ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > erzwingt zusätzlich im Worker genau einen parallelen Renderjob 10ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > wird bei einer Render-Deadline fatal und fordert einen Prozess-Exit an 27ms
+✓ src/lib/pdfWorkerTransport.test.ts > PDF-Worker-Transport > bleibt nach fataler Bildnormalisierung unhealthy und nimmt keinen Folgejob an 4ms

@@ -1,0 +1,261 @@
+{
+  "experiment": "E1",
+  "baseline": "v1.3.0",
+  "at": "2026-11-16T15:20:05.961Z",
+  "revocation": {
+    "performed": true,
+    "httpStatus": 200
+  },
+  "rows": [
+    {
+      "phase": "vor Widerruf",
+      "identity": "C0 Host A (gültig, Positivkontrolle)",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 200,
+      "trpcCode": null,
+      "leakedContext": true,
+      "responseBytes": 463,
+      "ms": 10
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C0 Host A (gültig, Positivkontrolle)",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 200,
+      "trpcCode": null,
+      "leakedContext": true,
+      "responseBytes": 6950,
+      "ms": 72
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C0 Host A (gültig, Positivkontrolle)",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 200,
+      "trpcCode": null,
+      "leakedContext": true,
+      "responseBytes": 1108,
+      "ms": 53
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C1 ohne Token",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 149,
+      "ms": 10
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C1 ohne Token",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 156,
+      "ms": 7
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C1 ohne Token",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 149,
+      "ms": 6
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C2 Teilnehmer-Capability von A",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 149,
+      "ms": 6
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C2 Teilnehmer-Capability von A",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 156,
+      "ms": 8
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C2 Teilnehmer-Capability von A",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 149,
+      "ms": 8
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C3 Teilnehmer-Capability als x-host-token",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 18
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C3 Teilnehmer-Capability als x-host-token",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 159,
+      "ms": 10
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C3 Teilnehmer-Capability als x-host-token",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 11
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C4 Host-Token von Session B",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 11
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C4 Host-Token von Session B",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 159,
+      "ms": 11
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C4 Host-Token von Session B",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 9
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C5 zufälliges 256-bit-Token",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 12
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C5 zufälliges 256-bit-Token",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 159,
+      "ms": 11
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C5 zufälliges 256-bit-Token",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 11
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C6 Browser-Capability von A als x-host-token",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 15
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C6 Browser-Capability von A als x-host-token",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 159,
+      "ms": 18
+    },
+    {
+      "phase": "vor Widerruf",
+      "identity": "C6 Browser-Capability von A als x-host-token",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 14
+    },
+    {
+      "phase": "nach Admin-Reset",
+      "identity": "C7 altes Host-Token A nach Widerruf",
+      "procedure": "qa.summaryRuntime",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 28
+    },
+    {
+      "phase": "nach Admin-Reset",
+      "identity": "C7 altes Host-Token A nach Widerruf",
+      "procedure": "qa.summaryContextPreview",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 159,
+      "ms": 21
+    },
+    {
+      "phase": "nach Admin-Reset",
+      "identity": "C7 altes Host-Token A nach Widerruf",
+      "procedure": "qa.requestSummary",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 152,
+      "ms": 29
+    },
+    {
+      "phase": "nach Admin-Reset",
+      "identity": "C8 alte Browser-Capability A nach Widerruf",
+      "procedure": "session.issueHostAccessToken",
+      "httpStatus": 401,
+      "trpcCode": "UNAUTHORIZED",
+      "leakedContext": false,
+      "responseBytes": 173,
+      "ms": 16
+    }
+  ]
+}

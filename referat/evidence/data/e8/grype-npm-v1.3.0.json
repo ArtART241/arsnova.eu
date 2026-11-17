@@ -1,0 +1,602 @@
+{
+  "matches": [
+    {
+      "vulnerability": {
+        "id": "GHSA-7g7c-h8rr-7p6q",
+        "dataSource": "https://github.com/advisories/GHSA-7g7c-h8rr-7p6q",
+        "namespace": "github:language:javascript",
+        "severity": "Medium",
+        "urls": [
+          "https://github.com/angular/angular-cli/security/advisories/GHSA-7g7c-h8rr-7p6q",
+          "https://nvd.nist.gov/vuln/detail/CVE-2026-104871",
+          "https://github.com/angular/angular-cli/commit/645e41a47d21b7651837a4250de99af0509626e2",
+          "https://github.com/angular/angular-cli/commit/70748ca8e76fe4b42798719410336119d943e755",
+          "https://github.com/angular/angular-cli/commit/bb72145f9ab45aee29f523236b3a25cd0813a841",
+          "https://github.com/angular/angular-cli/commit/c3e5982e49705f0f6a913cb94622b4c555d2d914",
+          "https://github.com/angular/angular-cli/releases/tag/v20.3.36",
+          "https://github.com/angular/angular-cli/releases/tag/v21.2.23",
+          "https://github.com/angular/angular-cli/releases/tag/v22.1.7"
+        ],
+        "description": "Angular SSR: Path Traversal to Sibling Directories in CommonEngine on Windows",
+        "cvss": [
+          {
+            "type": "Secondary",
+            "version": "4.0",
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "metrics": { "baseScore": 6.3 },
+            "vendorMetadata": {}
+          }
+        ],
+        "epss": [
+          { "cve": "CVE-2026-104871", "epss": 0.00421, "percentile": 0.37011, "date": "2026-11-14" }
+        ],
+        "cwes": [
+          {
+            "cve": "CVE-2026-104871",
+            "cwe": "CWE-22",
+            "source": "security-advisories@github.com",
+            "type": "Secondary"
+          }
+        ],
+        "fix": {
+          "versions": ["21.2.23"],
+          "state": "fixed",
+          "available": [{ "version": "21.2.23", "date": "2026-10-06", "kind": "first-observed" }]
+        },
+        "advisories": [],
+        "risk": 0.237865
+      },
+      "relatedVulnerabilities": [
+        {
+          "id": "CVE-2026-104871",
+          "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2026-104871",
+          "namespace": "nvd:cpe",
+          "severity": "Medium",
+          "urls": [
+            "https://github.com/angular/angular-cli/commit/645e41a47d21b7651837a4250de99af0509626e2",
+            "https://github.com/angular/angular-cli/commit/70748ca8e76fe4b42798719410336119d943e755",
+            "https://github.com/angular/angular-cli/commit/bb72145f9ab45aee29f523236b3a25cd0813a841",
+            "https://github.com/angular/angular-cli/commit/c3e5982e49705f0f6a913cb94622b4c555d2d914",
+            "https://github.com/angular/angular-cli/releases/tag/v20.3.36",
+            "https://github.com/angular/angular-cli/releases/tag/v21.2.23",
+            "https://github.com/angular/angular-cli/releases/tag/v22.1.7",
+            "https://github.com/angular/angular-cli/security/advisories/GHSA-7g7c-h8rr-7p6q"
+          ],
+          "description": "The Angular SSR is a server-rise rendering tool for Angular applications. Prior to versions 20.3.36, 21.2.23, and 22.1.7, the CommonEngine retrieveSSGPage prerendered-page retrieval logic in @angular/ssr/node, and in @angular/ssr for versions 17 through 18, accepts a relative request URL containing a backslash parent-traversal segment on Windows. The non-special resolve:// URL base preserves the backslash, path.join interprets it as a Windows separator, and the pagePath.startsWith(normalize(publicPath)) check incorrectly accepts a sibling output directory whose name shares the configured public-directory prefix. An unauthenticated requester can therefore retrieve a sibling prerendered HTML page when that page contains the Angular SSG marker. The issue is limited to Windows deployments that pass relative request URLs to CommonEngine.render, have a prefix-sharing sibling output directory, and contain qualifying prerendered Angular HTML; it does not provide arbitrary file read. This issue is fixed in versions 20.3.36, 21.2.23, and 22.1.7.",
+          "cvss": [
+            {
+              "source": "security-advisories@github.com",
+              "type": "Secondary",
+              "version": "4.0",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+              "metrics": { "baseScore": 6.3 },
+              "vendorMetadata": {}
+            }
+          ],
+          "epss": [
+            {
+              "cve": "CVE-2026-104871",
+              "epss": 0.00421,
+              "percentile": 0.37011,
+              "date": "2026-11-14"
+            }
+          ],
+          "cwes": [
+            {
+              "cve": "CVE-2026-104871",
+              "cwe": "CWE-22",
+              "source": "security-advisories@github.com",
+              "type": "Secondary"
+            }
+          ]
+        }
+      ],
+      "matchDetails": [
+        {
+          "type": "exact-direct-match",
+          "matcher": "javascript-matcher",
+          "searchedBy": {
+            "language": "javascript",
+            "namespace": "github:language:javascript",
+            "package": { "name": "@angular/ssr", "version": "21.2.19" }
+          },
+          "found": {
+            "vulnerabilityID": "GHSA-7g7c-h8rr-7p6q",
+            "versionConstraint": ">=21.0.0,<21.2.23 (semantic)"
+          },
+          "fix": { "suggestedVersion": "21.2.23" }
+        }
+      ],
+      "artifact": {
+        "id": "@angular/ssr@21.2.19",
+        "name": "@angular/ssr",
+        "version": "21.2.19",
+        "type": "npm",
+        "locations": null,
+        "language": "javascript",
+        "licenses": ["MIT"],
+        "cpes": [],
+        "purl": "pkg:npm/%40angular/ssr@21.2.19",
+        "upstreams": []
+      }
+    },
+    {
+      "vulnerability": {
+        "id": "GHSA-238p-pmpm-9mq7",
+        "dataSource": "https://github.com/advisories/GHSA-238p-pmpm-9mq7",
+        "namespace": "github:language:javascript",
+        "severity": "Low",
+        "urls": [
+          "https://github.com/KaTeX/KaTeX/security/advisories/GHSA-238p-pmpm-9mq7",
+          "https://nvd.nist.gov/vuln/detail/CVE-2026-103923",
+          "https://github.com/KaTeX/KaTeX/pull/4260",
+          "https://github.com/KaTeX/KaTeX/commit/0adf7e77db6915d991803b29699f82b1ccf8d4f4",
+          "https://github.com/KaTeX/KaTeX/releases/tag/v0.18.2"
+        ],
+        "description": "KaTeX: Existing prototype pollution can bypass trust restrictions",
+        "cvss": [
+          {
+            "type": "Secondary",
+            "version": "4.0",
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:A/VC:N/VI:N/VA:N/SC:L/SI:L/SA:N",
+            "metrics": { "baseScore": 2.1 },
+            "vendorMetadata": {}
+          }
+        ],
+        "epss": [
+          { "cve": "CVE-2026-103923", "epss": 0.003, "percentile": 0.22971, "date": "2026-11-14" }
+        ],
+        "cwes": [
+          {
+            "cve": "CVE-2026-103923",
+            "cwe": "CWE-807",
+            "source": "security-advisories@github.com",
+            "type": "Secondary"
+          }
+        ],
+        "fix": {
+          "versions": ["0.18.2"],
+          "state": "fixed",
+          "available": [{ "version": "0.18.2", "date": "2026-10-06", "kind": "first-observed" }]
+        },
+        "advisories": [],
+        "risk": 0.07650000000000001
+      },
+      "relatedVulnerabilities": [
+        {
+          "id": "CVE-2026-103923",
+          "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2026-103923",
+          "namespace": "nvd:cpe",
+          "severity": "Low",
+          "urls": [
+            "https://github.com/KaTeX/KaTeX/commit/0adf7e77db6915d991803b29699f82b1ccf8d4f4",
+            "https://github.com/KaTeX/KaTeX/pull/4260",
+            "https://github.com/KaTeX/KaTeX/releases/tag/v0.18.2",
+            "https://github.com/KaTeX/KaTeX/security/advisories/GHSA-238p-pmpm-9mq7"
+          ],
+          "description": "KaTeX is a fast, easy-to-use JavaScript library for TeX math rendering on the web. From 0.11.0 until 0.18.2, KaTeX uses ordinary JavaScript property access for the renderer options object, the trust setting, default and processor setting metadata, and namespace lookup and group restoration, allowing inherited properties to be treated as explicitly supplied values. When Object.prototype is already polluted or an attacker controls the options object's prototype, attacker-controlled mathematical expressions can use an inherited trust value to enable trusted rendering and produce links capable of user-interaction cross-site scripting or loading attacker-selected external resources in a consuming application that inserts unsanitized KaTeX output into a page. KaTeX does not itself create the prototype pollution, and rendering an expression alone does not execute script. This issue is fixed in version 0.18.2.",
+          "cvss": [
+            {
+              "source": "security-advisories@github.com",
+              "type": "Secondary",
+              "version": "4.0",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:A/VC:N/VI:N/VA:N/SC:L/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+              "metrics": { "baseScore": 2.1 },
+              "vendorMetadata": {}
+            }
+          ],
+          "epss": [
+            { "cve": "CVE-2026-103923", "epss": 0.003, "percentile": 0.22971, "date": "2026-11-14" }
+          ],
+          "cwes": [
+            {
+              "cve": "CVE-2026-103923",
+              "cwe": "CWE-807",
+              "source": "security-advisories@github.com",
+              "type": "Secondary"
+            }
+          ]
+        }
+      ],
+      "matchDetails": [
+        {
+          "type": "exact-direct-match",
+          "matcher": "javascript-matcher",
+          "searchedBy": {
+            "language": "javascript",
+            "namespace": "github:language:javascript",
+            "package": { "name": "katex", "version": "0.18.1" }
+          },
+          "found": {
+            "vulnerabilityID": "GHSA-238p-pmpm-9mq7",
+            "versionConstraint": ">=0.11.0,<0.18.2 (semantic)"
+          },
+          "fix": { "suggestedVersion": "0.18.2" }
+        }
+      ],
+      "artifact": {
+        "id": "katex@0.18.1",
+        "name": "katex",
+        "version": "0.18.1",
+        "type": "npm",
+        "locations": null,
+        "language": "javascript",
+        "licenses": ["MIT"],
+        "cpes": [],
+        "purl": "pkg:npm/katex@0.18.1",
+        "upstreams": []
+      }
+    },
+    {
+      "vulnerability": {
+        "id": "GHSA-cg2g-xh64-v4q7",
+        "dataSource": "https://github.com/advisories/GHSA-cg2g-xh64-v4q7",
+        "namespace": "github:language:javascript",
+        "severity": "Critical",
+        "urls": [
+          "https://github.com/cure53/DOMPurify/security/advisories/GHSA-cg2g-xh64-v4q7",
+          "https://github.com/cure53/DOMPurify/pull/1672",
+          "https://github.com/cure53/DOMPurify/commit/a77a3e78b59f72fa4d1c83f22e121ad9cc7d3575",
+          "https://github.com/cure53/DOMPurify/releases/tag/3.4.17"
+        ],
+        "description": "DOMPurify SAFE_FOR_TEMPLATES bypass: split template expressions survive in attached shadow root content on DOM output modes",
+        "cvss": [
+          {
+            "type": "Secondary",
+            "version": "4.0",
+            "vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N",
+            "metrics": { "baseScore": 9.2 },
+            "vendorMetadata": {}
+          }
+        ],
+        "fix": {
+          "versions": ["3.4.17"],
+          "state": "fixed",
+          "available": [{ "version": "3.4.17", "date": "2026-10-23", "kind": "first-observed" }]
+        },
+        "advisories": [],
+        "risk": 0
+      },
+      "relatedVulnerabilities": [],
+      "matchDetails": [
+        {
+          "type": "exact-direct-match",
+          "matcher": "javascript-matcher",
+          "searchedBy": {
+            "language": "javascript",
+            "namespace": "github:language:javascript",
+            "package": { "name": "dompurify", "version": "3.4.16" }
+          },
+          "found": {
+            "vulnerabilityID": "GHSA-cg2g-xh64-v4q7",
+            "versionConstraint": ">=3.4.4,<=3.4.16 (semantic)"
+          },
+          "fix": { "suggestedVersion": "3.4.17" }
+        }
+      ],
+      "artifact": {
+        "id": "dompurify@3.4.16",
+        "name": "dompurify",
+        "version": "3.4.16",
+        "type": "npm",
+        "locations": null,
+        "language": "javascript",
+        "licenses": ["(MPL-2.0 OR Apache-2.0)"],
+        "cpes": [],
+        "purl": "pkg:npm/dompurify@3.4.16",
+        "upstreams": []
+      }
+    },
+    {
+      "vulnerability": {
+        "id": "GHSA-mrv2-3pqr-j5jr",
+        "dataSource": "https://github.com/advisories/GHSA-mrv2-3pqr-j5jr",
+        "namespace": "github:language:javascript",
+        "severity": "High",
+        "urls": [
+          "https://github.com/cure53/DOMPurify/security/advisories/GHSA-mrv2-3pqr-j5jr",
+          "https://github.com/cure53/DOMPurify/pull/1672",
+          "https://github.com/cure53/DOMPurify/commit/a77a3e78b59f72fa4d1c83f22e121ad9cc7d3575",
+          "https://github.com/cure53/DOMPurify/releases/tag/3.4.17"
+        ],
+        "description": "DOMPurify IN_PLACE: hook that removes a parent or sibling leaves the detached subtree's event handlers armed (incomplete fix for GHSA-p98j-92pf-mc4p)",
+        "cvss": [
+          {
+            "type": "Secondary",
+            "version": "4.0",
+            "vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+            "metrics": { "baseScore": 7.6 },
+            "vendorMetadata": {}
+          }
+        ],
+        "fix": {
+          "versions": ["3.4.17"],
+          "state": "fixed",
+          "available": [{ "version": "3.4.17", "date": "2026-10-23", "kind": "first-observed" }]
+        },
+        "advisories": [],
+        "risk": 0
+      },
+      "relatedVulnerabilities": [],
+      "matchDetails": [
+        {
+          "type": "exact-direct-match",
+          "matcher": "javascript-matcher",
+          "searchedBy": {
+            "language": "javascript",
+            "namespace": "github:language:javascript",
+            "package": { "name": "dompurify", "version": "3.4.16" }
+          },
+          "found": {
+            "vulnerabilityID": "GHSA-mrv2-3pqr-j5jr",
+            "versionConstraint": "<=3.4.16 (semantic)"
+          },
+          "fix": { "suggestedVersion": "3.4.17" }
+        }
+      ],
+      "artifact": {
+        "id": "dompurify@3.4.16",
+        "name": "dompurify",
+        "version": "3.4.16",
+        "type": "npm",
+        "locations": null,
+        "language": "javascript",
+        "licenses": ["(MPL-2.0 OR Apache-2.0)"],
+        "cpes": [],
+        "purl": "pkg:npm/dompurify@3.4.16",
+        "upstreams": []
+      }
+    },
+    {
+      "vulnerability": {
+        "id": "GHSA-c6gr-qvv4-5v3f",
+        "dataSource": "https://github.com/advisories/GHSA-c6gr-qvv4-5v3f",
+        "namespace": "github:language:javascript",
+        "severity": "Low",
+        "urls": [
+          "https://github.com/cure53/DOMPurify/security/advisories/GHSA-c6gr-qvv4-5v3f",
+          "https://github.com/cure53/DOMPurify/pull/1672",
+          "https://github.com/cure53/DOMPurify/commit/a77a3e78b59f72fa4d1c83f22e121ad9cc7d3575",
+          "https://github.com/cure53/DOMPurify/releases/tag/3.4.17"
+        ],
+        "description": "DOMPurify: SMIL attributeName=href guard is skipped when PARSER_MEDIA_TYPE is application/xhtml+xml",
+        "cvss": [],
+        "fix": {
+          "versions": ["3.4.17"],
+          "state": "fixed",
+          "available": [{ "version": "3.4.17", "date": "2026-10-23", "kind": "first-observed" }]
+        },
+        "advisories": [],
+        "risk": 0
+      },
+      "relatedVulnerabilities": [],
+      "matchDetails": [
+        {
+          "type": "exact-direct-match",
+          "matcher": "javascript-matcher",
+          "searchedBy": {
+            "language": "javascript",
+            "namespace": "github:language:javascript",
+            "package": { "name": "dompurify", "version": "3.4.16" }
+          },
+          "found": {
+            "vulnerabilityID": "GHSA-c6gr-qvv4-5v3f",
+            "versionConstraint": "<=3.4.16 (semantic)"
+          },
+          "fix": { "suggestedVersion": "3.4.17" }
+        }
+      ],
+      "artifact": {
+        "id": "dompurify@3.4.16",
+        "name": "dompurify",
+        "version": "3.4.16",
+        "type": "npm",
+        "locations": null,
+        "language": "javascript",
+        "licenses": ["(MPL-2.0 OR Apache-2.0)"],
+        "cpes": [],
+        "purl": "pkg:npm/dompurify@3.4.16",
+        "upstreams": []
+      }
+    }
+  ],
+  "source": { "type": "sbom-file", "target": "referat/evidence/data/e8/npm-sbom-v1.3.0.cdx.json" },
+  "distro": { "name": "", "version": "", "idLike": null },
+  "descriptor": {
+    "name": "grype",
+    "version": "0.121.3",
+    "configuration": {
+      "output": ["json"],
+      "file": "",
+      "pretty": false,
+      "distro": "",
+      "add-cpes-if-none": false,
+      "output-template-file": "",
+      "check-for-app-update": true,
+      "only-fixed": false,
+      "only-notfixed": false,
+      "ignore-wontfix": "",
+      "platform": "",
+      "search": { "scope": "squashed", "unindexed-archives": false, "indexed-archives": true },
+      "ignore": [
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "kernel-headers",
+            "version": "",
+            "language": "",
+            "type": "rpm",
+            "location": "",
+            "upstream-name": "kernel"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        },
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "linux(-.*)?-headers-.*",
+            "version": "",
+            "language": "",
+            "type": "deb",
+            "location": "",
+            "upstream-name": "linux.*"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        },
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "linux-libc-dev",
+            "version": "",
+            "language": "",
+            "type": "deb",
+            "location": "",
+            "upstream-name": "linux"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        },
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "linux-kbuild-.*",
+            "version": "",
+            "language": "",
+            "type": "deb",
+            "location": "",
+            "upstream-name": "linux.*"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        }
+      ],
+      "exclude": [],
+      "externalSources": {
+        "enable": false,
+        "maven": {
+          "searchUpstreamBySha1": true,
+          "baseUrl": "https://search.maven.org/solrsearch/select",
+          "rateLimit": 300000000
+        }
+      },
+      "match": {
+        "java": { "using-cpes": false },
+        "jvm": { "using-cpes": true },
+        "dotnet": { "using-cpes": false },
+        "golang": {
+          "using-cpes": false,
+          "always-use-cpe-for-stdlib": false,
+          "allow-main-module-pseudo-version-comparison": false
+        },
+        "javascript": { "using-cpes": false },
+        "python": { "using-cpes": false },
+        "ruby": { "using-cpes": false },
+        "rust": { "using-cpes": false },
+        "hex": { "using-cpes": false },
+        "stock": { "using-cpes": true },
+        "dpkg": {
+          "using-cpes": false,
+          "missing-epoch-strategy": "zero",
+          "use-cpes-for-eol": false
+        },
+        "rpm": { "using-cpes": false, "missing-epoch-strategy": "auto", "use-cpes-for-eol": false }
+      },
+      "fail-on-severity": "",
+      "registry": { "insecure-skip-tls-verify": false, "insecure-use-http": false, "ca-cert": "" },
+      "show-suppressed": false,
+      "include-matcher-suppressions": false,
+      "by-cve": false,
+      "SortBy": { "sort-by": "risk" },
+      "name": "",
+      "default-image-pull-source": "",
+      "from": null,
+      "vex-documents": [],
+      "vex-add": [],
+      "match-upstream-kernel-headers": false,
+      "fix-channel": {
+        "redhat-eus": { "apply": "auto", "versions": ">= 8.0" },
+        "ubuntu-esm": { "apply": "auto", "versions": "" }
+      },
+      "timestamp": true,
+      "alerts": { "enable-eol-distro-warnings": true },
+      "db": {
+        "cache-dir": "/Users/artemgrauberger/Library/Caches/grype/db",
+        "update-url": "https://grype.anchore.io/databases",
+        "ca-cert": "",
+        "auto-update": true,
+        "validate-by-hash-on-start": true,
+        "validate-age": true,
+        "max-allowed-built-age": 432000000000000,
+        "require-update-check": false,
+        "update-available-timeout": 30000000000,
+        "update-download-timeout": 300000000000,
+        "max-update-check-frequency": 7200000000000
+      },
+      "exp": {},
+      "dev": { "db": { "debug": false } }
+    },
+    "db": {
+      "status": {
+        "schemaVersion": "v6.1.10",
+        "from": "https://grype.anchore.io/databases/v6/vulnerability-db_v6.1.10_2026-11-15T00:23:02Z_1794723579.tar.zst?checksum=sha256%3A96ada30f3287fd04be595a8f419df98efdf19955e7bfa28eae80ef7c5fe27eb7",
+        "built": "2026-11-15T06:19:39Z",
+        "path": "/Users/artemgrauberger/Library/Caches/grype/db/6/vulnerability.db",
+        "valid": true
+      },
+      "providers": {
+        "alma": { "captured": "2026-11-15T00:23:05Z", "input": "xxh64:66787c2858efc7ff" },
+        "alpine": { "captured": "2026-11-15T00:23:02Z", "input": "xxh64:e0e44e3a641d785d" },
+        "amazon": { "captured": "2026-11-15T00:23:08Z", "input": "xxh64:8c07f49d395f5562" },
+        "arch": { "captured": "2026-11-15T00:23:13Z", "input": "xxh64:db8b4998ab00141d" },
+        "bitnami": { "captured": "2026-11-15T00:23:15Z", "input": "xxh64:86509bf68da90029" },
+        "chainguard": { "captured": "2026-11-15T00:23:10Z", "input": "xxh64:4f46ad6f59b73e74" },
+        "chainguard-libraries": {
+          "captured": "2026-11-15T00:23:06Z",
+          "input": "xxh64:9af0f7af1581e02d"
+        },
+        "debian": { "captured": "2026-11-15T00:23:55Z", "input": "xxh64:86848175fedeacb3" },
+        "echo": { "captured": "2026-11-15T00:23:04Z", "input": "xxh64:06744ed3f9108311" },
+        "eol": { "captured": "2026-11-15T00:23:06Z", "input": "xxh64:a7ec31c80585f7ae" },
+        "epss": { "captured": "2026-11-15T00:23:13Z", "input": "xxh64:286c57121f9acf03" },
+        "fedora": { "captured": "2026-11-15T00:23:08Z", "input": "xxh64:a2c679da034fa4ac" },
+        "github": { "captured": "2026-11-15T00:23:23Z", "input": "xxh64:37a1f4c4efb08325" },
+        "govulndb": { "captured": "2026-11-15T00:23:15Z", "input": "xxh64:66490c654353472b" },
+        "hummingbird": { "captured": "2026-11-15T00:26:14Z", "input": "xxh64:a0e26b96324ff59a" },
+        "kev": { "captured": "2026-11-15T00:23:12Z", "input": "xxh64:4568728f33b4c2af" },
+        "mariner": { "captured": "2026-11-15T00:23:15Z", "input": "xxh64:64b488170f6c947c" },
+        "minimos": { "captured": "2026-11-15T00:23:07Z", "input": "xxh64:53a50171d85ce5db" },
+        "nvd": { "captured": "2026-11-15T00:24:38Z", "input": "xxh64:061aa35eec760ef3" },
+        "oracle": { "captured": "2026-11-15T00:23:15Z", "input": "xxh64:0719d876023dad58" },
+        "photon": { "captured": "2026-11-15T00:23:22Z", "input": "xxh64:a6b41779d3619690" },
+        "rhel": { "captured": "2026-11-15T00:24:40Z", "input": "xxh64:1053c5369852e30f" },
+        "secureos": { "captured": "2026-11-15T00:23:03Z", "input": "xxh64:a0a8347160466cdc" },
+        "sles": { "captured": "2026-11-15T00:25:23Z", "input": "xxh64:ccdc5171d000bcc9" },
+        "ubuntu": { "captured": "2026-11-15T01:30:42Z", "input": "xxh64:9c866d01d8bae104" },
+        "wolfi": { "captured": "2026-11-15T00:23:10Z", "input": "xxh64:fe8952b91086c579" }
+      }
+    },
+    "timestamp": "2026-11-15T22:22:12.529736+01:00"
+  }
+}

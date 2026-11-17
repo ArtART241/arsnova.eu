@@ -1,0 +1,388 @@
+ INFO zizmor: 🌈 zizmor v1.32.0
+ INFO audit: zizmor: 🌈 completed /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml
+ INFO audit: zizmor: 🌈 completed /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/codeql.yml
+ INFO audit: zizmor: 🌈 completed /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/deploy-landing.yml
+ INFO audit: zizmor: 🌈 completed /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/pr-template-gate.yml
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+  --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:65:9
+   |
+65 |         - name: Checkout
+   |  _________^
+66 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+67 | |         with:
+68 | |           fetch-depth: 0
+   | |________________________^ does not set persist-credentials: false
+   |
+   = note: audit confidence → Low
+   = note: this finding has an auto-fix
+   = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:132:9
+    |
+132 |         - name: Checkout
+    |  _________^
+133 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+    | |_______________________________________________________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:147:9
+    |
+147 |         - name: Checkout
+    |  _________^
+148 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+    | |_______________________________________________________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:264:9
+    |
+264 |         - name: Checkout
+    |  _________^
+265 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+266 | |         with:
+267 | |           fetch-depth: 0
+    | |________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:321:9
+    |
+321 |         - name: Checkout
+    |  _________^
+322 | |         if: needs.changes.outputs.docs_only != 'true'
+323 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+324 | |         with:
+325 | |           fetch-depth: 0
+    | |________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:415:9
+    |
+415 |         - name: Checkout
+    |  _________^
+416 | |         if: needs.changes.outputs.docs_only != 'true'
+417 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+    | |_______________________________________________________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:470:9
+    |
+470 |         - name: Checkout
+    |  _________^
+471 | |         if: needs.changes.outputs.docs_only != 'true'
+472 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+473 | |         with:
+474 | |           fetch-depth: 0
+    | |________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:557:9
+    |
+557 |         - name: Checkout
+    |  _________^
+558 | |         if: needs.changes.outputs.docs_only != 'true'
+559 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+    | |_______________________________________________________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:596:9
+    |
+596 |         - name: Checkout
+    |  _________^
+597 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+598 | |         with:
+599 | |           fetch-depth: 0
+    | |________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:652:9
+    |
+652 |         - name: Checkout
+    |  _________^
+653 | |         if: needs.changes.outputs.docs_only != 'true'
+654 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+    | |_______________________________________________________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:707:9
+    |
+707 |         - name: Checkout
+    |  _________^
+708 | |         if: needs.changes.outputs.docs_only != 'true'
+709 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+710 | |         with:
+711 | |           fetch-depth: 0
+    | |________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:897:9
+    |
+897 |         - name: Checkout
+    |  _________^
+898 | |         if: needs.changes.outputs.docs_only != 'true'
+899 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+    | |_______________________________________________________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+   --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:980:9
+    |
+980 |         - name: Checkout
+    |  _________^
+981 | |         if: needs.changes.outputs.docs_only != 'true'
+982 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+    | |_______________________________________________________________________^ does not set persist-credentials: false
+    |
+    = note: audit confidence → Low
+    = note: this finding has an auto-fix
+    = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1089:9
+     |
+1089 |         - name: Checkout
+     |  _________^
+1090 | |         if: needs.changes.outputs.docs_only != 'true'
+1091 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1266:9
+     |
+1266 |         - name: Checkout
+     |  _________^
+1267 | |         if: needs.changes.outputs.docs_only != 'true'
+1268 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1453:9
+     |
+1453 |         - name: Checkout
+     |  _________^
+1454 | |         if: needs.changes.outputs.docs_only != 'true'
+1455 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1627:9
+     |
+1627 |         - name: Checkout
+     |  _________^
+1628 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1766:9
+     |
+1766 |         - name: Checkout
+     |  _________^
+1767 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1846:9
+     |
+1846 |         - name: Checkout
+     |  _________^
+1847 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1868:9
+     |
+1868 |         - name: Checkout
+     |  _________^
+1869 | |         if: needs.changes.outputs.docs_only != 'true'
+1870 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1919:9
+     |
+1919 |         - name: Checkout
+     |  _________^
+1920 | |         if: needs.changes.outputs.docs_only != 'true'
+1921 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1998:9
+     |
+1998 |         - name: Checkout
+     |  _________^
+1999 | |         if: needs.changes.outputs.docs_only != 'true'
+2000 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:2066:9
+     |
+2066 |         - name: Checkout
+     |  _________^
+2067 | |         if: needs.changes.outputs.docs_only != 'true'
+2068 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:2401:9
+     |
+2401 |         - name: Checkout
+     |  _________^
+2402 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+     | |_______________________________________________________________________^ does not set persist-credentials: false
+     |
+     = note: audit confidence → Low
+     = note: this finding has an auto-fix
+     = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[archived-uses]: action or reusable workflow from archived repository
+    --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/ci.yml:1850:15
+     |
+1849 |       - name: Run k6 health load test against production
+     |         ------------------------------------------------ this step
+1850 |         uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec
+     |               ^^^^^^^^^^^^^^^^^ repository is archived
+     |
+     = note: audit confidence → High
+     = help: audit documentation → https://docs.zizmor.sh/audits/#archived-uses
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+  --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/codeql.yml:35:9
+   |
+35 |         - name: Checkout
+   |  _________^
+36 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+   | |_______________________________________________________________________^ does not set persist-credentials: false
+   |
+   = note: audit confidence → Low
+   = note: this finding has an auto-fix
+   = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+  --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/deploy-landing.yml:36:9
+   |
+36 |         - name: Checkout
+   |  _________^
+37 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+38 | |         with:
+39 | |           fetch-depth: 0
+   | |________________________^ does not set persist-credentials: false
+   |
+   = note: audit confidence → Low
+   = note: this finding has an auto-fix
+   = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+error[excessive-permissions]: overly broad permissions
+  --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/deploy-landing.yml:24:3
+   |
+24 |   pages: write
+   |   ^^^^^^^^^^^^ pages: write is overly broad at the workflow level
+   |
+   = note: audit confidence → High
+   = help: audit documentation → https://docs.zizmor.sh/audits/#excessive-permissions
+
+error[excessive-permissions]: overly broad permissions
+  --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/deploy-landing.yml:25:3
+   |
+25 |   id-token: write
+   |   ^^^^^^^^^^^^^^^ id-token: write is overly broad at the workflow level
+   |
+   = note: audit confidence → High
+   = help: audit documentation → https://docs.zizmor.sh/audits/#excessive-permissions
+
+warning[artipacked]: credential persistence through GitHub Actions artifacts
+  --> /private/tmp/claude-501/-Users-artemgrauberger-projects-arsnova-cc-arsnova-eu--claude-worktrees-arsnova-security-presentation-b206c1/22a79569-fd2b-4387-80a7-937d30fedd3b/scratchpad/delta-main/.github/workflows/pr-template-gate.yml:27:9
+   |
+27 |         - name: Checkout
+   |  _________^
+28 | |         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+   | |________________________________________________________________________________^ does not set persist-credentials: false
+   |
+   = note: audit confidence → Low
+   = note: this finding has an auto-fix
+   = help: audit documentation → https://docs.zizmor.sh/audits/#artipacked
+
+64 findings (34 suppressed, 27 unsafe fixes): 0 informational, 0 low, 28 medium, 2 high

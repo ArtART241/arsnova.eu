@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "contractVersion": "qa-summary-context-preview-v1",
+  "promptContext": {
+    "schemaVersion": 1,
+    "contractVersion": "moderation-prompt-context-v1",
+    "packedAt": "2026-11-16T14:55:52.923Z",
+    "hashAlgorithm": "sha-256",
+    "hashMaterialVersion": "moderation-prompt-hash-material-v1",
+    "snapshotHash": "ba809254cd42ea2bdf5aaa6b31a9d788ca7321600dad2d6bb8e90eb4ec556255",
+    "context": {
+      "contractVersion": "moderation-domain-context-v1",
+      "representation": "prompt-selection",
+      "definitionsVersion": "moderation-prompt-definitions-v1",
+      "locale": "de",
+      "meta": {
+        "sourceRevision": "moderation-source-revision-v1:c5c1bb25fb850d2c8816988ae5d50a5909cd2231c8074f48d7928f027047dbe8",
+        "analysisVersion": "moderation-analysis-builder-v1",
+        "selectionVersion": "moderation-prompt-selection-v1",
+        "revisions": {
+          "questionText": {
+            "state": "available",
+            "value": "qa-ranking-v1:6"
+          },
+          "questionVotes": {
+            "state": "available",
+            "value": "qa-ranking-v1:6:participants:6:6"
+          },
+          "questionStatus": {
+            "state": "available",
+            "value": "qa-ranking-v1:6"
+          },
+          "questionAnswerState": {
+            "state": "unavailable",
+            "reason": "not-collected"
+          },
+          "questionNlp": {
+            "state": "available",
+            "value": "qa-nlp:911defc166ea6fe71f69e8c584c200af4059d0342978e5b5965949e23b02b7b2"
+          },
+          "topics": {
+            "state": "not-applicable",
+            "reason": "Semantische Q&A-Themen sind serverseitig deaktiviert."
+          },
+          "learningObjectives": {
+            "state": "unavailable",
+            "reason": "not-collected"
+          },
+          "releasedResults": {
+            "state": "not-applicable",
+            "reason": "Released quiz results do not apply to this session."
+          },
+          "feedback": {
+            "state": "not-applicable",
+            "reason": "Quick feedback is disabled for this session."
+          }
+        }
+      },
+      "scope": {
+        "channels": ["qa"],
+        "sessionPhase": "LOBBY",
+        "questionFilter": {
+          "state": "available",
+          "statuses": ["PENDING", "ACTIVE", "PINNED"],
+          "timeWindow": {
+            "kind": "entire-session"
+          }
+        },
+        "activeWeighting": {
+          "kind": "qa-ranking",
+          "version": "qa-ranking-v1",
+          "sortMode": "BEST"
+        },
+        "selectionLimits": {
+          "questions": 200,
+          "topics": 30,
+          "compassSignals": 30,
+          "learningObjectives": 100,
+          "resultAggregates": 100,
+          "feedbackAggregates": 100
+        }
+      },
+      "questions": {
+        "state": "available",
+        "participantBasis": {
+          "state": "available",
+          "kind": "session-participant-record-count",
+          "value": 6,
+          "calculationVersion": "qa-ranking-v1"
+        },
+        "corpus": {
+          "total": 6,
+          "eligible": 6,
+          "analyzed": 6,
+          "deduplicated": 6,
+          "represented": 0
+        },
+        "items": []
+      },
+      "topics": {
+        "state": "disabled",
+        "reason": "Semantische Q&A-Themen sind serverseitig deaktiviert."
+      },
+      "compass": {
+        "state": "available",
+        "rulesVersion": "moderation-compass-rules-v1",
+        "signals": [],
+        "primarySignalSourceId": null
+      },
+      "learningContext": {
+        "state": "unavailable",
+        "reason": "not-collected"
+      },
+      "releasedResults": {
+        "state": "not-applicable",
+        "reason": "Released quiz results do not apply to this session."
+      },
+      "feedback": {
+        "state": "disabled",
+        "reason": "Quick feedback is disabled for this session."
+      },
+      "sources": [],
+      "limitations": [
+        {
+          "code": "module-disabled",
+          "section": "feedback",
+          "detail": "Quick feedback is disabled for this session."
+        },
+        {
+          "code": "module-disabled",
+          "section": "topics",
+          "detail": "Semantische Q&A-Themen sind serverseitig deaktiviert."
+        },
+        {
+          "code": "budget-truncated",
+          "section": "questions",
+          "detail": "6 item(s) were omitted by deterministic prompt packing."
+        },
+        {
+          "code": "budget-truncated",
+          "section": "compass",
+          "detail": "2 item(s) were omitted by deterministic prompt packing."
+        }
+      ]
+    },
+    "budget": {
+      "version": "moderation-prompt-budget-v1",
+      "tokenizer": {
+        "method": "conservative-estimate",
+        "id": "utf8-byte-upper-bound",
+        "version": "1"
+      },
+      "modelProfile": "qwen3-4b-instruct-2507-q4_k_m:ctx-4096:summary-v2",
+      "contextWindowTokens": 4096,
+      "instructionTokens": 314,
+      "definitionTokens": 203,
+      "dataTokens": 2770,
+      "packedInputTokens": 3287,
+      "reservedOutputTokens": 640,
+      "safetyMarginTokens": 128,
+      "truncations": [
+        {
+          "section": "questions",
+          "omittedItems": 6,
+          "reason": "token-budget"
+        },
+        {
+          "section": "compass",
+          "omittedItems": 2,
+          "reason": "token-budget"
+        }
+      ]
+    }
+  },
+  "instructionVersion": "qa-summary-technical-handoff-v1",
+  "definitionVersion": "moderation-prompt-definitions-v1",
+  "capabilities": {
+    "contractVersion": "qa-summary-adapter-capabilities-v1",
+    "adapterId": "arsnova-summary-adapter-v2",
+    "modes": [
+      {
+        "kind": "full-context",
+        "requestContract": "qa-summary-context-v2",
+        "outputContract": "qa-summary-model-output-v2",
+        "promptContextContract": "moderation-prompt-context-v1",
+        "definitionVersion": "moderation-prompt-definitions-v1"
+      },
+      {
+        "kind": "legacy-text"
+      }
+    ]
+  },
+  "selectedMode": "full-context",
+  "fallback": null,
+  "cache": "miss"
+}

@@ -1,0 +1,75 @@
+{
+  "mode": "variant",
+  "status": "completed",
+  "prepMs": 205,
+  "llmMs": 10387,
+  "budget": {
+    "version": "moderation-prompt-budget-v1",
+    "tokenizer": {
+      "method": "conservative-estimate",
+      "id": "utf8-byte-upper-bound",
+      "version": "1"
+    },
+    "modelProfile": "qwen3-4b-instruct-2507-q4_k_m:ctx-4096:summary-v2",
+    "contextWindowTokens": 4096,
+    "instructionTokens": 314,
+    "definitionTokens": 203,
+    "dataTokens": 2770,
+    "packedInputTokens": 3287,
+    "reservedOutputTokens": 640,
+    "safetyMarginTokens": 128,
+    "truncations": [
+      { "section": "questions", "omittedItems": 6, "reason": "token-budget" },
+      { "section": "compass", "omittedItems": 2, "reason": "token-budget" }
+    ]
+  },
+  "snapshotHash": "ba809254cd42ea2bdf5aaa6b31a9d788ca7321600dad2d6bb8e90eb4ec556255",
+  "packedQuestions": [],
+  "rawOutput": {
+    "status": "uncertain",
+    "statements": [],
+    "suggestedNextSteps": [],
+    "limitations": [
+      "Quick feedback is disabled for this session.",
+      "Semantische Q&A-Themen sind serverseitig deaktiviert.",
+      "6 item(s) were omitted by deterministic prompt packing.",
+      "2 item(s) were omitted by deterministic prompt packing."
+    ],
+    "modelVersion": "moderation-analysis-builder-v1"
+  },
+  "wire": {
+    "completionStatus": 200,
+    "completionContent": "{\n  \"schemaVersion\": 2,\n  \"taskType\": \"qa_summary\",\n  \"outputContract\": \"qa-summary-model-output-v2\",\n  \"output\": {\n    \"status\": \"uncertain\",\n    \"statements\": [],\n    \"suggestedNextSteps\": [],\n    \"limitations\": [\n      \"Quick feedback is disabled for this session.\",\n      \"Semantische Q&A-Themen sind serverseitig deaktiviert.\",\n      \"6 item(s) were omitted by deterministic prompt packing.\",\n      \"2 item(s) were omitted by deterministic prompt packing.\"\n    ],\n    \"modelVersion\": \"moderation-analysis-builder-v1\"\n  }\n}",
+    "finishReason": "stop",
+    "usage": {
+      "completion_tokens": 154,
+      "prompt_tokens": 832,
+      "total_tokens": 986,
+      "prompt_tokens_details": { "cached_tokens": 831 }
+    }
+  },
+  "sourceKinds": [],
+  "bound": {
+    "schemaVersion": 2,
+    "contractVersion": "qa-summary-result-v2",
+    "status": "uncertain",
+    "statements": [],
+    "suggestedNextSteps": [],
+    "limitations": [
+      "Quick feedback is disabled for this session.",
+      "Semantische Q&A-Themen sind serverseitig deaktiviert.",
+      "6 item(s) were omitted by deterministic prompt packing.",
+      "2 item(s) were omitted by deterministic prompt packing."
+    ],
+    "sources": [],
+    "modelVersion": "moderation-analysis-builder-v1",
+    "analyzedAt": "2026-11-16T14:55:35.367Z",
+    "snapshotHash": "ba809254cd42ea2bdf5aaa6b31a9d788ca7321600dad2d6bb8e90eb4ec556255",
+    "locale": "de",
+    "execution": {
+      "attemptedMode": "full-context",
+      "effectiveMode": "full-context",
+      "fallback": null
+    }
+  }
+}
